@@ -1,0 +1,64 @@
+# setup docker
+This is a repository for installing docker on compute instances of cloud service (AWS EC2).
+
+Install the latest version of docker on instances by `ansible`.
+
+## Requirements
+- ansible >= 2.10.0
+- ansible-playbook >= 2.10.0
+
+
+## Usage
+
+### Preparation
+Make sure that make a key pair for ssh and log in with ssh to a target instance from the machine where the ansible playbook will be run.
+
+### Install
+At first, clone this project.
+```
+git clone setup_docker
+cd setup_docker
+```
+
+Then, Edit `inventory` in top directory to set following variables accroding to your instance.
+
+- ansible_host: Global IPv4 address of an instance.
+- ansible_user: Username on an instance.
+- ansible_port: SSH port. Default to 22.
+- ansible_ssh_private_key_file: Path to the private key file on the host where run the playbook.
+- ansible_become_password: If run sudo command with a password on an instance, Set the password.
+
+To install with multiple instances at the same time, Set values for worker2, worker3 and more in the same way.
+
+```yaml
+---
+all:
+  children:
+    worker:
+      hosts:
+        worker1:
+          ansible_host: xx.xx.xx.xx
+          ansible_user: ubuntu
+          ansible_ssh_port: 22
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          ansible_become_password: xxxx
+        # worker2:
+          # ansible_host: xx.xx.xx.xx
+          # ....
+```
+
+
+### Install
+The following command will install the latest version of docker on your instances.
+
+```
+$ ansible-playbook install.yml
+```
+
+## Support distributions
+The following distribution (platform) instances are supported.
+
+- Ubuntu
+- Amazon linux
+- Rocky linux (rhel-clone os)
+    - Install `podman` instead of docker on RHEL-clone OS.

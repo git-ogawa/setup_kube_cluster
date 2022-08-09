@@ -1,0 +1,25 @@
+---
+- name: Uninstall previous docker version
+  yum:
+    name:
+      - docker
+      - containerd
+      - runc
+    state: absent
+  become: true
+
+- name: Install docker
+  yum:
+    name:
+      - docker
+      - containerd
+      - runc
+    state: present
+  become: true
+
+- name: Enable docker serveice
+  systemd:
+    name: docker
+    state: started
+    enabled: true
+  become: true

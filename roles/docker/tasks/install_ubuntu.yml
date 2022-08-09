@@ -1,0 +1,100 @@
+---
+- name: Uninstall previous docker version
+  apt:
+    name:
+      - docker
+      - docker-engine
+      - docker.io
+      - containerd
+      - runc
+    state: absent
+  become: true
+
+- name: Apt update
+  apt:
+    update_cache: true
+  become: true
+
+- name: Apt install packages necessary for docker
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      # - dbus-user-session
+    state: present
+  become: true
+
+- name: Add docker GPG key
+  become: true
+  block:
+    - name: mkdir /etc/apt/keyrings
+      file:
+        path: /etc/apt/keyrings
+        owner: root
+        group: root
+        mode: "0755"
+        state: directory
+        recurse: true
+
+    - name: Remove old gpg key
+      file:
+        path: "/etc/apt/keyrings/{{ item }}"
+        state: absent
+      loop:
+        - docker.gpg
+        - docker.gpg.tmp
+      become: true
+
+    - name: Download gpg key
+      get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.gpg.tmp
+      become: true
+
+    - name: Dearmor gpg key
+      command: sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg /etc/apt/keyrings/docker.gpg.tmp
+      changed_when: true
+      become: true
+
+    - name: Remove tmp gpg key
+      file:
+        path: /etc/apt/keyrings/docker.gpg.tmp
+        state: absent
+      become: true
+
+- name: Set node architecture
+  set_fact:
+    arch: "{{ [ansible_architecture] | map('extract', deb_architecture) | first }}"
+    codename: "{{ ansible_facts.lsb.codename }}"
+
+- name: Set up docker repository
+  apt_repository:
+    repo: "deb [arch={{ arch }} signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/{{ distribution }} {{ codename }} stable"
+    state: present
+    filename: docker
+  become: true
+
+- name: Apt update
+  apt:
+    update_cache: true
+  become: true
+
+- name: Install docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+  become: true
+
+- name: Enable docker serveice
+  systemd:
+    name: docker
+    state: started
+    enabled: true
+  become: true
