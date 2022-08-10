@@ -1,0 +1,21 @@
+---
+- name: Add kubernetes repository
+  yum_repository:
+    name: kubernetes
+    description: kubernetes
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
+    enabled: true
+    gpgcheck: true
+    gpgkey: >
+      https://packages.cloud.google.com/yum/doc/yum-key.gpg
+      https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+  become: true
+
+- name: Install kubernetes commands
+  dnf:
+    name:
+      - kubectl
+      - kubelet
+      - kubeadm
+    state: present
+  become: true

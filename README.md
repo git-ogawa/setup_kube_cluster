@@ -1,22 +1,25 @@
 # setup docker
-This is a repository for installing docker on compute instances of cloud service (AWS EC2).
+This is a repository for installing docker and kubernetes on compute instances of cloud service (AWS EC2).
 
-Install the latest version of docker on instances by `ansible`.
+Install the latest version of the following components on instances by `Ansible`.
 
-## Requirements
+- docker
+- kubernetes (CLI)
+
+# Requirements
 - ansible >= 2.10.0
 - ansible-playbook >= 2.10.0
 
 
-## Usage
+# Usage
 
-### Preparation
+## Preparation
 Make sure that make a key pair for ssh and log in with ssh to a target instance from the machine where the ansible playbook will be run.
 
-### Install
+
 At first, clone this project.
 ```
-git clone setup_docker
+git clone https://github.com/git-ogawa/setup_docker
 cd setup_docker
 ```
 
@@ -48,12 +51,36 @@ all:
 ```
 
 
-### Install
-The following command will install the latest version of docker on your instances.
+## Install
+Run the following command to install the latest version of components on your instances.
 
 ```
 $ ansible-playbook install.yml
 ```
+
+To install only specified component, use `-t` options
+```
+# Install only docker
+$ ansible-playbook install.yml -t docker
+
+# Install only kubernetes
+$ ansible-playbook install.yml -t kubernetes
+```
+
+
+### docker
+The latest version of the following components will be installed with package manager (apt, dnf).
+
+- docker
+- `podman` will be installed instead of docker on RHEL-clone OS (such as Rocky linux).
+
+
+### kubernetes
+The latest version of the following components will be installed with package manager (apt, dnf).
+
+- kubelet
+- kubectl
+- kubeadm
 
 ## Support distributions
 The following distribution (platform) instances are supported.
@@ -61,4 +88,3 @@ The following distribution (platform) instances are supported.
 - Ubuntu
 - Amazon linux
 - Rocky linux (rhel-clone os)
-    - Install `podman` instead of docker on RHEL-clone OS.
