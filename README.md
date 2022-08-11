@@ -1,15 +1,15 @@
 # setup docker
 This is a repository for installing docker and kubernetes on compute instances of cloud service (AWS EC2).
 
-Install the latest version of the following components on instances by `Ansible`.
+You can install (or create) the following components on instances by `Ansible`.
 
 - docker
 - kubernetes (CLI)
+- kubernetes cluster with kubeadm
 
 # Requirements
 - ansible >= 2.10.0
 - ansible-playbook >= 2.10.0
-
 
 # Usage
 
@@ -81,6 +81,12 @@ The latest version of the following components will be installed with package ma
 - kubelet
 - kubectl
 - kubeadm
+
+
+### Kubernetes cluster
+Create a kubernetes cluster with kubeadm. See [setup_cluster.md](docs/setup_cluster.md) for details.
+
+
 
 ## Support distributions
 The following distribution (platform) instances are supported.

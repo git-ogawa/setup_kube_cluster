@@ -1,0 +1,53 @@
+---
+- name: Add worker nodes to cluster
+  hosts: controller
+  gather_facts: true
+  tasks:
+    - name: Generate token
+      command: kubeadm token create
+      register: result
+
+    - name: Set token
+      set_fact:
+        token: "{{ result.stdout }}"
+
+    - name: Get ca-cert-hash
+      shell: >
+        openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt |
+        openssl rsa -pubin -outform der 2>/dev/null |
+        openssl dgst -sha256 -hex | sed 's/^.* //'
+      register: result
+
+    - name: Set hash
+      set_fact:
+        hash: "{{ result.stdout }}"
+
+    - name: debug
+      debug:
+        var: controller_ipv4
+
+    - name: "Start kubelet"
+      systemd:
+        name: kubelet
+        state: started
+        enabled: true
+      become: true
+      delegate_to: "{{ node }}"
+      loop: "{{ groups['worker'] }}"
+      loop_control:
+        loop_var: node
+
+    - name: "Add worker node"
+      command: >
+        kubeadm join {{ ansible_facts.default_ipv4.address }}:6443
+        --discovery-token {{ token }}
+        --discovery-token-ca-cert-hash sha256:{{ hash }}
+      become: true
+      delegate_to: "{{ node }}"
+      loop: "{{ groups.worker }}"
+      loop_control:
+        loop_var: node
+
+    - name: Remove the token on controller
+      command: "kubeadm token delete {{ token }}"
+      changed_when: true

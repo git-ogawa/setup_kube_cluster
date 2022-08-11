@@ -1,0 +1,65 @@
+---
+- name: Copy modules_k8s.conf
+  copy:
+    src: modules_k8s.conf
+    dest: /etc/modules-load.d/k8s.conf
+    mode: "0644"
+    owner: root
+    group: root
+  become: true
+
+- name: Modprobe
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  become: true
+  loop:
+    - overlay
+    - br_netfilter
+
+- name: Copy sysctl_k8s.conf
+  copy:
+    src: sysctl_k8s.conf
+    dest: /etc/sysctl.d/k8s.conf
+    mode: "0644"
+    owner: root
+    group: root
+  become: true
+
+- name: Reload sysctl
+  command: sysctl --system
+  changed_when: true
+  become: true
+
+- name: Add repository
+  yum_repository:
+    name: docker-ce
+    description: Docker CE Stable - $basearch
+    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+    enabled: true
+    gpgcheck: true
+    gpgkey: https://download.docker.com/linux/centos/gpg
+  become: true
+
+- name: Install containerd
+  dnf:
+    name: containerd.io
+    state: present
+  become: true
+
+- name: Copy /etc/containerd/config.toml
+  copy:
+    src: containerd_config.toml
+    dest: /etc/containerd/config.toml
+    mode: "0644"
+    owner: root
+    group: root
+  become: true
+
+- name: Restart containerd
+  systemd:
+    name: containerd
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  become: true

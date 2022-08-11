@@ -1,0 +1,23 @@
+---
+- name: Make working directory
+  file:
+    path: "{{ working }}"
+    state: directory
+    mode: "0755"
+
+- name: Download flannel manifest
+  get_url:
+    url: |
+      https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+    dest: "{{ working }}/kube-flannel.yml"
+    mode: "0644"
+
+- name: Deploy flannel
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ working }}/kube-flannel.yml"
+
+- name: Delete working directory
+  file:
+    path: "{{ working }}"
+    state: absent

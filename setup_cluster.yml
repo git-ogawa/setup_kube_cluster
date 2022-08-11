@@ -1,0 +1,28 @@
+---
+- name: Install CRI
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Install dependencies
+      import_role:
+        name: setup_cluster
+        tasks_from: install_dependency
+
+    - name: Install CRI
+      import_role:
+        name: setup_cluster
+        tasks_from: install_cri
+
+- name: Setup kubernetes cluster with kubeadm
+  hosts: controller
+  gather_facts: false
+  tasks:
+    - name: Kubeadm init
+      import_role:
+        name: setup_cluster
+        tasks_from: kubeadm_init
+
+    - name: Install CNI
+      import_role:
+        name: setup_cluster
+        tasks_from: install_cni

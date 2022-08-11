@@ -1,0 +1,3 @@
+---
+pod_network_cidr: "10.244.0.0/16"
+working: "/home/{{ ansible_user }}/kubernetes_working"
