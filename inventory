@@ -1,6 +1,13 @@
 ---
 all:
   children:
+    # control_plane:
+    #   hosts:
+    #     controller:
+    #       ansible_host: 35.78.70.178
+    #       ansible_user: rocky
+    #       ansible_ssh_port: 22
+    #       ansible_ssh_private_key_file: ~/.ssh/id_rsa
     worker:
       hosts:
         worker1:

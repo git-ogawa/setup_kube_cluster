@@ -1,53 +1,45 @@
 ---
-- name: Add worker nodes to cluster
+- name: Get cluster token and ca.crt hash
   hosts: controller
   gather_facts: true
   tasks:
     - name: Generate token
       command: kubeadm token create
-      register: result
-
-    - name: Set token
-      set_fact:
-        token: "{{ result.stdout }}"
+      register: token
 
     - name: Get ca-cert-hash
       shell: >
         openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt |
         openssl rsa -pubin -outform der 2>/dev/null |
         openssl dgst -sha256 -hex | sed 's/^.* //'
-      register: result
+      register: hash
 
-    - name: Set hash
-      set_fact:
-        hash: "{{ result.stdout }}"
-
-    - name: debug
-      debug:
-        var: controller_ipv4
-
+- name: Add worker nodes to cluster
+  hosts: worker
+  gather_facts: false
+  tasks:
     - name: "Start kubelet"
       systemd:
         name: kubelet
         state: started
         enabled: true
       become: true
-      delegate_to: "{{ node }}"
-      loop: "{{ groups['worker'] }}"
-      loop_control:
-        loop_var: node
 
-    - name: "Add worker node"
+    - name: Add worker node
       command: >
-        kubeadm join {{ ansible_facts.default_ipv4.address }}:6443
-        --discovery-token {{ token }}
-        --discovery-token-ca-cert-hash sha256:{{ hash }}
+        kubeadm join {{ hostvars[controller].ansible_facts.eth0.ipv4.address }}:6443
+        --discovery-token {{ hostvars[controller].token.stdout }}
+        --discovery-token-ca-cert-hash sha256:{{ hostvars[controller].hash.stdout }}
       become: true
-      delegate_to: "{{ node }}"
-      loop: "{{ groups.worker }}"
-      loop_control:
-        loop_var: node
+      vars:
+        controller: "{{ groups.control_plane[0] }}"
 
-    - name: Remove the token on controller
-      command: "kubeadm token delete {{ token }}"
+- name: Delete the token
+  hosts: controller
+  gather_facts: false
+  tasks:
+    - name: Delete the token on controller
+      command: "kubeadm token delete {{ hostvars[controller].token.stdout }}"
       changed_when: true
+      vars:
+        controller: "{{ groups.control_plane[0] }}"

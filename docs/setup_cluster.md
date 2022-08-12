@@ -14,7 +14,7 @@ It is recommended to use the project for development environment.
 # Requirements
 - At least one instance for contorol-plane is required. The number of worker node is optional.
 - Instance type have to be more than 2 GiB RAM and 2 vCPU. ([Requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#before-you-begin))
-
+- Check that [the required ports](https://kubernetes.io/docs/reference/ports-and-protocols/) are open in security group.
 - [Ansible kubernets.core modules](https://galaxy.ansible.com/kubernetes/core?extIdCarryOver=true&sc_cid=701f2000001OH6uAAG) must be installed on machine running the playbook. If you don't install yet, install with `ansible-galaxy collection install kubernetes.core`.
 
 
@@ -74,7 +74,7 @@ NAME                                               STATUS   ROLES           AGE 
 ip-172-31-15-107.ap-northeast-1.compute.internal   Ready    control-plane   2m25s   v1.24.3
 ```
 
-## Add worker node to cluster (optional)
+## Add worker nodes to cluster (optional)
 
 Run the following command to create kubernetes cluster on controller.
 ```
@@ -90,4 +90,4 @@ ip-172-31-15-107.ap-northeast-1.compute.internal   Ready    control-plane   2m25
 ```
 
 ## Support distributions
-- rhel-based distribution (such as Rocky linux)
+- RHEL-based distribution (such as Rocky linux)

@@ -93,4 +93,4 @@ The following distribution (platform) instances are supported.
 
 - Ubuntu
 - Amazon linux
-- Rocky linux (rhel-clone os)
+- RHEL-based distribution (such as rocky linux)
