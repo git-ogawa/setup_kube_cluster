@@ -1,0 +1,34 @@
+---
+- name: Make working directory
+  file:
+    path: "{{ working }}"
+    state: directory
+    mode: "0755"
+
+- name: Download nginx ingress controller manifest
+  get_url:
+    url: |
+      https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v{{ nginx_ingress_version }}/deploy/static/provider/cloud/deploy.yaml
+    dest: "{{ working }}/deploy.yml"
+    mode: "0644"
+
+- name: Deploy nginx ingress controller
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ working }}/deploy.yml"
+
+- name: Put service manifest
+  template:
+    src: nginx_service.yml.j2
+    dest: "{{ working }}/nginx_service.yml"
+    mode: "0644"
+
+- name: Override nginx ingress controller service manifest
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ working }}/nginx_service.yml"
+
+- name: Delete working directory
+  file:
+    path: "{{ working }}"
+    state: absent

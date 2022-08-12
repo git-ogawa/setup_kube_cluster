@@ -1,0 +1,9 @@
+---
+- name: Deploy nignx ingress controller
+  hosts: controller
+  gather_facts: false
+  tasks:
+    - name: deploy
+      import_role:
+        name: setup_cluster
+        tasks_from: deploy_ingress
