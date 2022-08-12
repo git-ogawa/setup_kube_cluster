@@ -1,11 +1,27 @@
-# setup docker
-This is a repository for installing docker and kubernetes on compute instances of cloud service (AWS EC2).
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=2 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [setup ec2](#setup-ec2)
+- [Requirements](#requirements)
+- [Usage](#usage)
+  - [Preparation](#preparation)
+  - [Install commands](#install-commands)
+  - [Kubernetes cluster](#kubernetes-cluster)
+- [Support distributions](#support-distributions)
+
+<!-- /code_chunk_output -->
+
+# setup ec2
+This is a repository for set up compute instances of cloud service (AWS EC2).
 
 You can install (or create) the following components on instances by `Ansible`.
 
 - docker
 - kubernetes (CLI)
 - kubernetes cluster with kubeadm
+    - nginx ingress controller
 
 # Requirements
 - ansible >= 2.10.0
@@ -19,8 +35,8 @@ Make sure that make a key pair for ssh and log in with ssh to a target instance 
 
 At first, clone this project.
 ```
-git clone https://github.com/git-ogawa/setup_docker
-cd setup_docker
+git clone https://github.com/git-ogawa/setup_ec2
+cd setup_ec2
 ```
 
 Then, Edit `inventory` in top directory to set following variables accroding to your instance.
@@ -51,8 +67,8 @@ all:
 ```
 
 
-## Install
-Run the following command to install the latest version of components on your instances.
+## Install commands
+To install CLI commands (docker, kubernetes) of components on your instances, run the following playbook.
 
 ```
 $ ansible-playbook install.yml
@@ -83,14 +99,16 @@ The latest version of the following components will be installed with package ma
 - kubeadm
 
 
-### Kubernetes cluster
+## Kubernetes cluster
 Create a kubernetes cluster with kubeadm. See [setup_cluster.md](docs/setup_cluster.md) for details.
 
 
 
-## Support distributions
+# Support distributions
 The following distribution (platform) instances are supported.
 
-- Ubuntu
-- Amazon linux
 - RHEL-based distribution (such as rocky linux)
+- Ubuntu
+  - Supported only to install commands
+- Amazon linux
+  - Supported only to install commands
