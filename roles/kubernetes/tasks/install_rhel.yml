@@ -1,6 +1,6 @@
 ---
 - name: Add kubernetes repository
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: kubernetes
     description: kubernetes
     baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
@@ -12,7 +12,7 @@
   become: true
 
 - name: Install kubernetes commands
-  dnf:
+  ansible.builtin.dnf:
     name:
       - kubectl
       - kubelet

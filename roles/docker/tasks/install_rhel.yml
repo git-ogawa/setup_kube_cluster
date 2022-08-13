@@ -1,13 +1,13 @@
 ---
 - name: Uninstall previous docker version
-  dnf:
+  ansible.builtin.dnf:
     name:
       - podman-docker
     state: absent
   become: true
 
 - name: Add docker repository
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: docker-ce
     description: Docker CE Stable - $basearch
     baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
@@ -17,14 +17,14 @@
   become: true
 
 - name: Install podman docker
-  dnf:
+  ansible.builtin.dnf:
     name:
       - podman-docker
     state: present
   become: true
 
 - name: Enable podman serveice
-  systemd:
+  ansible.builtin.systemd:
     name: podman
     state: started
     enabled: true

@@ -1,6 +1,6 @@
 ---
 - name: Copy modules_k8s.conf
-  copy:
+  ansible.builtin.copy:
     src: modules_k8s.conf
     dest: /etc/modules-load.d/k8s.conf
     mode: "0644"
@@ -18,7 +18,7 @@
     - br_netfilter
 
 - name: Copy sysctl_k8s.conf
-  copy:
+  ansible.builtin.copy:
     src: sysctl_k8s.conf
     dest: /etc/sysctl.d/k8s.conf
     mode: "0644"
@@ -27,12 +27,12 @@
   become: true
 
 - name: Reload sysctl
-  command: sysctl --system
+  ansible.builtin.command: sysctl --system
   changed_when: true
   become: true
 
 - name: Add repository
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: docker-ce
     description: Docker CE Stable - $basearch
     baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
@@ -42,13 +42,13 @@
   become: true
 
 - name: Install containerd
-  dnf:
+  ansible.builtin.dnf:
     name: containerd.io
     state: present
   become: true
 
 - name: Copy /etc/containerd/config.toml
-  copy:
+  ansible.builtin.copy:
     src: containerd_config.toml
     dest: /etc/containerd/config.toml
     mode: "0644"
@@ -57,7 +57,7 @@
   become: true
 
 - name: Restart containerd
-  systemd:
+  ansible.builtin.systemd:
     name: containerd
     state: restarted
     enabled: true

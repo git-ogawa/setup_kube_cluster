@@ -1,12 +1,12 @@
 ---
 - name: Make working directory
-  file:
+  ansible.builtin.file:
     path: "{{ working }}"
     state: directory
     mode: "0755"
 
 - name: Put example app manifest
-  template:
+  ansible.builtin.template:
     src: example_nginx.yml.j2
     dest: "{{ working }}/example_nginx.yml"
     mode: "0644"
@@ -26,6 +26,6 @@
   when: example_app_state == "absent"
 
 - name: Delete working directory
-  file:
+  ansible.builtin.file:
     path: "{{ working }}"
     state: absent

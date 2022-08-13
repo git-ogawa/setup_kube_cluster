@@ -1,6 +1,6 @@
 ---
 - name: Check distribution
-  set_fact:
+  ansible.builtin.set_fact:
     distribution: "{{ ansible_facts.distribution | lower }}"
     family: "{{ ansible_facts.distribution_file_variety | lower }}"
 

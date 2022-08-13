@@ -1,6 +1,6 @@
 ---
 - name: Uninstall previous docker version
-  yum:
+  ansible.builtin.yum:
     name:
       - docker
       - containerd
@@ -9,7 +9,7 @@
   become: true
 
 - name: Install docker
-  yum:
+  ansible.builtin.yum:
     name:
       - docker
       - containerd
@@ -18,7 +18,7 @@
   become: true
 
 - name: Enable docker serveice
-  systemd:
+  ansible.builtin.systemd:
     name: docker
     state: started
     enabled: true

@@ -1,11 +1,11 @@
 ---
 - name: Apt update
-  apt:
+  ansible.builtin.apt:
     update_cache: true
   become: true
 
 - name: Install dependencies
-  apt:
+  ansible.builtin.apt:
     name:
       - apt-transport-https
       - curl
@@ -14,13 +14,14 @@
   become: true
 
 - name: Download the Google Cloud public signing key
-  get_url:
+  ansible.builtin.get_url:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     dest: /usr/share/keyrings/kubernetes-archive-keyring.gpg
+    mode: "0644"
   become: true
 
 - name: Add kubernetes repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: >
       deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg]
       https://apt.kubernetes.io/ kubernetes-xenial main
@@ -29,12 +30,12 @@
   become: true
 
 - name: Apt update
-  apt:
+  ansible.builtin.apt:
     update_cache: true
   become: true
 
 - name: Install kubernetes commands
-  apt:
+  ansible.builtin.apt:
     name:
       - kubectl
       - kubelet
@@ -43,7 +44,7 @@
   become: true
 
 - name: Hold kubernetes commands to be upgraded
-  dpkg_selections:
+  ansible.builtin.dpkg_selections:
     name: "{{ item }}"
     selection: hold
   become: true

@@ -1,6 +1,6 @@
 ---
 - name: Install python3.9 and pip
-  dnf:
+  ansible.builtin.dnf:
     name:
       - python39
       - python39-pip
@@ -8,7 +8,7 @@
   become: true
 
 - name: Install python dependencies
-  pip:
+  ansible.builtin.pip:
     name:
       - kubernetes >= 12.0.0
       - pyyaml >= 3.11

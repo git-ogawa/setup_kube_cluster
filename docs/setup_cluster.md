@@ -11,6 +11,7 @@
   - [Add worker nodes to cluster (optional)](#add-worker-nodes-to-cluster-optional)
   - [Deploy ingress controller](#deploy-ingress-controller)
     - [Access from outside cluster](#access-from-outside-cluster)
+  - [Cleanup cluster](#cleanup-cluster)
 - [Support distributions](#support-distributions)
 
 <!-- /code_chunk_output -->
@@ -153,6 +154,12 @@ To delete the app from the cluster, run the same playbook with `-e example_app_s
 $ ansible-playbook setup_example_app.yml -e example_app_state=absent
 ```
 
+## Clean up cluster
+To clean up the cluster, run the `cleanup_cluster.yml`. This play runs `kubeadm reset` on workers and controller.
+
+```
+$ ansible-playbook cleanup_cluster.yml
+```
 
 # Support distributions
 - RHEL-based distribution (such as Rocky linux)

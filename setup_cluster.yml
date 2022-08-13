@@ -11,7 +11,7 @@
     - name: Install CRI
       import_role:
         name: setup_cluster
-        tasks_from: install_cri
+        tasks_from: deploy_cri
 
 - name: Setup kubernetes cluster with kubeadm
   hosts: controller
@@ -25,4 +25,4 @@
     - name: Install CNI
       import_role:
         name: setup_cluster
-        tasks_from: install_cni
+        tasks_from: deploy_cni

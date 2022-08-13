@@ -1,0 +1,24 @@
+---
+- name: Clean up on worker nodes
+  hosts: worker
+  gather_facts: false
+  tasks:
+    - name: Clean up node
+      ansible.builtin.command: kubeadm reset --force
+      changed_when: true
+      become: true
+
+- name: Clean up on controller
+  hosts: controller
+  gather_facts: false
+  tasks:
+    - name: Clean up control plane
+      ansible.builtin.command: kubeadm reset --force
+      changed_when: true
+      become: true
+
+    - name: Delete flannel interface
+      ansible.builtin.command: ip link delete flannel.1
+      changed_when: true
+      become: true
+      ignore_errors: true

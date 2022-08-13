@@ -1,15 +1,16 @@
 ---
 - name: Disable swap
-  command: swapoff -a
+  ansible.builtin.command: swapoff -a
   changed_when: true
 
 - name: kubeadm init
-  command: kubeadm init --pod-network-cidr={{ pod_network_cidr }}
+  ansible.builtin.command: |
+    kubeadm init --pod-network-cidr={{ pod_network_cidr }}
   changed_when: true
   become: true
 
 - name: Create ~/.kube
-  file:
+  ansible.builtin.file:
     path: "/home/{{ ansible_user }}/.kube"
     state: directory
     mode: "0755"
@@ -17,7 +18,7 @@
     group: "{{ ansible_user }}"
 
 - name: Copy admin.conf to ~/.kube/config
-  copy:
+  ansible.builtin.copy:
     src: /etc/kubernetes/admin.conf
     dest: "/home/{{ ansible_user }}/.kube/config"
     mode: "0600"
