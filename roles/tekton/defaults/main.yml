@@ -1,0 +1,6 @@
+---
+working: "/home/{{ ansible_user }}/tekton_working"
+tekton_namespace: tekton-pipelines
+
+cli_repository_release: https://github.com/tektoncd/cli/releases/download
+cli_version: "0.25.0"

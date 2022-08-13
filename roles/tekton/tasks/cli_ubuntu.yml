@@ -1,0 +1,5 @@
+---
+- name: Install tekton CLI
+  ansible.builtin.apt:
+    deb: "{{ cli_repository_release }}/v{{ cli_version }}/tektoncd-cli-{{ cli_version }}_Linux-64bit.deb"
+  become: true

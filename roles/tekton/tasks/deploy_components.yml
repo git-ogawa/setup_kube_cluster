@@ -1,0 +1,37 @@
+---
+- name: Make working directory
+  ansible.builtin.file:
+    path: "{{ working }}"
+    state: directory
+    mode: "0755"
+
+- name: Download tekton component manifests
+  ansible.builtin.get_url:
+    url: "https://storage.googleapis.com/tekton-releases/{{ item.name }}"
+    dest: "{{ working }}/{{ item.dest }}"
+    mode: "0644"
+  loop:
+    - name: pipeline/latest/release.yaml
+      dest: pipeline.yml
+    - name: dashboard/latest/tekton-dashboard-release.yaml
+      dest: dashboard.yml
+    - name: triggers/latest/release.yaml
+      dest: triggers.yml
+    - name: triggers/latest/interceptors.yaml
+      dest: interceptors.yml
+
+- name: Deploy tekton components
+  kubernetes.core.k8s:
+    src: "{{ working }}/{{ item }}"
+    state: present
+    namespace: "{{ tekton_namespace }}"
+  loop:
+    - pipeline.yml
+    - dashboard.yml
+    - triggers.yml
+    - interceptors.yml
+
+- name: Delete working directory
+  ansible.builtin.file:
+    path: "{{ working }}"
+    state: absent

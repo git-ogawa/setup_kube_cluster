@@ -1,0 +1,7 @@
+---
+- name: Install tekton CLI
+  ansible.builtin.dnf:
+    name: "{{ cli_repository_release }}/v{{ cli_version }}/tektoncd-cli-{{ cli_version }}_Linux-64bit.rpm"
+    state: present
+    disable_gpg_check: true
+  become: true

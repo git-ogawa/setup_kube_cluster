@@ -9,6 +9,7 @@
   - [Preparation](#preparation)
   - [Install commands](#install-commands)
   - [Kubernetes cluster](#kubernetes-cluster)
+  - [Tekton](#tekton)
 - [Support distributions](#support-distributions)
 
 <!-- /code_chunk_output -->
@@ -22,6 +23,7 @@ You can install (or create) the following components on instances by `Ansible`.
 - kubernetes (CLI)
 - kubernetes cluster with kubeadm
     - nginx ingress controller
+    - tekton
 
 # Requirements
 - ansible >= 2.10.0
@@ -103,6 +105,8 @@ The latest version of the following components will be installed with package ma
 Create a kubernetes cluster with kubeadm. See [setup_cluster.md](docs/setup_cluster.md) for details.
 
 
+## Tekton
+Deploy tekton components to a cluster. See [setup_cluster.md](docs/setup_cluster.md#tekton-optional) for details.
 
 # Support distributions
 The following distribution (platform) instances are supported.

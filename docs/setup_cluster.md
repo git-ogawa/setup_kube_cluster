@@ -11,7 +11,8 @@
   - [Add worker nodes to cluster (optional)](#add-worker-nodes-to-cluster-optional)
   - [Deploy ingress controller](#deploy-ingress-controller)
     - [Access from outside cluster](#access-from-outside-cluster)
-  - [Cleanup cluster](#cleanup-cluster)
+  - [Tekton (optional)](#tekton-optional)
+  - [Clean up cluster](#clean-up-cluster)
 - [Support distributions](#support-distributions)
 
 <!-- /code_chunk_output -->
@@ -153,6 +154,20 @@ To delete the app from the cluster, run the same playbook with `-e example_app_s
 ```
 $ ansible-playbook setup_example_app.yml -e example_app_state=absent
 ```
+
+## Tekton (optional)
+Deploy the following tekton components to a cluster.
+
+- pipeline
+- dashboard
+- triggers and its dependencies
+- tekton CLI (tkn)
+
+To deploy, Run the play `setup_tekton.yml`.
+```
+$ ansible-playbook setup_tekton.yml
+```
+
 
 ## Clean up cluster
 To clean up the cluster, run the `cleanup_cluster.yml`. This play runs `kubeadm reset` on workers and controller.
