@@ -1,0 +1,83 @@
+---
+name: Test ansible-playbooks
+
+on:
+  workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_DEFAULT_REGION:
+        required: true
+      AWS_SSH_KEY:
+        required: true
+      EC2_CONTROLLER_TAG:
+        required: true
+      EC2_WORKER1_TAG:
+        required: true
+
+jobs:
+  check_playbooks:
+    runs-on: ubuntu-latest
+    name: check playbooks
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Get instances public ip
+        run: |
+          testdata/aws_public_ip.sh ${{ secrets.EC2_CONTROLLER_TAG }}
+          testdata/aws_public_ip.sh ${{ secrets.EC2_WORKER1_TAG }}
+          echo "CONTROLLER_IP=$(cat ${{ secrets.EC2_CONTROLLER_TAG }}_ip.txt)" >> $GITHUB_ENV
+          echo "WORKER1_IP=$(cat ${{ secrets.EC2_WORKER1_TAG }}_ip.txt)" >> $GITHUB_ENV
+
+      - name: Set up inventory and settings for connection
+        run: |
+          sed -i "s/controller_ip/${{ env.CONTROLLER_IP }}/" testdata/inventory
+          sed -i "s/worker1_ip/${{ env.WORKER1_IP }}/" testdata/inventory
+          sed -i "s/= inventory/= testdata\/inventory/" ansible.cfg
+          echo "${{ secrets.AWS_SSH_KEY }}" >> ~/.ssh_key.pem && chmod 400 ~/.ssh_key.pem
+          echo "ANSIBLE_HOST_KEY_CHECKING=False" >> $GITHUB_ENV
+
+      - name: Cehck ssh connection
+        run: |
+          bash testdata/aws_ssh_check.sh rocky ${{ env.CONTROLLER_IP }} ~/.ssh_key.pem
+          bash testdata/aws_ssh_check.sh ec2-user ${{ env.WORKER1_IP }} ~/.ssh_key.pem
+
+      - name: Install kubernetes commands
+        run: ansible-playbook install.yml -t kubernetes
+
+      - name: Create cluster
+        run: ansible-playbook setup_cluster.yml
+        if: ${{ success() }}
+
+      - name: Add worker node
+        run: ansible-playbook add_worker.yml
+        if: ${{ success() }}
+
+      - name: Deploy ingress controller
+        run: ansible-playbook setup_ingress_controller.yml
+        if: ${{ success() }}
+
+      - name: Check nodes
+        run: >
+          ssh -i ~/.ssh_key.pem rocky@${{ env.CONTROLLER_IP }}
+          kubectl get node -o wide
+        if: ${{ success() }}
+
+      - name: Check pods
+        run: >
+          ssh -i ~/.ssh_key.pem rocky@${{ env.CONTROLLER_IP }}
+          kubectl get pods -A
+        if: ${{ success() }}
+
+      - name: Clean up the cluster
+        run: ansible-playbook cleanup_cluster.yml
+        if: ${{ always() }}
