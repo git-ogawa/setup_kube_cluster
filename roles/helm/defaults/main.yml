@@ -1,0 +1,3 @@
+---
+helm_key_path: /usr/share/keyrings/helm.gpg
+helm_version: latest

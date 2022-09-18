@@ -1,0 +1,16 @@
+---
+# Install helm with dnf
+- name: Install the latest helm
+  ansible.builtin.dnf:
+    name: helm
+    state: present
+  become: true
+  when: helm_version == "latest"
+
+- name: "Install helm version {{ helm_version }}"
+  ansible.builtin.dnf:
+    name: helm={{ helm_version }}
+    state: present
+    allow_downgrade: true
+  become: true
+  when: helm_version != "latest"

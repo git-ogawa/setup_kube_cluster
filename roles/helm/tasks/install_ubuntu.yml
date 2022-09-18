@@ -1,0 +1,56 @@
+---
+# Install helm with apt
+- name: Download key
+  ansible.builtin.get_url:
+    url: https://baltocdn.com/helm/signing.asc
+    dest: /tmp/helm_signing.asc
+    mode: "0644"
+  become: true
+
+- name: Remove current key if exists
+  ansible.builtin.file:
+    path: "{{ helm_key_path }}"
+    state: absent
+  become: true
+
+- name: Dearmor gpg key
+  ansible.builtin.command: |
+    sudo gpg --dearmor -o {{ helm_key_path }} /tmp/helm_signing.asc
+  changed_when: true
+  become: true
+
+- name: Remove tmp key
+  ansible.builtin.file:
+    path: /tmp/helm_signing.asc
+    state: absent
+  become: true
+
+- name: Set up helm repository
+  ansible.builtin.apt_repository:
+    repo: >
+      deb [arch={{ arch }} signed-by={{ helm_key_path }}]
+      https://baltocdn.com/helm/stable/debian/ all main
+    state: present
+    filename: helm-stable-debian
+  become: true
+
+- name: Apt update
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+
+- name: Install the latest helm
+  ansible.builtin.apt:
+    name: helm
+    state: present
+  become: true
+  when: helm_version == "latest"
+
+- name: "Install helm version {{ helm_version }}"
+  ansible.builtin.apt:
+    name: helm={{ helm_version }}
+    state: present
+    allow_downgrade: true
+    allow_change_held_packages: true
+  become: true
+  when: helm_version != "latest"
