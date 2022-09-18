@@ -1,0 +1,32 @@
+---
+- name: Deploy tekton components
+  hosts: controller
+  gather_facts: false
+  roles:
+    - role: tekton
+      tags: tekton
+
+- name: Install tekton cli
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Check distribution
+      ansible.builtin.set_fact:
+        distribution: "{{ ansible_facts.distribution | lower }}"
+        family: "{{ ansible_facts.distribution_file_variety | lower }}"
+
+    - name: Install cli for rhel-like distribution
+      ansible.builtin.import_role:
+        name: tekton
+        tasks_from: cli_rhel
+      when: family == "redhat"
+      vars:
+        architecture: "{{ ansible_facts.architecture }}"
+
+    - name: Install cli for ubuntu
+      ansible.builtin.import_role:
+        name: tekton
+        tasks_from: cli_ubuntu
+      when: family != "redhat"
+      vars:
+        architecture: "{{ ansible_facts.architecture }}"
