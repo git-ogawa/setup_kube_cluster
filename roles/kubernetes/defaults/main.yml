@@ -1,2 +1,2 @@
 ---
-distribution: ubuntu
+kubernetes_version: latest

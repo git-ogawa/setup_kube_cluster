@@ -1,0 +1,34 @@
+---
+# Common settings for Kubernetes nodes on Linux.
+# https://kubernetes.io/docs/setup/production-environment/container-runtimes/#install-and-configure-prerequisites
+- name: Copy modules_k8s.conf
+  ansible.builtin.copy:
+    src: modules_k8s.conf
+    dest: /etc/modules-load.d/k8s.conf
+    mode: "0644"
+    owner: root
+    group: root
+  become: true
+
+- name: Modprobe
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  become: true
+  loop:
+    - overlay
+    - br_netfilter
+
+- name: Copy sysctl_k8s.conf
+  ansible.builtin.copy:
+    src: sysctl_k8s.conf
+    dest: /etc/sysctl.d/k8s.conf
+    mode: "0644"
+    owner: root
+    group: root
+  become: true
+
+- name: Reload sysctl
+  ansible.builtin.command: sysctl --system
+  changed_when: true
+  become: true

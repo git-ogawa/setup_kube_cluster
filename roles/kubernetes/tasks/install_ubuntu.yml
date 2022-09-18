@@ -34,7 +34,7 @@
     update_cache: true
   become: true
 
-- name: Install kubernetes commands
+- name: Install the latest kubernetes commands
   ansible.builtin.apt:
     name:
       - kubectl
@@ -42,6 +42,19 @@
       - kubeadm
     state: present
   become: true
+  when: kubernetes_version == "latest"
+
+- name: "Install kubernetes commands version {{ kubernetes_version }}"
+  ansible.builtin.apt:
+    name:
+      - "kubectl={{ kubernetes_version }}"
+      - "kubelet={{ kubernetes_version }}"
+      - "kubeadm={{ kubernetes_version }}"
+    state: present
+    allow_downgrade: true
+    allow_change_held_packages: true
+  become: true
+  when: kubernetes_version != "latest"
 
 - name: Hold kubernetes commands to be upgraded
   ansible.builtin.dpkg_selections:

@@ -8,3 +8,9 @@
 
     - role: kubernetes
       tags: kubernetes
+
+    - role: containerd
+      tags: containerd
+
+    - role: helm
+      tags: helm

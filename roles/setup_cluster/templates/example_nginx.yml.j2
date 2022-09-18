@@ -37,11 +37,10 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: example-nginx-ingress
-  annotations:
-    kubernetes.io/ingress.class: nginx
 spec:
+  ingressClassName: nginx
   rules:
-    - host: {{ aws_alb_dns }}
+    - host: {{ example_app_host }}
       http:
         paths:
         - path: /

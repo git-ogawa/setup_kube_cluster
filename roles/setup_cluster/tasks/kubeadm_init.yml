@@ -2,8 +2,9 @@
 - name: Disable swap
   ansible.builtin.command: swapoff -a
   changed_when: true
+  become: true
 
-- name: kubeadm init
+- name: Kubeadm init
   ansible.builtin.command: |
     kubeadm init --pod-network-cidr={{ pod_network_cidr }}
   changed_when: true

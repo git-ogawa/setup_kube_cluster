@@ -1,0 +1,10 @@
+---
+- name: Install dependencies for ansible kubernetes module
+  ansible.builtin.pip:
+    name:
+      - kubernetes >= 12.0.0
+      - pyyaml >= 3.11
+      - jsonpatch
+    state: present
+    extra_args: --user
+    executable: pip3

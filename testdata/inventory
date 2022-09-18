@@ -1,5 +1,20 @@
 ---
 all:
+  vars:
+    architectures:
+      x86_64: amd64
+      aarch64: arm64
+    containerd_version: latest
+    # containerd_version: "1.6.8-1"
+    kubernetes_version: latest
+    # kubernetes_version: "1.24.4-00"
+    helm_version: "3.9.4"
+    # helm_version: "3.9.4-1"
+    tekton_install: true
+    tekton_cli_version: "0.25.0"
+    argocd_install: true
+    argocd_cli_version: latest
+    # argocd_cli_version: "2.4.11"
   children:
     control_plane:
       hosts:

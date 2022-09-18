@@ -21,6 +21,8 @@
     name:
       - podman-docker
     state: present
+    allow_downgrade: true
+    allowerasing: true
   become: true
 
 - name: Enable podman serveice

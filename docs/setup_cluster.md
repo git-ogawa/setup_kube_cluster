@@ -7,13 +7,15 @@
 - [Requirements](#requirements)
 - [Usage](#usage)
   - [Set inventory](#set-inventory)
+  - [Setup](#setup)
+- [Steps](#steps)
   - [Create cluster](#create-cluster)
-  - [Add worker nodes to cluster (optional)](#add-worker-nodes-to-cluster-optional)
+  - [Add worker nodes](#add-worker-nodes)
   - [Deploy ingress controller](#deploy-ingress-controller)
     - [Access from outside cluster](#access-from-outside-cluster)
-  - [Tekton (optional)](#tekton-optional)
+  - [Argocd](#argocd)
+  - [Tekton](#tekton)
   - [Clean up cluster](#clean-up-cluster)
-- [Support distributions](#support-distributions)
 
 <!-- /code_chunk_output -->
 
@@ -24,8 +26,8 @@ Setup cluster is to create a kubernetes cluster on ompute instances with kubeadm
 
 Create a cluster with the following configuration based on [official start guide](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/).
 
-- CRI : [containerd](https://kubernetes.io/docs/setup/production-environment/container-runtimes/#containerd)
-- CNI : [flannel](https://github.com/flannel-io/flannel)
+- CRI : [Containerd](https://kubernetes.io/docs/setup/production-environment/container-runtimes/#containerd)
+- CNI : [Flannel](https://github.com/flannel-io/flannel)
 - Single control-plane node (no high availability).
 - Worker nodes (optional)
 - nginx ingress controller (optional)
@@ -34,10 +36,15 @@ It is recommended to use the project for development environment.
 
 
 # Requirements
+The machine where the playbooks will be run
+
+- [Ansible kubernets.core modules](https://galaxy.ansible.com/kubernetes/core?extIdCarryOver=true&sc_cid=701f2000001OH6uAAG) must be installed on machine running the playbook. If you don't install yet, install with `ansible-galaxy collection install kubernetes.core`.
+
+Target nodes
+
 - At least one instance for contorol-plane is required. The number of worker node is optional.
 - Instance type have to be more than 2 GiB RAM and 2 vCPU. ([Requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#before-you-begin))
 - Check that [the required ports](https://kubernetes.io/docs/reference/ports-and-protocols/) are open in security group.
-- [Ansible kubernets.core modules](https://galaxy.ansible.com/kubernetes/core?extIdCarryOver=true&sc_cid=701f2000001OH6uAAG) must be installed on machine running the playbook. If you don't install yet, install with `ansible-galaxy collection install kubernetes.core`.
 
 
 # Usage
@@ -61,7 +68,7 @@ Set the variables for each host.
 - ansible_become_password: If run sudo command with a password on an instance, Set the password.
 
 
-The example of inventory are the following.
+The example of inventory is the following.
 ```yaml
 ---
 all:
@@ -83,10 +90,25 @@ all:
 ```
 
 
-## Create cluster
-Run the following command to create kubernetes cluster on controller.
+## Setup
+Run playbook `setup.yml` to create a cluster and deploy necessary components at once.
 ```
-$ ansible-playbook setup_cluster.yml
+$ ansible-playbook setup.yml
+```
+The following steps will be run in setup process. If you want to run a part of steps, see the each section in [Steps](#steps).
+
+- Create a clsuter with kubeadm
+- Add worker nodes to the cluster (if exists)
+- Deploy nginx ingress controller
+- Deploy argocd
+- Deploy tekton
+
+# Steps
+
+## Create cluster
+Run `setup.yml` with tag `cluster` to create a kubernetes cluster on controller with kubeadm.
+```
+$ ansible-playbook setup.yml -t cluster
 ```
 
 After the playbook successfully finished, check that status of controller is ready.
@@ -96,14 +118,13 @@ NAME                                               STATUS   ROLES           AGE 
 ip-172-31-15-107.ap-northeast-1.compute.internal   Ready    control-plane   2m25s   v1.24.3
 ```
 
-## Add worker nodes to cluster (optional)
-
-Run the following command to create kubernetes cluster on controller.
+## Add worker nodes
+Run `setup.yml` with tag `add_worker` to add instances to the cluster as worker nodes. The worker nodes must be defined in the `inventory` in advance.
 ```
-$ ansible-playbook add_worker.yml
+$ ansible-playbook setup.yml -t add_worker
 ```
 
-After the playbook successfully finished, check that the worker node is added as node on control-plane node.
+After the playbook successfully finished, check that the instances are added as worker nodes.
 ```
 [rocky@ip-172-31-15-107 ~]$ kubectl get node
 NAME                                               STATUS   ROLES           AGE     VERSION
@@ -114,10 +135,10 @@ ip-172-31-15-107.ap-northeast-1.compute.internal   Ready    control-plane   2m25
 ## Deploy ingress controller
 As an additional option, you can deploy [nginx ingress controller](https://github.com/kubernetes/ingress-nginx) to access to the applications on instances from outside the cluster.
 
-Run the following playbook to deploy manifest-based nginx controller (See https://kubernetes.github.io/ingress-nginx/deploy/#quick-start).
+Run `setup.yml` with tag `ingress` to deploy manifest-based nginx ingress controller (See https://kubernetes.github.io/ingress-nginx/deploy/#quick-start).
 
 ```
-$ ansible-playbook setup_ingress_controller.yml
+$ ansible-playbook setup.yml -t ingress
 ```
 
 Service: `ingress-nginx-controller` will be created in the cluster.
@@ -141,10 +162,10 @@ Note the following.
 - The port of an instance in the target groups specifies the `nodePort` above (32323 by default).
 - Check that [DNS name] of the created ALB (for example `[ALB-name]-123456789.ap-northeast-1.elb.amazonaws.com`).
 
-To check that you can access the application on instances from outside the cluster, you can deploy the example application (nginx) by the following command. `aws_alb_dns`, is the DNS name above, is required.
+To check that you can access the application on instances from outside the cluster, you can deploy the example application (nginx) by the following command. `example_app_host`, is the DNS name above, is required.
 
 ```
-$ ansible-playbook setup_example_app.yml -e aws_alb_dns=[DNS name]
+$ ansible-playbook playbooks/setup_example_app.yml -e example_app_host=[DNS name]
 ```
 
 After deployed, you can access the app by `http://[dns_name]` in web browser.
@@ -152,10 +173,19 @@ After deployed, you can access the app by `http://[dns_name]` in web browser.
 
 To delete the app from the cluster, run the same playbook with `-e example_app_state=absent`.
 ```
-$ ansible-playbook setup_example_app.yml -e example_app_state=absent
+$ ansible-playbook playbooks/setup_example_app.yml -e example_app_state=absent
 ```
 
-## Tekton (optional)
+## Argocd
+Argocd components (server, dashboard and others) and argocd CLI are installed on all nodes.
+
+To deploy argocd, Run the play `setup.yml` with tag `argocd`.
+```
+$ ansible-playbook setup.yml -t argocd
+```
+
+
+## Tekton
 Deploy the following tekton components to a cluster.
 
 - pipeline
@@ -163,9 +193,9 @@ Deploy the following tekton components to a cluster.
 - triggers and its dependencies
 - tekton CLI (tkn)
 
-To deploy, Run the play `setup_tekton.yml`.
+To deploy tekton, Run the play `setup_tekton.yml`.
 ```
-$ ansible-playbook setup_tekton.yml
+$ ansible-playbook setup.yml -t tekton
 ```
 
 
@@ -173,8 +203,5 @@ $ ansible-playbook setup_tekton.yml
 To clean up the cluster, run the `cleanup_cluster.yml`. This play runs `kubeadm reset` on workers and controller.
 
 ```
-$ ansible-playbook cleanup_cluster.yml
+$ ansible-playbook playbooks/cleanup_cluster.yml
 ```
-
-# Support distributions
-- RHEL-based distribution (such as Rocky linux)
