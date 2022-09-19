@@ -1,0 +1,30 @@
+---
+- name: Make working directory
+  ansible.builtin.file:
+    path: "{{ working }}"
+    state: directory
+    mode: "0755"
+
+- name: Create argocd namespace
+  kubernetes.core.k8s:
+    name: "{{ argocd_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: Download argocd manifests
+  ansible.builtin.get_url:
+    url: "{{ argocd_manifest_url }}"
+    dest: "{{ working }}/install.yml"
+    mode: "0644"
+
+- name: Deploy argocd
+  kubernetes.core.k8s:
+    src: "{{ working }}/install.yml"
+    state: present
+    namespace: "{{ argocd_namespace }}"
+
+- name: Delete working directory
+  ansible.builtin.file:
+    path: "{{ working }}"
+    state: absent

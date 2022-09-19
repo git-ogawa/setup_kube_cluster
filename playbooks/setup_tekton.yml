@@ -16,13 +16,17 @@
         family: "{{ ansible_facts.distribution_file_variety | lower }}"
 
     - name: Install cli for rhel-like distribution
-      import_role:
+      ansible.builtin.import_role:
         name: tekton
         tasks_from: cli_rhel
       when: family == "redhat"
+      vars:
+        architecture: "{{ ansible_facts.architecture }}"
 
     - name: Install cli for ubuntu
-      import_role:
+      ansible.builtin.import_role:
         name: tekton
         tasks_from: cli_ubuntu
       when: family != "redhat"
+      vars:
+        architecture: "{{ ansible_facts.architecture }}"

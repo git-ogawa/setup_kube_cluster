@@ -1,0 +1,20 @@
+---
+- name: "Download helm version {{ helm_version }}"
+  ansible.builtin.get_url:
+    url: "https://get.helm.sh/helm-v{{ helm_version }}-linux-amd64.tar.gz"
+    dest: /tmp/helm.tar.gz
+    mode: "0755"
+
+- name: Unarchive helm
+  ansible.builtin.unarchive:
+    src: /tmp/helm.tar.gz
+    dest: /tmp/
+    remote_src: true
+
+- name: Put helm binary
+  ansible.builtin.copy:
+    src: /tmp/linux-amd64/helm
+    dest: "{{ helm_path }}"
+    mode: "0755"
+    remote_src: true
+  become: true

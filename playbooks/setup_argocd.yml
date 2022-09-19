@@ -1,0 +1,18 @@
+---
+- name: Deploy argocd components
+  hosts: controller
+  gather_facts: false
+  roles:
+    - role: argocd
+      tags: argocd
+
+- name: Install argocd CLI
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Install argocd CLI
+      ansible.builtin.import_role:
+        name: argocd
+        tasks_from: cli
+      vars:
+        architecture: "{{ ansible_facts.architecture }}"

@@ -1,0 +1,8 @@
+---
+- name: Install python and pip for rhel
+  import_tasks: install_python_rhel.yml
+  when: ansible_facts.distribution_file_variety | lower == "redhat"
+
+- name: Install python and pip for ubuntu
+  import_tasks: install_python_ubuntu.yml
+  when: ansible_facts.distribution_file_variety | lower != "redhat"

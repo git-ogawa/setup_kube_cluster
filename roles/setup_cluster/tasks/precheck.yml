@@ -1,0 +1,24 @@
+---
+- name: Check python and pip are executable
+  block:
+    - name: Check python
+      ansible.builtin.command: which python3
+      register: result_python
+      changed_when: false
+      failed_when: false
+
+    - name: Check pip
+      ansible.builtin.command: which pip3
+      register: result_pip
+      changed_when: false
+      failed_when: false
+
+    - name: Install python and pip
+      ansible.builtin.import_role:
+        name: python
+      when: result_python.stdout | length == 0 or result_pip.stdout | length == 0
+
+    - name: Install packages for ansible kubernetes modules
+      ansible.builtin.import_role:
+        name: python
+        tasks_from: kubernetes_dependency

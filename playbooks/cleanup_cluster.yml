@@ -21,4 +21,5 @@
       ansible.builtin.command: ip link delete flannel.1
       changed_when: true
       become: true
-      ignore_errors: true
+      register: delete_result
+      failed_when: delete_result.rc != 0 and delete_result.rc != 1

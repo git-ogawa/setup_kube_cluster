@@ -1,0 +1,12 @@
+---
+- name: Load playbook
+  import_tasks: install_rhel.yml
+  vars:
+    arch: "{{ architectures[ansible_facts.architecture] }}"
+  when: ansible_facts.distribution_file_variety | lower == "redhat"
+
+- name: Load playbook
+  import_tasks: install_ubuntu.yml
+  vars:
+    arch: "{{ architectures[ansible_facts.architecture] }}"
+  when: ansible_facts.distribution_file_variety | lower != "redhat"

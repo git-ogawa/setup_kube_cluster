@@ -1,0 +1,10 @@
+---
+working: /tmp/argocd_working
+argocd_namespace: argocd
+argocd_server_version: stable
+argocd_manifest_url: |
+  https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_server_version }}/manifests/install.yaml
+argocd_repo: https://github.com/argoproj/argo-cd
+argocd_cli_version: latest
+argocd_cli_os: linux
+argocd_cli_path: /usr/local/bin/argocd

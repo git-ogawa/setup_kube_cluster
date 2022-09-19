@@ -1,0 +1,50 @@
+---
+- name: Remove the previous cli
+  ansible.builtin.file:
+    path: "{{ argocd_cli_path }}"
+    state: absent
+  become: true
+
+- name: Install the latest CLI for amd64
+  ansible.builtin.get_url:
+    url: |
+      {{ argocd_repo }}/releases/{{ argocd_cli_version }}/download/argocd-{{ argocd_cli_os }}-amd64
+    dest: "{{ argocd_cli_path }}"
+    mode: "0755"
+  become: true
+  when:
+    - architecture == "amd64" or architecture == "x86_64"
+    - argocd_cli_version == "latest"
+
+- name: Install the latest CLI for arm64
+  ansible.builtin.get_url:
+    url: |
+      {{ argocd_repo }}/releases/{{ argocd_cli_version }}/download/argocd-{{ argocd_cli_os }}-arm64
+    dest: "{{ argocd_cli_path }}"
+    mode: "0755"
+  become: true
+  when:
+    - architecture == "aarch64"
+    - argocd_cli_version == "latest"
+
+- name: "Install CLI version {{ argocd_cli_version }} for amd64"
+  ansible.builtin.get_url:
+    url: |
+      {{ argocd_repo }}/releases/download/v{{ argocd_cli_version }}/argocd-{{ argocd_cli_os }}-amd64
+    dest: "{{ argocd_cli_path }}"
+    mode: "0755"
+  become: true
+  when:
+    - architecture == "amd64" or architecture == "x86_64"
+    - argocd_cli_version != "latest"
+
+- name: "Install CLI version {{ argocd_cli_version }} for arm64"
+  ansible.builtin.get_url:
+    url: |
+      {{ argocd_repo }}/releases/download/v{{ argocd_cli_version }}/argocd-{{ argocd_cli_os }}-arm64
+    dest: "{{ argocd_cli_path }}"
+    mode: "0755"
+  become: true
+  when:
+    - architecture == "aarch64"
+    - argocd_cli_version != "latest"

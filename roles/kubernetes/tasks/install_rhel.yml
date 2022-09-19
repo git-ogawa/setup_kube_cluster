@@ -11,7 +11,7 @@
       https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
   become: true
 
-- name: Install kubernetes commands
+- name: Install the latest kubernetes commands
   ansible.builtin.dnf:
     name:
       - kubectl
@@ -19,3 +19,14 @@
       - kubeadm
     state: present
   become: true
+  when: kubernetes_version == "latest"
+
+- name: "Install kubernetes commands version {{ kubernetes_version }}"
+  ansible.builtin.dnf:
+    name:
+      - "kubectl={{ kubernetes_version }}"
+      - "kubelet={{ kubernetes_version }}"
+      - "kubeadm={{ kubernetes_version }}"
+    state: present
+  become: true
+  when: kubernetes_version != "latest"

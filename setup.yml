@@ -1,0 +1,27 @@
+---
+- name: Install components
+  ansible.builtin.import_playbook: playbooks/setup_components.yml
+  tags: components
+
+- name: Create cluster
+  ansible.builtin.import_playbook: playbooks/setup_cluster.yml
+  tags: cluster
+
+- name: Add worker nodes
+  ansible.builtin.import_playbook: playbooks/add_worker.yml
+  tags: add_worker
+  when: groups.worker | default([]) | length > 0
+
+- name: Setup ingress controller
+  ansible.builtin.import_playbook: playbooks/setup_ingress_controller.yml
+  tags: ingress
+
+- name: Setup argocd
+  ansible.builtin.import_playbook: playbooks/setup_tekton.yml
+  tags: argocd
+  when: argocd_install | bool
+
+- name: Setup tekton
+  ansible.builtin.import_playbook: playbooks/setup_argocd.yml
+  tags: tekton
+  when: tekton_install | bool

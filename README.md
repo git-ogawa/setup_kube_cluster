@@ -1,118 +1,112 @@
+# setup ec2
+This repository is for setting up a kubernetes cluster and the necessary packages on compute instances of the cloud service (AWS EC2).
+
+You can install (or create) the following components on instances by `Ansible`.
+
+- Docker, Containerd
+- kubernetes (CLI)
+- kubernetes cluster with kubeadm
+- helm
+- nginx ingress controller
+- tekton
+- argocd
+
+
+
+# Table of contents
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=2 orderedList=false} -->
 
 <!-- code_chunk_output -->
 
-- [setup ec2](#setup-ec2)
 - [Requirements](#requirements)
+- [Quickstart](#quickstart)
 - [Usage](#usage)
-  - [Preparation](#preparation)
-  - [Install commands](#install-commands)
+- [Components](#components)
   - [Kubernetes cluster](#kubernetes-cluster)
+  - [Helm](#helm)
+  - [Docker](#docker)
   - [Tekton](#tekton)
+  - [Argocd](#argocd)
 - [Support distributions](#support-distributions)
 
 <!-- /code_chunk_output -->
 
-# setup ec2
-This is a repository for set up compute instances of cloud service (AWS EC2).
-
-You can install (or create) the following components on instances by `Ansible`.
-
-- docker
-- kubernetes (CLI)
-- kubernetes cluster with kubeadm
-    - nginx ingress controller
-    - tekton
 
 # Requirements
 - ansible >= 2.10.0
 - ansible-playbook >= 2.10.0
 
-# Usage
+# Quickstart
+Clone the repository.
 
-## Preparation
-Make sure that make a key pair for ssh and log in with ssh to a target instance from the machine where the ansible playbook will be run.
-
-
-At first, clone this project.
 ```
 git clone https://github.com/git-ogawa/setup_ec2
 cd setup_ec2
 ```
 
-Then, Edit `inventory` in top directory to set following variables accroding to your instance.
+In `inventory`, set global ip address, username, port and ssh key of your instance under `controller` section.
 
-- ansible_host: Global IPv4 address of an instance.
-- ansible_user: Username on an instance.
-- ansible_port: SSH port. Default to 22.
-- ansible_ssh_private_key_file: Path to the private key file on the host where run the playbook.
-- ansible_become_password: If run sudo command with a password on an instance, Set the password.
-
-To install with multiple instances at the same time, Set values for worker2, worker3 and more in the same way.
-
-```yaml
+```yml
 ---
 all:
+  ...
   children:
-    worker:
+    control_plane:
       hosts:
-        worker1:
-          ansible_host: xx.xx.xx.xx
-          ansible_user: ubuntu
-          ansible_ssh_port: 22
-          ansible_ssh_private_key_file: ~/.ssh/id_rsa
-          ansible_become_password: xxxx
-        # worker2:
-          # ansible_host: xx.xx.xx.xx
-          # ....
+        controller:
+          ansible_host: 10.10.10.10  # Global IPv4 address
+          ansible_user: ubuntu  # Username
+          ansible_ssh_port: 22  # SSH port
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa  # Path to key
 ```
 
+To add worker nodes to cluster, set values for worker1, worker2 and more in the same way under `worker` section.
 
-## Install commands
-To install CLI commands (docker, kubernetes) of components on your instances, run the following playbook.
 
+Then, run the following command to create the cluster.
 ```
-$ ansible-playbook install.yml
-```
-
-To install only specified component, use `-t` options
-```
-# Install only docker
-$ ansible-playbook install.yml -t docker
-
-# Install only kubernetes
-$ ansible-playbook install.yml -t kubernetes
+$ ansible-playbook setup.yml
 ```
 
+# Usage
+See [setup_cluster.md](docs/setup_cluster.md) for details.
 
-### docker
-The latest version of the following components will be installed with package manager (apt, dnf).
-
-- docker
-- `podman` will be installed instead of docker on RHEL-clone OS (such as Rocky linux).
+# Components
+The list of components to be installed on nodes by playbooks. See [setup_cluster.md](docs/setup_cluster.md) for details.
 
 
-### kubernetes
+## Kubernetes cluster
 The latest version of the following components will be installed with package manager (apt, dnf).
 
 - kubelet
 - kubectl
 - kubeadm
 
+The kuebernetes cluster are created with kubeadm.
 
-## Kubernetes cluster
-Create a kubernetes cluster with kubeadm. See [setup_cluster.md](docs/setup_cluster.md) for details.
+- CRI : Containerd
+- CNI : Flannel
 
+## Helm
+Helm binary is installed on all nodes.
+
+## Docker
+The latest version of the following components will be installed with package manager (apt, dnf).
+
+- docker
+- `podman` will be installed instead of docker on RHEL-clone OS (such as Rocky linux).
 
 ## Tekton
-Deploy tekton components to a cluster. See [setup_cluster.md](docs/setup_cluster.md#tekton-optional) for details.
+Deploy tekton components to a cluster from manifest file.
+
+## Argocd
+Deploy argocd components to a cluster from manifest file.
 
 # Support distributions
 The following distribution (platform) instances are supported.
 
 - RHEL-based distribution (such as rocky linux)
-- Ubuntu
-  - Supported only to install commands
+- Ubuntu 22.04
 - Amazon linux
   - Supported only to install commands

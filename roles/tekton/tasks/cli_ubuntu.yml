@@ -1,5 +1,12 @@
 ---
 - name: Install tekton CLI
   ansible.builtin.apt:
-    deb: "{{ cli_repository_release }}/v{{ cli_version }}/tektoncd-cli-{{ cli_version }}_Linux-64bit.deb"
+    deb: "{{ tekton_release_url }}/v{{ tekton_cli_version }}/tektoncd-cli-{{ tekton_cli_version }}_Linux-64bit.deb"
   become: true
+  when: architecture != "aarch64"
+
+- name: Install tekton CLI
+  ansible.builtin.apt:
+    deb: "{{ tekton_release_url }}/v{{ tekton_cli_version }}/tektoncd-cli-{{ tekton_cli_version }}_Linux-ARM64.deb"
+  become: true
+  when: architecture == "aarch64"

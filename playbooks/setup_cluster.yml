@@ -3,26 +3,26 @@
   hosts: all
   gather_facts: true
   tasks:
-    - name: Install dependencies
-      import_role:
+    - name: Precheck
+      ansible.builtin.import_role:
         name: setup_cluster
-        tasks_from: install_dependency
+        tasks_from: precheck
 
-    - name: Install CRI
-      import_role:
+    - name: Common settings
+      ansible.builtin.import_role:
         name: setup_cluster
-        tasks_from: deploy_cri
+        tasks_from: common_settings
 
 - name: Setup kubernetes cluster with kubeadm
   hosts: controller
   gather_facts: false
   tasks:
     - name: Kubeadm init
-      import_role:
+      ansible.builtin.import_role:
         name: setup_cluster
         tasks_from: kubeadm_init
 
     - name: Install CNI
-      import_role:
+      ansible.builtin.import_role:
         name: setup_cluster
         tasks_from: deploy_cni
