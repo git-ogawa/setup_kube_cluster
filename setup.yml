@@ -25,3 +25,17 @@
   ansible.builtin.import_playbook: playbooks/setup_argocd.yml
   tags: tekton
   when: tekton_install | bool
+
+- name: Setup harbor
+  ansible.builtin.import_playbook: playbooks/setup_harbor.yml
+  tags: harbor
+  when:
+    - harbor_install | bool
+    - (action is undefined) or (action != "uninstall")
+
+- name: Uninstall harbor
+  ansible.builtin.import_playbook: playbooks/cleanup_harbor.yml
+  tags: harbor
+  when:
+    - action is defined
+    - action == "uninstall"

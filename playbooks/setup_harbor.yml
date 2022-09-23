@@ -1,0 +1,17 @@
+---
+- name: Make persistenceVolume and persistentVolumeClaim
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Make
+      ansible.builtin.import_role:
+        name: harbor
+        tasks_from: make_pv
+
+- name: Install harbor
+  hosts: controller
+  gather_facts: false
+  tasks:
+    - name: Install harbor
+      ansible.builtin.import_role:
+        name: harbor

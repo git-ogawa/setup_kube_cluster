@@ -1,0 +1,79 @@
+---
+# Common settings
+harbor_release_name: harbor
+harbor_namespace: harbor
+harbor_domain: core.harbor.domain
+harbor_node_port: 30003
+harborAdminPassword: "Harbor12345"
+
+# PersistentVolume settings.
+# Create host directory on target node.
+harbor_host_path_dir: /opt/kube/harbor
+harbor_pv:
+  registry:
+    name: registry
+    storage: 5Gi
+    host_path: "{{ harbor_host_path_dir }}/registry"
+    label: registry
+  chartmuseum:
+    name: chartmuseum
+    storage: 5Gi
+    host_path: "{{ harbor_host_path_dir }}/chartmuseum"
+    label: chartmuseum
+  jobservice_jobLog:
+    name: jobservice-log
+    storage: 1Gi
+    host_path: "{{ harbor_host_path_dir }}/jobservice_job_log"
+    label: jobservice-log
+  jobservice_scanDataExports:
+    name: jobservice-scan
+    storage: 1Gi
+    host_path: "{{ harbor_host_path_dir }}/jobservice_scan"
+    label: jobservice-scan
+  database:
+    name: database
+    storage: 1Gi
+    host_path: "{{ harbor_host_path_dir }}/database"
+    label: database
+  redis:
+    name: redis
+    storage: 5Gi
+    host_path: "{{ harbor_host_path_dir }}/redis"
+    label: redis
+  trivy:
+    name: trivy
+    storage: 5Gi
+    host_path: "{{ harbor_host_path_dir }}/trivy"
+    label: trivy
+
+# PersistentVolumeClaim settings.
+# Set label selector to use the persistVolume defined above.
+harbor_pvc:
+  registry:
+    name: harbor-registry
+    storage: 5Gi
+    selector_label: "{{ harbor_pv.registry.label }}"
+  chartmuseum:
+    name: harbor-chartmuseum
+    storage: 5Gi
+    selector_label: "{{ harbor_pv.chartmuseum.label }}"
+  jobservice_jobLog:
+    name: harbor-jobservice
+    storage: 1Gi
+    selector_label: "{{ harbor_pv.jobservice_jobLog.label }}"
+  jobservice_scanDataExports:
+    name: harbor-jobservice-scandata
+    storage: 1Gi
+    selector_label: "{{ harbor_pv.jobservice_scanDataExports.label }}"
+  database:
+    name: database-data-harbor-database-0
+    storage: 1Gi
+    selector_label: "{{ harbor_pv.database.label }}"
+  redis:
+    name: data-harbor-redis-0
+    storage: 5Gi
+    selector_label: "{{ harbor_pv.redis.label }}"
+  trivy:
+    name: data-harbor-trivy-0
+    storage: 5Gi
+    selector_label: "{{ harbor_pv.trivy.label }}"

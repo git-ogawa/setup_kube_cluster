@@ -15,6 +15,7 @@ all:
     argocd_install: true
     argocd_cli_version: latest
     # argocd_cli_version: "2.4.11"
+    harbor_install: true
   children:
     control_plane:
       hosts:
