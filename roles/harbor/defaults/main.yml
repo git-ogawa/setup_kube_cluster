@@ -108,4 +108,4 @@ harbor_values:
       trivy:
         existingClaim: "{{ harbor_pvc.trivy.name }}"
         size: "{{ harbor_pvc.trivy.storage }}"
-  harborAdminPassword: "Harbor12345"
+  harbor_admin_password: "Harbor12345"
