@@ -1,0 +1,18 @@
+---
+- name: Delete persistentVolumeClaim
+  kubernetes.core.k8s:
+    state: absent
+    template: pvc.yml.j2
+    namespace: "{{ gitea_namespace }}"
+
+- name: Delete persistentVolume
+  kubernetes.core.k8s:
+    state: absent
+    template: pv.yml.j2
+    namespace: "{{ gitea_namespace }}"
+
+- name: Delete directory on node for host path
+  ansible.builtin.file:
+    state: absent
+    path: "{{ gitea_host_path_dir }}"
+  become: true

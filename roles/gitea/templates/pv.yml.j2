@@ -1,0 +1,37 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "{{ gitea_pv.gitea.name }}"
+  labels:
+    app: gitea
+    component: "{{ gitea_pv.gitea.label }}"
+spec:
+  capacity:
+    storage: "{{ gitea_pv.gitea.storage }}"
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: ""
+  hostPath:
+    path: "{{ gitea_pv.gitea.host_path }}"
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "{{ gitea_pv.postgresql.name }}"
+  labels:
+    app: gitea
+    component: "{{ gitea_pv.postgresql.label }}"
+spec:
+  capacity:
+    storage: "{{ gitea_pv.postgresql.storage }}"
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: ""
+  hostPath:
+    path: "{{ gitea_pv.postgresql.host_path }}"

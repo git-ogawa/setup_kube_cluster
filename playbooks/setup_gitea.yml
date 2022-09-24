@@ -1,0 +1,17 @@
+---
+- name: Make persistenceVolume and persistentVolumeClaim
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Make
+      ansible.builtin.import_role:
+        name: gitea
+        tasks_from: make_pv
+
+- name: Install gitea
+  hosts: controller
+  gather_facts: false
+  tasks:
+    - name: Install gitea
+      ansible.builtin.import_role:
+        name: gitea

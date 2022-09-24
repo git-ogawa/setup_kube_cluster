@@ -77,3 +77,39 @@ harbor_pvc:
     name: data-harbor-trivy-0
     storage: 5Gi
     selector_label: "{{ harbor_pv.trivy.label }}"
+
+
+# Gitea settings
+gitea_release_name: gitea
+gitea_namespace: gitea
+gitea_admin_username: gitea_admin
+gitea_admin_password: "r8sA8CPHD9!bt6d"
+gitea_admin_email: "gitea@local.domain"
+gitea_config_server_domain: git.example.com
+
+# Harbor persistentVolume settings.
+# Create host directory on target node.
+gitea_host_path_dir: /opt/kube/gitea
+gitea_pv:
+  gitea:
+    name: gitea
+    storage: 10Gi
+    label: gitea
+    host_path: "{{ gitea_host_path_dir }}/gitea"
+  postgresql:
+    name: gitea-postgresql
+    storage: 10Gi
+    label: postgresql
+    host_path: "{{ gitea_host_path_dir }}/postgresql"
+
+gitea_pvc:
+  gitea:
+    name: data-gitea-0
+    storage: "{{ gitea_pv.gitea.storage }}"
+    label: "{{ gitea_pv.gitea.label }}"
+    selector_label: "{{ gitea_pv.gitea.label }}"
+  postgresql:
+    name: data-gitea-postgresql-0
+    storage: "{{ gitea_pv.postgresql.storage }}"
+    label: "{{ gitea_pv.postgresql.label }}"
+    selector_label: "{{ gitea_pv.postgresql.label }}"

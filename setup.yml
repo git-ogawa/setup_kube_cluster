@@ -39,3 +39,17 @@
   when:
     - action is defined
     - action == "uninstall"
+
+- name: Setup gitea
+  ansible.builtin.import_playbook: playbooks/setup_gitea.yml
+  tags: gitea
+  when:
+    - gitea_install | bool
+    - (action is undefined) or (action != "uninstall")
+
+- name: Uninstall gitea
+  ansible.builtin.import_playbook: playbooks/cleanup_gitea.yml
+  tags: gitea
+  when:
+    - action is defined
+    - action == "uninstall"

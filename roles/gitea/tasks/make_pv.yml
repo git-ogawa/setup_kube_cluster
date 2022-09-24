@@ -1,0 +1,20 @@
+---
+- name: Make directory on node for host path
+  ansible.builtin.file:
+    state: directory
+    path: "{{ item.value.host_path }}"
+    mode: "0777"
+  become: true
+  loop: "{{ gitea_pv | dict2items }}"
+
+- name: Create persistentVolume
+  kubernetes.core.k8s:
+    state: present
+    template: pv.yml.j2
+    namespace: "{{ gitea_namespace }}"
+
+- name: Create persistentVolumeClaim
+  kubernetes.core.k8s:
+    state: present
+    template: pvc.yml.j2
+    namespace: "{{ gitea_namespace }}"
