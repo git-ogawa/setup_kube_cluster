@@ -1,12 +1,37 @@
 ---
 # Common settings
+architectures:
+  x86_64: amd64
+  aarch64: arm64
+
+
+# Containerd settings
+containerd_version: latest
+# containerd_version: "1.6.8-1"
+
+
+# Helm settings
+# helm_version: latest
+helm_version: "3.9.4"
+
+
+# Tekton settings
+tekton_cli_version: "0.25.0"
+
+
+# Argocd settings
+argocd_cli_version: latest
+# argocd_cli_version: "2.4.11"
+
+
+# Harbor settings
 harbor_release_name: harbor
 harbor_namespace: harbor
 harbor_domain: core.harbor.domain
 harbor_node_port: 30003
-harborAdminPassword: "Harbor12345"
+harbor_admin_password: "Harbor12345"
 
-# PersistentVolume settings.
+# Harbor persistentVolume settings.
 # Create host directory on target node.
 harbor_host_path_dir: /opt/kube/harbor
 harbor_pv:

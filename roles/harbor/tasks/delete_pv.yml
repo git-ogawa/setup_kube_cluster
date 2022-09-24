@@ -10,9 +10,3 @@
     state: absent
     template: pv.yml.j2
     namespace: "{{ harbor_namespace }}"
-
-- name: Delete directory on node for host path
-  ansible.builtin.file:
-    state: absent
-    path: "{{ harbor_host_path_dir }}"
-  become: true

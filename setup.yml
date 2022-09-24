@@ -17,12 +17,12 @@
   tags: ingress
 
 - name: Setup argocd
-  ansible.builtin.import_playbook: playbooks/setup_tekton.yml
+  ansible.builtin.import_playbook: playbooks/setup_argocd.yml
   tags: argocd
   when: argocd_install | bool
 
 - name: Setup tekton
-  ansible.builtin.import_playbook: playbooks/setup_argocd.yml
+  ansible.builtin.import_playbook: playbooks/setup_tekton.yml
   tags: tekton
   when: tekton_install | bool
 
