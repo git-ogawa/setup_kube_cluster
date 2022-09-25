@@ -47,9 +47,9 @@
 - name: "Install kubernetes commands version {{ kubernetes_version }}"
   ansible.builtin.apt:
     name:
-      - "kubectl={{ kubernetes_version }}-00"
-      - "kubelet={{ kubernetes_version }}-00"
-      - "kubeadm={{ kubernetes_version }}-00"
+      - "kubectl={{ kubernetes_version }}"
+      - "kubelet={{ kubernetes_version }}"
+      - "kubeadm={{ kubernetes_version }}"
     state: present
     allow_downgrade: true
     allow_change_held_packages: true

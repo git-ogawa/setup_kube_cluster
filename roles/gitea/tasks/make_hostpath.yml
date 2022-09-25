@@ -1,8 +1,0 @@
----
-- name: Make directory on node for host path
-  ansible.builtin.file:
-    state: directory
-    path: "{{ item.value.host_path }}"
-    mode: "0777"
-  become: true
-  loop: "{{ gitea_pv | dict2items }}"
