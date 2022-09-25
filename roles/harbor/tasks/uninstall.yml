@@ -1,6 +1,0 @@
----
-- name: Delete harbor release
-  kubernetes.core.helm:
-    name: harbor
-    release_namespace: "{{ harbor_namespace }}"
-    release_state: absent
