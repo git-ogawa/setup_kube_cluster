@@ -5,10 +5,20 @@
   become: true
 
 - name: Kubeadm init
+  ansible.builtin.command: >
+    kubeadm init
+      --pod-network-cidr={{ pod_network_cidr }}
+      --apiserver-advertise-address={{ ipv4_address }}
+  changed_when: true
+  become: true
+  when: ec2_cluster | bool
+
+- name: Kubeadm init
   ansible.builtin.command: |
     kubeadm init --pod-network-cidr={{ pod_network_cidr }}
   changed_when: true
   become: true
+  when: not ec2_cluster | bool
 
 - name: Create ~/.kube
   ansible.builtin.file:
@@ -17,6 +27,11 @@
     mode: "0755"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
+
+- name: Delete previous config
+  ansible.builtin.file:
+    state: absent
+    path: "/home/{{ ansible_user }}/.kube/config"
 
 - name: Copy admin.conf to ~/.kube/config
   ansible.builtin.copy:

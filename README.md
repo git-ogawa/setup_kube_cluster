@@ -1,15 +1,18 @@
 # setup ec2
-This repository is for setting up a kubernetes cluster and the necessary packages on compute instances of the cloud service (AWS EC2).
+This repository is for setting up a kubernetes cluster and the necessary packages on compute instances of the cloud service (AWS EC2). It is also useful to build bare-metal cluster such as raspberry pi.
 
 You can install (or create) the following components on instances by `Ansible`.
 
-- Docker, Containerd
-- kubernetes (CLI)
-- kubernetes cluster with kubeadm
-- helm
-- nginx ingress controller
+- Docker, kubernetes components
+    - Docker, Containerd
+    - kubernetes (CLI)
+    - kubernetes cluster with kubeadm
+    - helm
+    - nginx ingress controller
 - tekton
 - argocd
+- harbor
+- gitea
 
 
 
@@ -19,6 +22,8 @@ You can install (or create) the following components on instances by `Ansible`.
 
 <!-- code_chunk_output -->
 
+- [setup ec2](#setup-ec2)
+- [Table of contents](#table-of-contents)
 - [Requirements](#requirements)
 - [Quickstart](#quickstart)
 - [Usage](#usage)
@@ -28,6 +33,8 @@ You can install (or create) the following components on instances by `Ansible`.
   - [Docker](#docker)
   - [Tekton](#tekton)
   - [Argocd](#argocd)
+  - [Harbor](#harbor)
+  - [Gitea](#gitea)
 - [Support distributions](#support-distributions)
 
 <!-- /code_chunk_output -->
@@ -102,6 +109,15 @@ Deploy tekton components to a cluster from manifest file.
 
 ## Argocd
 Deploy argocd components to a cluster from manifest file.
+
+
+## Harbor
+Deploy harbor components to a cluster with helm.
+
+
+## Gitea
+Deploy gitea components to a cluster with helm.
+
 
 # Support distributions
 The following distribution (platform) instances are supported.

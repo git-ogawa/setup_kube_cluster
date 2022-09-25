@@ -1,0 +1,23 @@
+---
+- name: Uninstall harbor
+  hosts: controller
+  gather_facts: false
+  tasks:
+    - name: Uninstall harbor
+      ansible.builtin.import_role:
+        name: harbor
+        tasks_from: uninstall
+
+    - name: Delete persistentVolume and persistentVolumeClaim
+      ansible.builtin.import_role:
+        name: harbor
+        tasks_from: delete_pv
+
+- name: Delete host path
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Delete host path
+      ansible.builtin.import_role:
+        name: harbor
+        tasks_from: delete_hostpath

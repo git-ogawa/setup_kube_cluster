@@ -1,0 +1,6 @@
+---
+- name: Delete gitea release
+  kubernetes.core.helm:
+    name: "{{ gitea_release_name }}"
+    release_namespace: "{{ gitea_namespace }}"
+    release_state: absent

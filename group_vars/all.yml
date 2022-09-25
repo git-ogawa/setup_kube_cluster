@@ -1,0 +1,140 @@
+---
+# Common settings
+architectures:
+  x86_64: amd64
+  aarch64: arm64
+
+
+# Containerd settings
+containerd_version: latest
+# containerd_version: "1.6.8-1"
+
+
+# Helm settings
+# helm_version: latest
+helm_version: "3.9.4"
+
+
+# Tekton settings
+tekton_cli_version: "0.25.0"
+
+
+# Argocd settings
+argocd_cli_version: latest
+# argocd_cli_version: "2.4.11"
+
+
+# Harbor settings
+harbor_release_name: harbor
+harbor_namespace: harbor
+harbor_domain: core.harbor.domain
+harbor_node_port: 30003
+harbor_admin_password: "Harbor12345"
+
+# Harbor persistentVolume settings.
+# Create host directory on target node.
+harbor_host_path_dir: /opt/kube/harbor
+harbor_pv:
+  registry:
+    name: registry
+    storage: 5Gi
+    host_path: "{{ harbor_host_path_dir }}/registry"
+    label: registry
+  chartmuseum:
+    name: chartmuseum
+    storage: 5Gi
+    host_path: "{{ harbor_host_path_dir }}/chartmuseum"
+    label: chartmuseum
+  jobservice_jobLog:
+    name: jobservice-log
+    storage: 1Gi
+    host_path: "{{ harbor_host_path_dir }}/jobservice_job_log"
+    label: jobservice-log
+  jobservice_scanDataExports:
+    name: jobservice-scan
+    storage: 1Gi
+    host_path: "{{ harbor_host_path_dir }}/jobservice_scan"
+    label: jobservice-scan
+  database:
+    name: database
+    storage: 1Gi
+    host_path: "{{ harbor_host_path_dir }}/database"
+    label: database
+  redis:
+    name: redis
+    storage: 5Gi
+    host_path: "{{ harbor_host_path_dir }}/redis"
+    label: redis
+  trivy:
+    name: trivy
+    storage: 5Gi
+    host_path: "{{ harbor_host_path_dir }}/trivy"
+    label: trivy
+
+# PersistentVolumeClaim settings.
+# Set label selector to use the persistVolume defined above.
+harbor_pvc:
+  registry:
+    name: harbor-registry
+    storage: 5Gi
+    selector_label: "{{ harbor_pv.registry.label }}"
+  chartmuseum:
+    name: harbor-chartmuseum
+    storage: 5Gi
+    selector_label: "{{ harbor_pv.chartmuseum.label }}"
+  jobservice_jobLog:
+    name: harbor-jobservice
+    storage: 1Gi
+    selector_label: "{{ harbor_pv.jobservice_jobLog.label }}"
+  jobservice_scanDataExports:
+    name: harbor-jobservice-scandata
+    storage: 1Gi
+    selector_label: "{{ harbor_pv.jobservice_scanDataExports.label }}"
+  database:
+    name: database-data-harbor-database-0
+    storage: 1Gi
+    selector_label: "{{ harbor_pv.database.label }}"
+  redis:
+    name: data-harbor-redis-0
+    storage: 5Gi
+    selector_label: "{{ harbor_pv.redis.label }}"
+  trivy:
+    name: data-harbor-trivy-0
+    storage: 5Gi
+    selector_label: "{{ harbor_pv.trivy.label }}"
+
+
+# Gitea settings
+gitea_release_name: gitea
+gitea_namespace: gitea
+gitea_admin_username: gitea_admin
+gitea_admin_password: "r8sA8CPHD9!bt6d"
+gitea_admin_email: "gitea@local.domain"
+gitea_config_server_domain: git.example.com
+
+# Harbor persistentVolume settings.
+# Create host directory on target node.
+gitea_host_path_dir: /opt/kube/gitea
+gitea_pv:
+  gitea:
+    name: gitea
+    storage: 10Gi
+    label: gitea
+    host_path: "{{ gitea_host_path_dir }}/gitea"
+  postgresql:
+    name: gitea-postgresql
+    storage: 10Gi
+    label: postgresql
+    host_path: "{{ gitea_host_path_dir }}/postgresql"
+
+gitea_pvc:
+  gitea:
+    name: data-gitea-0
+    storage: "{{ gitea_pv.gitea.storage }}"
+    label: "{{ gitea_pv.gitea.label }}"
+    selector_label: "{{ gitea_pv.gitea.label }}"
+  postgresql:
+    name: data-gitea-postgresql-0
+    storage: "{{ gitea_pv.postgresql.storage }}"
+    label: "{{ gitea_pv.postgresql.label }}"
+    selector_label: "{{ gitea_pv.postgresql.label }}"

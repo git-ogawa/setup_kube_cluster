@@ -1,0 +1,12 @@
+---
+- name: Delete persistentVolumeClaim
+  kubernetes.core.k8s:
+    state: absent
+    template: pvc.yml.j2
+    namespace: "{{ gitea_namespace }}"
+
+- name: Delete persistentVolume
+  kubernetes.core.k8s:
+    state: absent
+    template: pv.yml.j2
+    namespace: "{{ gitea_namespace }}"

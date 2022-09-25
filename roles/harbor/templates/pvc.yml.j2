@@ -1,0 +1,171 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: harbor
+    chart: harbor
+    component: redis
+    heritage: Helm
+    release: harbor
+  name: {{ harbor_pvc.redis.name }}
+  namespace: {{ harbor_namespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ harbor_pvc.redis.storage }}
+  volumeMode: Filesystem
+  selector:
+    matchLabels:
+      app: harbor
+      component: {{ harbor_pvc.redis.selector_label }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: harbor
+    chart: harbor
+    component: trivy
+    heritage: Helm
+    release: harbor
+  name: {{ harbor_pvc.trivy.name }}
+  namespace: {{ harbor_namespace }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ harbor_pvc.trivy.storage }}
+  volumeMode: Filesystem
+  selector:
+    matchLabels:
+      app: harbor
+      component: {{ harbor_pvc.trivy.selector_label }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: harbor
+    chart: harbor
+    component: database
+    heritage: Helm
+    release: harbor
+  name: {{ harbor_pvc.database.name }}
+  namespace: {{ harbor_namespace }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ harbor_pvc.database.storage }}
+  volumeMode: Filesystem
+  selector:
+    matchLabels:
+      app: harbor
+      component: {{ harbor_pvc.database.selector_label }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: harbor
+    app.kubernetes.io/managed-by: Helm
+    chart: harbor
+    component: chartmuseum
+    heritage: Helm
+    release: harbor
+  name: {{ harbor_pvc.chartmuseum.name }}
+  namespace: {{ harbor_namespace }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ harbor_pvc.chartmuseum.storage }}
+  volumeMode: Filesystem
+  selector:
+    matchLabels:
+      app: harbor
+      component: {{ harbor_pvc.chartmuseum.selector_label }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: harbor
+    app.kubernetes.io/managed-by: Helm
+    chart: harbor
+    component: jobservice
+    heritage: Helm
+    release: harbor
+  name: {{ harbor_pvc.jobservice_jobLog.name }}
+  namespace: {{ harbor_namespace }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ harbor_pvc.jobservice_jobLog.storage }}
+  volumeMode: Filesystem
+  selector:
+    matchLabels:
+      app: harbor
+      component: {{ harbor_pvc.jobservice_jobLog.selector_label }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: harbor
+    app.kubernetes.io/managed-by: Helm
+    chart: harbor
+    component: jobservice
+    heritage: Helm
+    release: harbor
+  name: {{ harbor_pvc.jobservice_scanDataExports.name }}
+  namespace: {{ harbor_namespace }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ harbor_pvc.jobservice_scanDataExports.storage }}
+  volumeMode: Filesystem
+  selector:
+    matchLabels:
+      app: harbor
+      component: {{ harbor_pvc.jobservice_scanDataExports.selector_label }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: harbor
+    app.kubernetes.io/managed-by: Helm
+    chart: harbor
+    component: registry
+    heritage: Helm
+    release: harbor
+  name: {{ harbor_pvc.registry.name }}
+  namespace: {{ harbor_namespace }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ harbor_pvc.registry.storage }}
+  volumeMode: Filesystem
+  selector:
+    matchLabels:
+      app: harbor
+      component: {{ harbor_pvc.registry.selector_label }}
