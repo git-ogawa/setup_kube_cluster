@@ -20,7 +20,7 @@
     - name: triggers/latest/interceptors.yaml
       dest: interceptors.yml
 
-- name: Deploy tekton pipeline and dashboard
+- name: Deploy tekton components
   kubernetes.core.k8s:
     src: "{{ working }}/{{ item }}"
     state: present
@@ -28,44 +28,8 @@
   loop:
     - pipeline.yml
     - dashboard.yml
-
-# - name: Delete ValidatingWebhookConfiguration for installing triggers
-#   kubernetes.core.k8s:
-#     state: absent
-#     api_version: v1
-#     kind: ValidatingWebhookConfiguration
-#     name: config.webhook.pipeline.tekton.dev
-#     namespace: "{{ tekton_namespace }}"
-#   register: result
-#   until: not result.failed
-#   retries: 10
-#   delay: 5
-
-# - name: Deploy tekton triggers
-#   kubernetes.core.k8s:
-#     src: "{{ working }}/triggers.yml"
-#     state: present
-#     namespace: "{{ tekton_namespace }}"
-#   register: result
-#   until: not result.failed
-#   retries: 10
-#   delay: 5
-
-# - name: Deploy interceptors
-#   ansible.builtin.command: |
-#     kubectl apply -f {{ working }}/interceptors.yml -n {{ tekton_namespace }}
-#   register: result
-#   until: result.rc == 0
-#   retries: 5
-#   delay: 5
-
-# - name: Add ValidatingWebhookConfiguration
-#   ansible.builtin.command: |
-#     kubectl apply -f {{ working }}/pipeline.yml -n {{ tekton_namespace }}
-#   register: result
-#   until: result.rc == 0 or result.rc == 1
-#   retries: 5
-#   delay: 5
+    - triggers.yml
+    - interceptors.yml
 
 - name: Delete working directory
   ansible.builtin.file:

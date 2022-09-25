@@ -48,7 +48,7 @@
 
 - name: "Install helm version {{ helm_version }}"
   ansible.builtin.apt:
-    name: "helm={{ helm_version }}-1"
+    name: helm={{ helm_version }}
     state: present
     allow_downgrade: true
     allow_change_held_packages: true

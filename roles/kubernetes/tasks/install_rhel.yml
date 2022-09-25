@@ -24,9 +24,9 @@
 - name: "Install kubernetes commands version {{ kubernetes_version }}"
   ansible.builtin.dnf:
     name:
-      - "kubectl-{{ kubernetes_version }}-0"
-      - "kubelet-{{ kubernetes_version }}-0"
-      - "kubeadm-{{ kubernetes_version }}-0"
+      - "kubectl={{ kubernetes_version }}"
+      - "kubelet={{ kubernetes_version }}"
+      - "kubeadm={{ kubernetes_version }}"
     state: present
   become: true
   when: kubernetes_version != "latest"

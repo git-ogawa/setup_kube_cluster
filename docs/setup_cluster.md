@@ -15,8 +15,6 @@
     - [Access from outside cluster](#access-from-outside-cluster)
   - [Argocd](#argocd)
   - [Tekton](#tekton)
-  - [Harbor](#harbor)
-  - [Gitea](#gitea)
   - [Clean up cluster](#clean-up-cluster)
 
 <!-- /code_chunk_output -->
@@ -33,14 +31,6 @@ Create a cluster with the following configuration based on [official start guide
 - Single control-plane node (no high availability).
 - Worker nodes (optional)
 - nginx ingress controller (optional)
-
-The following CI/CD components can be installed on setup.
-
-- Tekton
-- Argocd
-- Harbor
-- Gitea
-
 
 It is recommended to use the project for development environment.
 
@@ -60,7 +50,7 @@ Target nodes
 # Usage
 
 ## Set inventory
-At first, you need edit the host definition in `inventory` in top directory.
+In `inventory` in top directory, you need edit the host definition.
 
 - `control_plane.hosts.controller`
     - An instance belonging to the control-plane, on which a cluster is created.
@@ -78,7 +68,7 @@ Set the variables for each host.
 - ansible_become_password: If run sudo command with a password on an instance, Set the password.
 
 
-The example of inventory when control node 1x and worker node 1x is the following.
+The example of inventory is the following.
 ```yaml
 ---
 all:
@@ -99,17 +89,6 @@ all:
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
 ```
 
-By default, CI/CD components are deployed to the cluster on setup. If you don't install the components, Set the value to `false`.
-
-```yaml
-all:
-  vars:
-    argocd_install: true
-    tekton_install: true
-    gitea_install: true
-    harbor_install: true
-```
-
 
 ## Setup
 Run playbook `setup.yml` to create a cluster and deploy necessary components at once.
@@ -123,8 +102,6 @@ The following steps will be run in setup process. If you want to run a part of s
 - Deploy nginx ingress controller
 - Deploy argocd
 - Deploy tekton
-- Deploy harbor
-- Deploy gitea
 
 # Steps
 
@@ -213,55 +190,13 @@ Deploy the following tekton components to a cluster.
 
 - pipeline
 - dashboard
+- triggers and its dependencies
 - tekton CLI (tkn)
 
-To deploy tekton, Run the play `setup.yml` with tags `tekton`.
+To deploy tekton, Run the play `setup_tekton.yml`.
 ```
 $ ansible-playbook setup.yml -t tekton
 ```
-
-## Harbor
-Harbor components are installed with helm. To deploy harbor, Run the play `setup.yml` with tags `harbor`.
-
-```
-$ ansible-playbook setup.yml -t harbor
-```
-
-Some settings about harbor server can be changed to edit values in `group_vars/all.yml`. The list of parameters are the following.
-
-| parameters | description | default |
-| - | - | - |
-| harbor_release_name | Release name | harbor |
-| harbor_namespace | Namespace | harbor |
-| harbor_domain | Server domain name of harbor | core.harbor.domain |
-| harbor_node_port | HTTPS port of harbor nodePort | 30003 |
-| harbor_admin_password | Admin user password | Harbor12345 |
-
-
-PersistentVolume to store data set `host_path` and directory `/opt/kube/harbor/[components]` will be created on all nodes in cluster. The path can be changed to `harbor_host_path_dir`.
-
-
-## Gitea
-Gitea components are installed with helm. To deploy gitea, Run the play `setup.yml` with tags `gitea`.
-
-```
-$ ansible-playbook setup.yml -t gitea
-```
-
-Some settings about gitea server can be changed to edit values in `group_vars/all.yml`. The list of parameters are the following.
-
-| parameters | description | default |
-| - | - | - |
-| gitea_release_name | Release name | gitea |
-| gitea_namespace | Namespace | gitea |
-| gitea_admin_username | Admin user name | gitea_admin |
-| gitea_admin_password | Admin user password | r8sA8CPHD9!bt6d |
-| gitea_admin_email | Admin user email | gitea@local.domain |
-| gitea_config_server_domain | Server domain name | git.example.com |
-
-
-PersistentVolume to store data set `host_path` and directory `/opt/kube/gitea/[components]` will be created on all nodes in cluster. The path can be changed to `gitea_host_path_dir`.
-
 
 
 ## Clean up cluster
