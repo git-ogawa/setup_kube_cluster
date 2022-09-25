@@ -1,2 +1,4 @@
 tmp*
-
+test_*
+.vscode
+ec2_*

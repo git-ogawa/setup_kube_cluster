@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ gitea_pvc.gitea.name }}
+  namespace: {{ gitea_namespace }}
+  labels:
+    app: gitea
+    component: "{{ gitea_pvc.gitea.label }}"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ gitea_pvc.gitea.storage }}
+  volumeMode: Filesystem
+  selector:
+    matchLabels:
+      app: gitea
+      component: {{ gitea_pvc.gitea.selector_label }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ gitea_pvc.postgresql.name }}
+  namespace: {{ gitea_namespace }}
+  labels:
+    app: gitea
+    component: "{{ gitea_pvc.postgresql.label }}"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ gitea_pvc.postgresql.storage }}
+  volumeMode: Filesystem
+  selector:
+    matchLabels:
+      app: gitea
+      component: {{ gitea_pvc.postgresql.selector_label }}

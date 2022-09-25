@@ -15,14 +15,22 @@
 
 - name: Setup kubernetes cluster with kubeadm
   hosts: controller
-  gather_facts: false
+  gather_facts: true
   tasks:
     - name: Kubeadm init
       ansible.builtin.import_role:
         name: setup_cluster
         tasks_from: kubeadm_init
+      vars:
+        ipv4_address: "{{ ansible_facts.default_ipv4.address }}"
 
     - name: Install CNI
       ansible.builtin.import_role:
         name: setup_cluster
         tasks_from: deploy_cni
+
+    - name: Taint control plane nodes
+      ansible.builtin.command: |
+        kubectl taint nodes --all node-role.kubernetes.io/control-plane- node-role.kubernetes.io/master-
+      changed_when: true
+      when: taint_control_plane_node | bool

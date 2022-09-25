@@ -1,0 +1,6 @@
+---
+- name: Delete directory on node for host path
+  ansible.builtin.file:
+    state: absent
+    path: "{{ harbor_host_path_dir }}"
+  become: true

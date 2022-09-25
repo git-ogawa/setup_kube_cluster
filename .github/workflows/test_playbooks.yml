@@ -40,9 +40,8 @@ jobs:
 
       - name: Set up inventory and settings for connection
         run: |
-          sed -i "s/controller_ip/${{ env.CONTROLLER_IP }}/" testdata/inventory
-          sed -i "s/worker1_ip/${{ env.WORKER1_IP }}/" testdata/inventory
-          sed -i "s/= inventory/= testdata\/inventory/" ansible.cfg
+          sed -i "s/controller_ip/${{ env.CONTROLLER_IP }}/" inventory_ci_test
+          sed -i "s/worker1_ip/${{ env.WORKER1_IP }}/" inventory_ci_test
           echo "${{ secrets.AWS_SSH_KEY }}" >> ~/.ssh_key.pem && chmod 400 ~/.ssh_key.pem
           echo "ANSIBLE_HOST_KEY_CHECKING=False" >> $GITHUB_ENV
 
@@ -52,7 +51,7 @@ jobs:
           bash testdata/aws_ssh_check.sh ec2-user ${{ env.WORKER1_IP }} ~/.ssh_key.pem
 
       - name: Run setup
-        run: ansible-playbook setup.yml
+        run: ansible-playbook -i inventory_ci_test setup.yml
 
       - name: Check nodes
         run: >
@@ -67,5 +66,5 @@ jobs:
         if: ${{ success() }}
 
       - name: Clean up the cluster
-        run: ansible-playbook playbooks/cleanup_cluster.yml
+        run: ansible-playbook -i inventory_ci_test playbooks/cleanup_cluster.yml
         if: ${{ always() }}

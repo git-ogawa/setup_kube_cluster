@@ -1,0 +1,22 @@
+---
+- name: Make host path
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Make host path
+      ansible.builtin.import_role:
+        name: gitea
+        tasks_from: make_hostpath
+
+- name: Install gitea
+  hosts: controller
+  gather_facts: false
+  tasks:
+    - name: Make persistenceVolume and persistentVolumeClaim
+      ansible.builtin.import_role:
+        name: gitea
+        tasks_from: make_pv
+
+    - name: Install gitea
+      ansible.builtin.import_role:
+        name: gitea

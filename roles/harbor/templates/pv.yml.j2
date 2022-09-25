@@ -1,0 +1,132 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ harbor_pv.registry.name }}
+  labels:
+    app: harbor
+    component: {{ harbor_pv.registry.label }}
+spec:
+  capacity:
+    storage: {{ harbor_pv.registry.storage }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: ""
+  hostPath:
+    path: {{ harbor_pv.registry.host_path }}
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ harbor_pv.chartmuseum.name }}
+  labels:
+    app: harbor
+    component: {{ harbor_pv.chartmuseum.label }}
+spec:
+  capacity:
+    storage: {{ harbor_pv.chartmuseum.storage }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: ""
+  hostPath:
+    path: {{ harbor_pv.chartmuseum.host_path }}
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ harbor_pv.jobservice_jobLog.name }}
+  labels:
+    app: harbor
+    component: {{ harbor_pv.jobservice_jobLog.label }}
+spec:
+  capacity:
+    storage: {{ harbor_pv.jobservice_jobLog.storage }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: ""
+  hostPath:
+    path: {{ harbor_pv.jobservice_jobLog.host_path }}
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ harbor_pv.jobservice_scanDataExports.name }}
+  labels:
+    app: harbor
+    component: {{ harbor_pv.jobservice_scanDataExports.label }}
+spec:
+  capacity:
+    storage: {{ harbor_pv.jobservice_scanDataExports.storage }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: ""
+  hostPath:
+    path: {{ harbor_pv.jobservice_scanDataExports.host_path }}
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ harbor_pv.database.name }}
+  labels:
+    app: harbor
+    component: {{ harbor_pv.database.label }}
+spec:
+  capacity:
+    storage: {{ harbor_pv.database.storage }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: ""
+  hostPath:
+    path: {{ harbor_pv.database.host_path }}
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ harbor_pv.trivy.name }}
+  labels:
+    app: harbor
+    component: {{ harbor_pv.trivy.label }}
+spec:
+  capacity:
+    storage: {{ harbor_pv.trivy.storage }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: ""
+  hostPath:
+    path: {{ harbor_pv.trivy.host_path }}
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ harbor_pv.redis.name }}
+  labels:
+    app: harbor
+    component: {{ harbor_pv.redis.label }}
+spec:
+  capacity:
+    storage: {{ harbor_pv.redis.storage }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: ""
+  hostPath:
+    path: {{ harbor_pv.redis.host_path }}
