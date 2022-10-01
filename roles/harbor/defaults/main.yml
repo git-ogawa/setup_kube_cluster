@@ -1,9 +1,11 @@
 ---
 harbor_release_name: harbor
 harbor_namespace: harbor
-harbor_node_port: 30003
 harbor_domain: core.harbor.domain
 harbor_host_path_dir: /opt/kube/harbor
+harbor_expose_type: nodePort
+harbor_external_url: https://{{ harbor_domain }}
+
 
 harbor_pv:
   registry:
@@ -74,15 +76,11 @@ harbor_pvc:
 
 harbor_values:
   expose:
-    type: nodePort
-    nodePort:
-      ports:
-        https:
-          nodePort: "{{ harbor_node_port }}"
+    type: "{{ harbor_expose_type }}"
     tls:
       auto:
         commonName: "{{ harbor_domain }}"
-  externalURL: "https://{{ harbor_domain }}:{{ harbor_node_port }}"
+  externalURL: "{{ harbor_external_url }}"
   persistence:
     enabled: true
     persistentVolumeClaim:

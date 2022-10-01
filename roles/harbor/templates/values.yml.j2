@@ -88,7 +88,7 @@ expose:
         # The service port Harbor listens on when serving HTTPS
         port: 443
         # The node port Harbor listens on when serving HTTPS
-        nodePort: {{ harbor_values.expose.nodePort.ports.https.nodePort }}
+        nodePort: 30003
       # Only needed when notary.enabled is set to true
       notary:
         # The service port Notary listens on
