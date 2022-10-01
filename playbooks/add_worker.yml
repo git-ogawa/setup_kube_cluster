@@ -32,7 +32,7 @@
 
     - name: Add worker node
       ansible.builtin.command: >
-        kubeadm join {{ hostvars[controller].ansible_facts.eth0.ipv4.address }}:6443
+        kubeadm join {{ hostvars[controller].ansible_facts.default_ipv4.address }}:6443
         --discovery-token {{ hostvars[controller].token.stdout }}
         --discovery-token-ca-cert-hash sha256:{{ hostvars[controller].hash.stdout }}
       become: true
