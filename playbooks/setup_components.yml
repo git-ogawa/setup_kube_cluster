@@ -11,6 +11,8 @@
 
     - role: containerd
       tags: containerd
+      vars:
+        architecture: "{{ ansible_facts.architecture }}"
 
     - role: helm
       tags: helm

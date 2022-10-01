@@ -1,2 +1,3 @@
 ---
+architecture: x86_64
 containerd_version: latest
