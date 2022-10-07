@@ -8,6 +8,12 @@
       changed_when: true
       become: true
 
+    - name: Remove /etc/cni/net.d
+      ansible.builtin.file:
+        path: /etc/cni/net.d
+        state: absent
+      become: true
+
 - name: Clean up on controller
   hosts: controller
   gather_facts: false

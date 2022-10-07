@@ -1,0 +1,20 @@
+---
+- name: Check architectures
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Get nodes architecture
+      ansible.builtin.set_fact:
+        nodes_architecture: "{{ hostvars | json_query(query) }}"
+      vars:
+        query: "*.ansible_facts.architecture"
+
+- name: Update kube-proxy
+  hosts: controller
+  gather_facts: false
+  tasks:
+    - name: Update kube-proxy for arm nodes
+      ansible.builtin.import_role:
+        name: setup_cluster
+        tasks_from: kube-proxy
+      when: "'aarch64' in nodes_architecture"

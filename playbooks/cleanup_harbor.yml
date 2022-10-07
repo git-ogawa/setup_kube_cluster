@@ -22,6 +22,9 @@
         name: harbor
         tasks_from: delete_hostpath
 
+    - name: Populate service facts
+      ansible.builtin.service_facts:
+
     - name: Delete harbor CA cert in containerd
       ansible.builtin.import_role:
         name: containerd
@@ -29,6 +32,7 @@
       vars:
         containerd_cert_src: /tmp/harbor.crt
         registry_name: "{{ harbor_domain }}"
+      when: "'containerd.service' in ansible_facts.services"
 
     - name: Delete harbor CA cert in docker
       ansible.builtin.import_role:
@@ -37,3 +41,4 @@
       vars:
         docker_cert_src: /tmp/harbor.crt
         registry_name: "{{ harbor_domain }}"
+      when: "'docker.service' in ansible_facts.services"
