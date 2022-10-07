@@ -1,0 +1,18 @@
+---
+kubevious_release_name: kubevious
+kubevious_namespace: kubevious
+kubevious_storage_class: ""
+
+kubevious_pv_enabled: false
+kubevious_pv:
+  mysql:
+    name: kubevious-mysql
+    storage: 10Gi
+    label: kubevious
+    host_path: "/opt/kube/kubevious/mysql"
+
+kubevious_values:
+  mysql:
+    persistence:
+      enabled: true
+      size: "{{ kubevious_pv.mysql.storage }}"
