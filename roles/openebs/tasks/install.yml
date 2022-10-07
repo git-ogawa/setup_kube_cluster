@@ -1,0 +1,25 @@
+---
+- name: "Create {{ openebs_namespace }} namespace"
+  kubernetes.core.k8s:
+    name: "{{ openebs_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: Add openebs repository
+  kubernetes.core.helm_repository:
+    name: openebs
+    repo_url: https://openebs.github.io/charts
+
+- name: Separately update the repository cache
+  kubernetes.core.helm:
+    name: dummy
+    namespace: kube-system
+    state: absent
+    update_repo_cache: true
+
+- name: Deploy openebs
+  kubernetes.core.helm:
+    name: "{{ openebs_release_name }}"
+    chart_ref: openebs/openebs
+    release_namespace: "{{ openebs_namespace }}"
