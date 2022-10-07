@@ -11,6 +11,7 @@
     state: present
     template: pv.yml.j2
     namespace: "{{ gitea_namespace }}"
+  when: gitea_pv_enabled | bool
 
 - name: Create persistentVolumeClaim
   kubernetes.core.k8s:
