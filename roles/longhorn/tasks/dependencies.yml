@@ -1,0 +1,42 @@
+---
+- name: Install dependencies with apt
+  ansible.builtin.apt:
+    name:
+      - open-iscsi
+      - nfs-common
+  become: true
+  when: package_manager == "apt"
+
+- name: Install dependencies with dnf
+  when: package_manager == "dnf" or package_manager == "yum"
+  block:
+    - name: Install iscsi-initiator-utils
+      ansible.builtin.dnf:
+        name: iscsi-initiator-utils
+      become: true
+
+    - name: Set /etc/iscsi/initiatorname.iscsi
+      ansible.builtin.shell: echo "InitiatorName=$(/sbin/iscsi-iname)" > /etc/iscsi/initiatorname.iscsi
+      become: true
+
+- name: Start iscsid service
+  ansible.builtin.systemd:
+    name: iscsid
+    state: started
+    enabled: true
+  become: true
+
+- name: Modprobe iscsi_tcp
+  community.general.modprobe:
+    name: iscsi_tcp
+    state: present
+  become: true
+
+- name: Put /etc/modules-load.d/longhorn.conf
+  ansible.builtin.copy:
+    src: modules.conf
+    dest: /etc/modules-load.d/longhorn.conf
+    mode: "0644"
+    owner: root
+    group: root
+  become: true
