@@ -5,6 +5,9 @@ all:
     kubernetes_version: latest
     # kubernetes_version: "1.24.4"
     taint_control_plane_node: false
+    openebs_install: true
+    longhorn_install: false
+    kubevious_install: true
     argocd_install: true
     tekton_install: true
     gitea_install: true
