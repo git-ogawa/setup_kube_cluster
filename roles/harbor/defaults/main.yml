@@ -5,8 +5,9 @@ harbor_domain: core.harbor.domain
 harbor_host_path_dir: /opt/kube/harbor
 harbor_expose_type: nodePort
 harbor_external_url: https://{{ harbor_domain }}
+harbor_storage_class: ""
 
-
+harbor_pv_enabled: true
 harbor_pv:
   registry:
     name: registry

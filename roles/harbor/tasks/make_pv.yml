@@ -11,6 +11,7 @@
     state: present
     template: pv.yml.j2
     namespace: "{{ harbor_namespace }}"
+  when: harbor_pv_enabled | bool
 
 - name: Create persistentVolumeClaim
   kubernetes.core.k8s:
