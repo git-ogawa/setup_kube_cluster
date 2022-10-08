@@ -14,10 +14,13 @@ spec:
     requests:
       storage: {{ gitea_pvc.gitea.storage }}
   volumeMode: Filesystem
+  storageClassName: "{{ gitea_storage_class }}"
+{% if gitea_pv_enabled %}
   selector:
     matchLabels:
       app: gitea
       component: {{ gitea_pvc.gitea.selector_label }}
+{% endif %}
 
 ---
 apiVersion: v1
@@ -35,7 +38,10 @@ spec:
     requests:
       storage: {{ gitea_pvc.postgresql.storage }}
   volumeMode: Filesystem
+  storageClassName: "{{ gitea_storage_class }}"
   selector:
     matchLabels:
+{% if gitea_pv_enabled %}
       app: gitea
       component: {{ gitea_pvc.postgresql.selector_label }}
+{% endif %}

@@ -88,7 +88,7 @@ expose:
         # The service port Harbor listens on when serving HTTPS
         port: 443
         # The node port Harbor listens on when serving HTTPS
-        nodePort: {{ harbor_values.expose.nodePort.ports.https.nodePort }}
+        nodePort: 30003
       # Only needed when notary.enabled is set to true
       notary:
         # The service port Notary listens on
@@ -217,14 +217,14 @@ persistence:
       # Specify the "storageClass" used to provision the volume. Or the default
       # StorageClass will be used (the default).
       # Set it to "-" to disable dynamic provisioning
-      storageClass: ""
+      storageClass: "{{ harbor_storage_class }}"
       subPath: ""
       accessMode: ReadWriteOnce
       size: "{{ harbor_values.persistence.persistentVolumeClaim.registry.size }}"
       annotations: {}
     chartmuseum:
       existingClaim: "{{ harbor_values.persistence.persistentVolumeClaim.chartmuseum.existingClaim }}"
-      storageClass: ""
+      storageClass: "{{ harbor_storage_class }}"
       subPath: ""
       accessMode: ReadWriteOnce
       size: "{{ harbor_values.persistence.persistentVolumeClaim.chartmuseum.size }}"
@@ -232,14 +232,14 @@ persistence:
     jobservice:
       jobLog:
         existingClaim: "{{ harbor_values.persistence.persistentVolumeClaim.jobservice.jobLog.existingClaim }}"
-        storageClass: ""
+        storageClass: "{{ harbor_storage_class }}"
         subPath: ""
         accessMode: ReadWriteOnce
         size: "{{ harbor_values.persistence.persistentVolumeClaim.jobservice.jobLog.size }}"
         annotations: {}
       scanDataExports:
         existingClaim: "{{ harbor_values.persistence.persistentVolumeClaim.jobservice.scanDataExports.existingClaim }}"
-        storageClass: ""
+        storageClass: "{{ harbor_storage_class }}"
         subPath: ""
         accessMode: ReadWriteOnce
         size: "{{ harbor_values.persistence.persistentVolumeClaim.jobservice.scanDataExports.size }}"
@@ -248,7 +248,7 @@ persistence:
     # be ignored
     database:
       existingClaim: "{{ harbor_values.persistence.persistentVolumeClaim.database.existingClaim }}"
-      storageClass: ""
+      storageClass: "{{ harbor_storage_class }}"
       subPath: ""
       accessMode: ReadWriteOnce
       size: "{{ harbor_values.persistence.persistentVolumeClaim.database.size }}"
@@ -257,14 +257,14 @@ persistence:
     # be ignored
     redis:
       existingClaim: "{{ harbor_values.persistence.persistentVolumeClaim.redis.existingClaim }}"
-      storageClass: ""
+      storageClass: "{{ harbor_storage_class }}"
       subPath: ""
       accessMode: ReadWriteOnce
       size: "{{ harbor_values.persistence.persistentVolumeClaim.redis.size }}"
       annotations: {}
     trivy:
       existingClaim: "{{ harbor_values.persistence.persistentVolumeClaim.trivy.existingClaim }}"
-      storageClass: ""
+      storageClass: "{{ harbor_storage_class }}"
       subPath: ""
       accessMode: ReadWriteOnce
       size: "{{ harbor_values.persistence.persistentVolumeClaim.trivy.size }}"
@@ -432,7 +432,8 @@ nginx:
   #  requests:
   #    memory: 256Mi
   #    cpu: 100m
-  nodeSelector: {}
+  nodeSelector:
+    kubernetes.io/arch: amd64
   tolerations: []
   affinity: {}
   ## Additional deployment annotations
@@ -454,7 +455,8 @@ portal:
   #  requests:
   #    memory: 256Mi
   #    cpu: 100m
-  nodeSelector: {}
+  nodeSelector:
+    kubernetes.io/arch: amd64
   tolerations: []
   affinity: {}
   ## Additional deployment annotations
@@ -480,7 +482,8 @@ core:
   #  requests:
   #    memory: 256Mi
   #    cpu: 100m
-  nodeSelector: {}
+  nodeSelector:
+    kubernetes.io/arch: amd64
   tolerations: []
   affinity: {}
   ## Additional deployment annotations
@@ -530,7 +533,8 @@ jobservice:
   #   requests:
   #     memory: 256Mi
   #     cpu: 100m
-  nodeSelector: {}
+  nodeSelector:
+    kubernetes.io/arch: amd64
   tolerations: []
   affinity: {}
   ## Additional deployment annotations
@@ -566,7 +570,8 @@ registry:
     #    cpu: 100m
   replicas: 1
   revisionHistoryLimit: 10
-  nodeSelector: {}
+  nodeSelector:
+    kubernetes.io/arch: amd64
   tolerations: []
   affinity: {}
   ## Additional deployment annotations
@@ -625,7 +630,8 @@ chartmuseum:
   #  requests:
   #    memory: 256Mi
   #    cpu: 100m
-  nodeSelector: {}
+  nodeSelector:
+    kubernetes.io/arch: amd64
   tolerations: []
   affinity: {}
   ## Additional deployment annotations
@@ -698,7 +704,8 @@ trivy:
     limits:
       cpu: 1
       memory: 1Gi
-  nodeSelector: {}
+  nodeSelector:
+    kubernetes.io/arch: amd64
   tolerations: []
   affinity: {}
   ## Additional deployment annotations
@@ -721,7 +728,8 @@ notary:
     #  requests:
     #    memory: 256Mi
     #    cpu: 100m
-    nodeSelector: {}
+    nodeSelector:
+      kubernetes.io/arch: amd64
     tolerations: []
     affinity: {}
     ## Additional deployment annotations
@@ -741,7 +749,8 @@ notary:
     #  requests:
     #    memory: 256Mi
     #    cpu: 100m
-    nodeSelector: {}
+    nodeSelector:
+      kubernetes.io/arch: amd64
     tolerations: []
     affinity: {}
     ## Additional deployment annotations
@@ -778,7 +787,8 @@ database:
     #  requests:
     #    memory: 256Mi
     #    cpu: 100m
-    nodeSelector: {}
+    nodeSelector:
+      kubernetes.io/arch: amd64
     tolerations: []
     affinity: {}
     ## The priority class to run the pod as
@@ -838,7 +848,8 @@ redis:
     #  requests:
     #    memory: 256Mi
     #    cpu: 100m
-    nodeSelector: {}
+    nodeSelector:
+      kubernetes.io/arch: amd64
     tolerations: []
     affinity: {}
     ## The priority class to run the pod as
@@ -877,7 +888,8 @@ exporter:
   image:
     repository: goharbor/harbor-exporter
     tag: v2.6.0
-  nodeSelector: {}
+  nodeSelector:
+    kubernetes.io/arch: amd64
   tolerations: []
   affinity: {}
   cacheDuration: 23

@@ -16,11 +16,14 @@ spec:
   resources:
     requests:
       storage: {{ harbor_pvc.redis.storage }}
+  storageClassName: {{ harbor_storage_class }}
   volumeMode: Filesystem
+{% if harbor_pv_enabled | bool %}
   selector:
     matchLabels:
       app: harbor
       component: {{ harbor_pvc.redis.selector_label }}
+{% endif %}
 
 ---
 apiVersion: v1
@@ -41,10 +44,13 @@ spec:
     requests:
       storage: {{ harbor_pvc.trivy.storage }}
   volumeMode: Filesystem
+  storageClassName: {{ harbor_storage_class }}
+{% if harbor_pv_enabled %}
   selector:
     matchLabels:
       app: harbor
       component: {{ harbor_pvc.trivy.selector_label }}
+{% endif %}
 
 ---
 apiVersion: v1
@@ -65,10 +71,13 @@ spec:
     requests:
       storage: {{ harbor_pvc.database.storage }}
   volumeMode: Filesystem
+  storageClassName: {{ harbor_storage_class }}
+{% if harbor_pv_enabled %}
   selector:
     matchLabels:
       app: harbor
       component: {{ harbor_pvc.database.selector_label }}
+{% endif %}
 
 ---
 apiVersion: v1
@@ -85,15 +94,18 @@ metadata:
   namespace: {{ harbor_namespace }}
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   resources:
     requests:
       storage: {{ harbor_pvc.chartmuseum.storage }}
   volumeMode: Filesystem
+  storageClassName: {{ harbor_storage_class }}
+{% if harbor_pv_enabled %}
   selector:
     matchLabels:
       app: harbor
       component: {{ harbor_pvc.chartmuseum.selector_label }}
+{% endif %}
 
 ---
 apiVersion: v1
@@ -110,15 +122,18 @@ metadata:
   namespace: {{ harbor_namespace }}
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   resources:
     requests:
       storage: {{ harbor_pvc.jobservice_jobLog.storage }}
   volumeMode: Filesystem
+  storageClassName: {{ harbor_storage_class }}
+{% if harbor_pv_enabled %}
   selector:
     matchLabels:
       app: harbor
       component: {{ harbor_pvc.jobservice_jobLog.selector_label }}
+{% endif %}
 
 ---
 apiVersion: v1
@@ -135,15 +150,18 @@ metadata:
   namespace: {{ harbor_namespace }}
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   resources:
     requests:
       storage: {{ harbor_pvc.jobservice_scanDataExports.storage }}
   volumeMode: Filesystem
+  storageClassName: {{ harbor_storage_class }}
+{% if harbor_pv_enabled %}
   selector:
     matchLabels:
       app: harbor
       component: {{ harbor_pvc.jobservice_scanDataExports.selector_label }}
+{% endif %}
 
 ---
 apiVersion: v1
@@ -160,12 +178,15 @@ metadata:
   namespace: {{ harbor_namespace }}
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   resources:
     requests:
       storage: {{ harbor_pvc.registry.storage }}
   volumeMode: Filesystem
+  storageClassName: {{ harbor_storage_class }}
+{% if harbor_pv_enabled %}
   selector:
     matchLabels:
       app: harbor
       component: {{ harbor_pvc.registry.selector_label }}
+{% endif %}

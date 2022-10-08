@@ -6,3 +6,4 @@
     mode: "0777"
   become: true
   loop: "{{ harbor_pv | dict2items }}"
+  when: harbor_pv_enabled | bool

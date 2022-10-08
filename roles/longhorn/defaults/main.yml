@@ -1,0 +1,9 @@
+---
+package_manager: apt
+
+longhorn_namespace: longhorn-system
+longhorn_release_name: longhorn
+
+longhorn_storage_class:
+  number_of_replicas: 1
+  stale_replica_timeout: 2880

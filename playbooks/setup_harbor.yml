@@ -8,7 +8,7 @@
         name: harbor
         tasks_from: make_hostpath
 
-- name: Install harbor
+- name: Deploy harbor
   hosts: controller
   gather_facts: false
   tasks:
@@ -17,6 +17,43 @@
         name: harbor
         tasks_from: make_pv
 
-    - name: Install harbor
+    - name: Deploy harbor
       ansible.builtin.import_role:
         name: harbor
+
+    - name: Get CA cert
+      ansible.builtin.import_role:
+        name: harbor
+        tasks_from: get_cacert
+
+- name: Put CAcert on nodes
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Populate service facts
+      ansible.builtin.service_facts:
+
+    - name: Put harbor CA cert in containerd
+      ansible.builtin.import_role:
+        name: containerd
+        tasks_from: add_cert
+      vars:
+        containerd_cert_src: /tmp/harbor.crt
+        registry_name: "{{ harbor_domain }}"
+      when: "'containerd.service' in ansible_facts.services"
+
+    - name: Put harbor CA cert in docker
+      ansible.builtin.import_role:
+        name: docker
+        tasks_from: add_cert
+      vars:
+        docker_cert_src: /tmp/harbor.crt
+        registry_name: "{{ harbor_domain }}"
+      when: "'docker.service' in ansible_facts.services"
+
+    - name: Delete CA cert from local
+      ansible.builtin.file:
+        path: /tmp/harbor.crt
+        state: absent
+      delegate_to: localhost
+      run_once: true

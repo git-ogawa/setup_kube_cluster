@@ -1,0 +1,11 @@
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: longhorn
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+parameters:
+  numberOfReplicas: "{{ longhorn_storage_class.number_of_replicas }}"
+  staleReplicaTimeout: "{{ longhorn_storage_class.stale_replica_timeout }}"
+  fromBackup: ""

@@ -1,0 +1,31 @@
+---
+- name: Get service harbor resources
+  kubernetes.core.k8s_info:
+    name: harbor
+    kind: Service
+    namespace: "{{ harbor_namespace }}"
+  register: harbor_service
+  until: harbor_service.resources | length > 0
+  retries: 5
+  delay: 10
+
+- name: Get clusterIP of the service
+  ansible.builtin.set_fact:
+    cluster_ip: "{{ harbor_service.resources[0].spec.clusterIP }}"
+
+- name: Get CA cert of harbor
+  ansible.builtin.get_url:
+    url: "https://{{ cluster_ip }}/api/v2.0/systeminfo/getcert"
+    dest: /tmp/certs.crt
+    mode: "0755"
+    validate_certs: false
+  register: result
+  until: result.changed
+  retries: 5
+  delay: 10
+
+- name: Fetch CA cert from the remote node
+  ansible.builtin.fetch:
+    src: /tmp/certs.crt
+    dest: /tmp/harbor.crt
+    flat: true

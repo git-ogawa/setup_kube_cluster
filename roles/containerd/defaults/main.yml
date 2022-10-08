@@ -1,2 +1,11 @@
 ---
+architecture: x86_64
 containerd_version: latest
+containerd_config: /etc/containerd/config.toml
+
+# Cert
+registry_name: myregistry.domain
+cacert_name: ca.crt
+containerd_cert_dir: /etc/containerd/certs.d
+containerd_cert_src: "/tmp/{{ cacert_name }}"
+containerd_cert_dest: "{{ containerd_cert_dir }}/{{ registry_name }}/{{ cacert_name }}"

@@ -1,0 +1,21 @@
+---
+- name: Install iscsid with apt
+  ansible.builtin.apt:
+    name: open-iscsi
+  become: true
+  when: package_manager == "apt"
+
+- name: Install iscsid with dnf
+  when: package_manager == "dnf" or package_manager == "yum"
+  block:
+    - name: Install iscsi-initiator-utils
+      ansible.builtin.dnf:
+        name: iscsi-initiator-utils
+      become: true
+
+- name: Start iscsid service
+  ansible.builtin.systemd:
+    name: iscsid
+    state: started
+    enabled: true
+  become: true

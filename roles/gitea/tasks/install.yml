@@ -24,6 +24,8 @@
     chart_ref: gitea/gitea
     release_namespace: "{{ gitea_namespace }}"
     values:
+      global:
+        storageClass: "{{ gitea_storage_class }}"
       gitea:
         admin:
           username: "{{ gitea_admin_username }}"
@@ -32,6 +34,7 @@
         config:
           server:
             DOMAIN: "{{ gitea_config_server_domain }}"
+            ROOT_URL: "https://{{ gitea_config_server_domain }}"
       persistence:
         enabled: true
         existingClaim: "{{ gitea_pvc.gitea.name }}"
@@ -41,3 +44,29 @@
           existingClaim: "{{ gitea_pvc.postgresql.name }}"
         volumePermissions:
           enabled: true
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      memcached:
+        nodeSelector:
+          kubernetes.io/arch: amd64
+
+- name: Delete postgresql statefulset
+  kubernetes.core.k8s:
+    state: absent
+    name: gitea-postgresql
+    kind: StatefulSet
+    api_version: v1
+    namespace: "{{ gitea_namespace }}"
+
+- name: Update postgresql statefulset
+  kubernetes.core.k8s:
+    state: present
+    template: statefulset.yml.j2
+
+- name: Update postgresql pod
+  kubernetes.core.k8s:
+    state: absent
+    name: gitea-postgresql-0
+    kind: pod
+    api_version: v1
+    namespace: "{{ gitea_namespace }}"

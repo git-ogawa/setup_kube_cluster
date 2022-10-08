@@ -13,7 +13,7 @@
         name: harbor
         tasks_from: delete_pv
 
-- name: Delete host path
+- name: Delete host path and cert on remote nodes
   hosts: all
   gather_facts: false
   tasks:
@@ -21,3 +21,24 @@
       ansible.builtin.import_role:
         name: harbor
         tasks_from: delete_hostpath
+
+    - name: Populate service facts
+      ansible.builtin.service_facts:
+
+    - name: Delete harbor CA cert in containerd
+      ansible.builtin.import_role:
+        name: containerd
+        tasks_from: delete_cert
+      vars:
+        containerd_cert_src: /tmp/harbor.crt
+        registry_name: "{{ harbor_domain }}"
+      when: "'containerd.service' in ansible_facts.services"
+
+    - name: Delete harbor CA cert in docker
+      ansible.builtin.import_role:
+        name: docker
+        tasks_from: delete_cert
+      vars:
+        docker_cert_src: /tmp/harbor.crt
+        registry_name: "{{ harbor_domain }}"
+      when: "'docker.service' in ansible_facts.services"

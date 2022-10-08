@@ -6,16 +6,19 @@ gitea_admin_password: "r8sA8CPHD9!bt6d"
 gitea_admin_email: "gitea@local.domain"
 gitea_config_server_domain: git.example.com
 
+gitea_storage_class: ""
 gitea_host_path_dir: /opt/kube/gitea
+
+gitea_pv_enabled: true
 gitea_pv:
   gitea:
     name: gitea
-    storage: 10Gi
+    storage: 1Gi
     label: gitea
     host_path: "{{ gitea_host_path_dir }}/gitea"
   postgresql:
     name: gitea-postgresql
-    storage: 10Gi
+    storage: 1Gi
     label: postgresql
     host_path: "{{ gitea_host_path_dir }}/postgresql"
 

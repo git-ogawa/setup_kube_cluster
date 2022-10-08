@@ -6,3 +6,4 @@
     mode: "0777"
   become: true
   loop: "{{ gitea_pv | dict2items }}"
+  when: gitea_pv_enabled | bool

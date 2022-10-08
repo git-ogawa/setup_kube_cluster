@@ -1,0 +1,28 @@
+---
+- name: "Make certs directory {{ docker_cert_dir }}"
+  ansible.builtin.file:
+    path: "{{ docker_cert_dir }}"
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Make certs registry directory
+  ansible.builtin.file:
+    path: "{{ docker_cert_dir }}/{{ registry_name }}"
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: "Put {{ cacert_name }}"
+  ansible.builtin.copy:
+    src: "{{ docker_cert_src }}"
+    dest: "{{ docker_cert_dir }}/{{ registry_name }}/{{ cacert_name }}"
+    mode: "0644"
+  become: true
+
+- name: Restart docker
+  ansible.builtin.systemd:
+    name: docker
+    state: restarted
+    daemon_reload: true
+  become: true

@@ -1,0 +1,5 @@
+---
+package_manager: apt
+
+openebs_namespace: openebs
+openebs_release_name: openebs

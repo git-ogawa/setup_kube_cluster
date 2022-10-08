@@ -14,6 +14,8 @@ on:
         required: true
       EC2_WORKER1_TAG:
         required: true
+      EC2_WORKER2_TAG:
+        required: true
 
 jobs:
   stop_ec2:
@@ -33,5 +35,7 @@ jobs:
         run: |
           controller=$(testdata/aws_instance_id.sh ${{ secrets.EC2_CONTROLLER_TAG }})
           worker1=$(testdata/aws_instance_id.sh ${{ secrets.EC2_WORKER1_TAG }})
+          worker2=$(testdata/aws_instance_id.sh ${{ secrets.EC2_WORKER2_TAG }})
           aws ec2 stop-instances --instance-ids ${controller} > /dev/null
           aws ec2 stop-instances --instance-ids ${worker1} > /dev/null
+          aws ec2 stop-instances --instance-ids ${worker2} > /dev/null

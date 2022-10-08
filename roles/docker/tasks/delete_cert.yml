@@ -1,0 +1,13 @@
+---
+- name: "Delete certs directory {{ docker_cert_dir }}"
+  ansible.builtin.file:
+    path: "{{ docker_cert_dir }}"
+    state: absent
+  become: true
+
+- name: Restart docker
+  ansible.builtin.systemd:
+    name: docker
+    state: restarted
+    daemon_reload: true
+  become: true

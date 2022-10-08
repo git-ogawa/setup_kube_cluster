@@ -1,0 +1,20 @@
+---
+- name: Get the existing kube-proxy resource
+  kubernetes.core.k8s_info:
+    name: kube-proxy
+    kind: DaemonSet
+    namespace: kube-system
+  register: result
+
+- name: Get the version of kube-proxy image
+  ansible.builtin.set_fact:
+    kube_proxy_image_version: "{{ result.resources[0].spec.template.spec.containers[0].image | regex_search(pattern) }}"
+  vars:
+    pattern: 'v[0-9]{1}.[0-9]{,2}.[0-9]{,2}'
+
+- name: Make kube-proxy-arm daemon set for arm nodes
+  kubernetes.core.k8s:
+    name: kube-proxy-arm
+    kind: DaemonSet
+    namespace: kube-system
+    template: kube-proxy-arm.yml.j2

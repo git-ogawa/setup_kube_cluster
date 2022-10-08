@@ -16,6 +16,8 @@ on:
         required: true
       EC2_WORKER1_TAG:
         required: true
+      EC2_WORKER2_TAG:
+        required: true
 
 jobs:
   check_playbooks:
@@ -35,13 +37,16 @@ jobs:
         run: |
           testdata/aws_public_ip.sh ${{ secrets.EC2_CONTROLLER_TAG }}
           testdata/aws_public_ip.sh ${{ secrets.EC2_WORKER1_TAG }}
+          testdata/aws_public_ip.sh ${{ secrets.EC2_WORKER2_TAG }}
           echo "CONTROLLER_IP=$(cat ${{ secrets.EC2_CONTROLLER_TAG }}_ip.txt)" >> $GITHUB_ENV
           echo "WORKER1_IP=$(cat ${{ secrets.EC2_WORKER1_TAG }}_ip.txt)" >> $GITHUB_ENV
+          echo "WORKER2_IP=$(cat ${{ secrets.EC2_WORKER2_TAG }}_ip.txt)" >> $GITHUB_ENV
 
       - name: Set up inventory and settings for connection
         run: |
           sed -i "s/controller_ip/${{ env.CONTROLLER_IP }}/" inventory_ci_test
           sed -i "s/worker1_ip/${{ env.WORKER1_IP }}/" inventory_ci_test
+          sed -i "s/worker2_ip/${{ env.WORKER2_IP }}/" inventory_ci_test
           echo "${{ secrets.AWS_SSH_KEY }}" >> ~/.ssh_key.pem && chmod 400 ~/.ssh_key.pem
           echo "ANSIBLE_HOST_KEY_CHECKING=False" >> $GITHUB_ENV
 
@@ -49,6 +54,7 @@ jobs:
         run: |
           bash testdata/aws_ssh_check.sh rocky ${{ env.CONTROLLER_IP }} ~/.ssh_key.pem
           bash testdata/aws_ssh_check.sh ec2-user ${{ env.WORKER1_IP }} ~/.ssh_key.pem
+          bash testdata/aws_ssh_check.sh ubuntu ${{ env.WORKER2_IP }} ~/.ssh_key.pem
 
       - name: Run setup
         run: ansible-playbook -i inventory_ci_test setup.yml
@@ -67,4 +73,4 @@ jobs:
 
       - name: Clean up the cluster
         run: ansible-playbook -i inventory_ci_test playbooks/cleanup_cluster.yml
-        if: ${{ always() }}
+        if: ${{ success() }}

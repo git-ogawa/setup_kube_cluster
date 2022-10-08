@@ -1,0 +1,42 @@
+---
+- name: "Make certs directory {{ containerd_cert_dir }}"
+  ansible.builtin.file:
+    path: "{{ containerd_cert_dir }}"
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: "Set certs path in {{ containerd_config }}"
+  ansible.builtin.replace:
+    path: "{{ containerd_config }}"
+    regexp: '(^\s+config_path = ).*$'
+    replace: '\1"{{ containerd_cert_dir }}"'
+  become: true
+
+- name: "Make certs registry directory {{ containerd_cert_dir }}/{{ registry_name }}"
+  ansible.builtin.file:
+    path: "{{ containerd_cert_dir }}/{{ registry_name }}"
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: "Put {{ cacert_name }}"
+  ansible.builtin.copy:
+    src: "{{ containerd_cert_src }}"
+    dest: "{{ containerd_cert_dir }}/{{ registry_name }}/{{ cacert_name }}"
+    mode: "0644"
+  become: true
+
+- name: Put hosts.toml
+  ansible.builtin.template:
+    src: hosts.toml.j2
+    dest: "{{ containerd_cert_dir }}/{{ registry_name }}/hosts.toml"
+    mode: "0644"
+  become: true
+
+- name: Restart containerd
+  ansible.builtin.systemd:
+    name: containerd
+    state: restarted
+    daemon_reload: true
+  become: true

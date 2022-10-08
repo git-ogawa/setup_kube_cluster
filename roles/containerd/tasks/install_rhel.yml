@@ -28,12 +28,23 @@
 
 - name: Put /etc/containerd/config.toml
   ansible.builtin.copy:
-    src: config.toml
+    src: config_amd64.toml
     dest: /etc/containerd/config.toml
     mode: "0644"
     owner: root
     group: root
   become: true
+  when: architecture == "x86_64" or architecture == "amd64"
+
+- name: Put /etc/containerd/config.toml
+  ansible.builtin.copy:
+    src: config_arm64_v8.toml
+    dest: /etc/containerd/config.toml
+    mode: "0644"
+    owner: root
+    group: root
+  become: true
+  when: architecture == "aarch64" or architecture == "arm64"
 
 - name: Restart containerd
   ansible.builtin.systemd:

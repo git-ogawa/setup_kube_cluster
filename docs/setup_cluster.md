@@ -5,19 +5,20 @@
 
 - [Setup cluster](#setup-cluster)
 - [Requirements](#requirements)
-- [Usage](#usage)
-  - [Set inventory](#set-inventory)
-  - [Setup](#setup)
+- [Prerequisites](#prerequisites)
+- [Run](#run)
 - [Steps](#steps)
   - [Create cluster](#create-cluster)
   - [Add worker nodes](#add-worker-nodes)
   - [Deploy ingress controller](#deploy-ingress-controller)
     - [Access from outside cluster](#access-from-outside-cluster)
+  - [OpenEBS](#openebs)
+  - [Kubevious](#kubevious)
   - [Argocd](#argocd)
   - [Tekton](#tekton)
   - [Harbor](#harbor)
   - [Gitea](#gitea)
-  - [Clean up cluster](#clean-up-cluster)
+- [Clean up cluster](#clean-up-cluster)
 
 <!-- /code_chunk_output -->
 
@@ -55,11 +56,16 @@ Target nodes
 - At least one instance for contorol-plane is required. The number of worker node is optional.
 - Instance type have to be more than 2 GiB RAM and 2 vCPU. ([Requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#before-you-begin))
 - Check that [the required ports](https://kubernetes.io/docs/reference/ports-and-protocols/) are open in security group.
+- It is recommended that more than 10 GB of storage.
 
 
-# Usage
+Others
 
-## Set inventory
+- On cloud instances, check that ports used by each component are open by security group.
+
+
+# Prerequisites
+
 At first, you need edit the host definition in `inventory` in top directory.
 
 - `control_plane.hosts.controller`
@@ -110,8 +116,7 @@ all:
     harbor_install: true
 ```
 
-
-## Setup
+# Run
 Run playbook `setup.yml` to create a cluster and deploy necessary components at once.
 ```
 $ ansible-playbook setup.yml
@@ -199,6 +204,24 @@ To delete the app from the cluster, run the same playbook with `-e example_app_s
 $ ansible-playbook playbooks/setup_example_app.yml -e example_app_state=absent
 ```
 
+
+## OpenEBS
+OpenEBS is installed with helm and create storage class to use local PV hostpath. If you don't install, set `openebs_install` to false in `inventory`.
+
+
+## Kubevious
+Kubevious that is dashboard for visualizing the cluster resources is installed with helm.
+
+
+Some settings can be changed to edit values in `group_vars/all.yml`. The list of parameters are the following.
+
+| parameters | description | default |
+| - | - | - |
+| kubevious_release_name | Release name | kubevious |
+| kubevious_namespace | Namespace | kubevious |
+
+
+
 ## Argocd
 Argocd components (server, dashboard and others) and argocd CLI are installed on all nodes.
 
@@ -236,9 +259,11 @@ Some settings about harbor server can be changed to edit values in `group_vars/a
 | harbor_domain | Server domain name of harbor | core.harbor.domain |
 | harbor_node_port | HTTPS port of harbor nodePort | 30003 |
 | harbor_admin_password | Admin user password | Harbor12345 |
+| harbor_storage_class | StorageClass used in persistentVolumeClaim | openebs-hostpath |
 
 
-PersistentVolume to store data set `host_path` and directory `/opt/kube/harbor/[components]` will be created on all nodes in cluster. The path can be changed to `harbor_host_path_dir`.
+PersistentVolume is dynamically provisioned by openebs-host (so openebs need to be installed) to store data. If you want to use host path pv,
+set `harbor_pv_enabled` is true and `harbor_host_path_dir`.
 
 
 ## Gitea
@@ -260,11 +285,12 @@ Some settings about gitea server can be changed to edit values in `group_vars/al
 | gitea_config_server_domain | Server domain name | git.example.com |
 
 
-PersistentVolume to store data set `host_path` and directory `/opt/kube/gitea/[components]` will be created on all nodes in cluster. The path can be changed to `gitea_host_path_dir`.
+PersistentVolume is dynamically provisioned by openebs-host (so openebs need to be installed) to store data. If you want to use host path pv,
+set `gitea_pv_enabled` is true and `gitea_host_path_dir`.
 
 
 
-## Clean up cluster
+# Clean up cluster
 To clean up the cluster, run the `cleanup_cluster.yml`. This play runs `kubeadm reset` on workers and controller.
 
 ```

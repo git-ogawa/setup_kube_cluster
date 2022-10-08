@@ -16,6 +16,16 @@
   ansible.builtin.import_playbook: playbooks/setup_ingress_controller.yml
   tags: ingress
 
+- name: Setup openebs
+  ansible.builtin.import_playbook: playbooks/setup_openebs.yml
+  tags: openebs
+  when: openebs_install | bool
+
+- name: Setup longhorn
+  ansible.builtin.import_playbook: playbooks/setup_longhorn.yml
+  tags: longhorn
+  when: longhorn_install | bool
+
 - name: Setup argocd
   ansible.builtin.import_playbook: playbooks/setup_argocd.yml
   tags: argocd
