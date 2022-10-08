@@ -1,43 +1,8 @@
 # setup ec2
-This repository is for setting up a kubernetes cluster and the necessary packages on compute instances of the cloud service (AWS EC2). It is also useful to build bare-metal cluster such as raspberry pi.
+This repository is for setting up a kubernetes cluster for development on cloud instances (AWS EC2) by `Ansible`. It is useful to build a cluster in the following environments.
 
-You can install (or create) the following components on instances by `Ansible`.
-
-- Docker, kubernetes components
-    - Docker, Containerd
-    - kubernetes (CLI)
-    - kubernetes cluster with kubeadm
-    - helm
-    - nginx ingress controller
-- tekton
-- argocd
-- harbor
-- gitea
-
-
-
-# Table of contents
-
-<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=2 orderedList=false} -->
-
-<!-- code_chunk_output -->
-
-- [setup ec2](#setup-ec2)
-- [Table of contents](#table-of-contents)
-- [Requirements](#requirements)
-- [Quickstart](#quickstart)
-- [Usage](#usage)
-- [Components](#components)
-  - [Kubernetes cluster](#kubernetes-cluster)
-  - [Helm](#helm)
-  - [Docker](#docker)
-  - [Tekton](#tekton)
-  - [Argocd](#argocd)
-  - [Harbor](#harbor)
-  - [Gitea](#gitea)
-- [Support distributions](#support-distributions)
-
-<!-- /code_chunk_output -->
+- Cluster on EC2 instances instead of cloud-managed service (EKS).
+- Baremetal cluster on your local environment such as raspberry pi.
 
 
 # Requirements
@@ -76,47 +41,19 @@ Then, run the following command to create the cluster.
 $ ansible-playbook setup.yml
 ```
 
-# Usage
-See [setup_cluster.md](docs/setup_cluster.md) for details.
-
-# Components
-The list of components to be installed on nodes by playbooks. See [setup_cluster.md](docs/setup_cluster.md) for details.
+The setup playbook installs the necessary tools, builds the cluster, and deploys the following components. You can manage whether each component is installed during the installation process by editing the inventory file. See [setup_cluster.md](docs/setup_cluster.md) for details.
 
 
-## Kubernetes cluster
-The latest version of the following components will be installed with package manager (apt, dnf).
-
-- kubelet
-- kubectl
-- kubeadm
-
-The kuebernetes cluster are created with kubeadm.
-
-- CRI : Containerd
-- CNI : Flannel
-
-## Helm
-Helm binary is installed on all nodes.
-
-## Docker
-The latest version of the following components will be installed with package manager (apt, dnf).
-
-- docker
-- `podman` will be installed instead of docker on RHEL-clone OS (such as Rocky linux).
-
-## Tekton
-Deploy tekton components to a cluster from manifest file.
-
-## Argocd
-Deploy argocd components to a cluster from manifest file.
-
-
-## Harbor
-Deploy harbor components to a cluster with helm.
-
-
-## Gitea
-Deploy gitea components to a cluster with helm.
+| Component | Used for | Installed by default |
+| - | - | - |
+| Nginx controller | Ingress controller | yes |
+| OpenEBS | Storage | yes |
+| Longhorn | Storage | no |
+| Kubevious | Dashboard | yes |
+| Tekton | CI/CD platform | yes |
+| Argocd | CD tool | yes |
+| Harbor | Image registry | yes |
+| Gitea | Git server | yes |
 
 
 # Support distributions
