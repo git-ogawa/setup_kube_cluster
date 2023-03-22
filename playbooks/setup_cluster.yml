@@ -3,15 +3,10 @@
   hosts: all
   gather_facts: true
   tasks:
-    - name: Precheck
+    - name: sysctl settings
       ansible.builtin.import_role:
         name: setup_cluster
-        tasks_from: precheck
-
-    - name: Common settings
-      ansible.builtin.import_role:
-        name: setup_cluster
-        tasks_from: common_settings
+        tasks_from: sysctl
 
 - name: Setup kubernetes cluster with kubeadm
   hosts: controller
@@ -31,6 +26,11 @@
 
     - name: Taint control plane nodes
       ansible.builtin.command: |
-        kubectl taint nodes --all node-role.kubernetes.io/control-plane- node-role.kubernetes.io/master-
+        kubectl taint nodes --all node-role.kubernetes.io/control-plane-
       changed_when: true
       when: taint_control_plane_node | bool
+
+    - name: Check python and pip is installed
+      ansible.builtin.import_role:
+        name: setup_cluster
+        tasks_from: check_python
