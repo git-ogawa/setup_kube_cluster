@@ -3,9 +3,6 @@
   hosts: all
   gather_facts: true
   roles:
-    - role: docker
-      tags: docker
-
     - role: kubernetes
       tags: kubernetes
 
