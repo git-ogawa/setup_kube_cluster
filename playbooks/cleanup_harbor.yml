@@ -1,6 +1,6 @@
 ---
 - name: Uninstall harbor
-  hosts: controller
+  hosts: control_node
   gather_facts: false
   tasks:
     - name: Uninstall harbor

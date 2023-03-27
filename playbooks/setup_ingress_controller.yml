@@ -1,6 +1,6 @@
 ---
-- name: Deploy nignx ingress controller
-  hosts: controller
+- name: Deploy nignx ingress control_node
+  hosts: control_node
   gather_facts: false
   tasks:
     - name: Deploy

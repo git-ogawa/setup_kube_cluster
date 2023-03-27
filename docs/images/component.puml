@@ -1,0 +1,22 @@
+@startuml
+
+node executor [
+    executor
+]
+
+note right of executor: Run Ansible
+
+package "Kubernetes cluster" {
+    node "Control plane" as cplane {
+        node "control node" as cnode
+    }
+
+    node "Nodes" as nodes {
+        node "worker nodes (optional)" as worker
+    }
+}
+
+executor --> cnode
+executor --> worker
+
+@enduml

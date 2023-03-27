@@ -9,7 +9,7 @@
         tasks_from: sysctl
 
 - name: Setup kubernetes cluster with kubeadm
-  hosts: controller
+  hosts: control_node
   gather_facts: true
   tasks:
     - name: Kubeadm init

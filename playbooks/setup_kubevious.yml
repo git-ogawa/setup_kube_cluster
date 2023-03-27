@@ -1,6 +1,6 @@
 ---
 - name: Deploy kubevious
-  hosts: controller
+  hosts: control_node
   gather_facts: false
   roles:
     - role: kubevious

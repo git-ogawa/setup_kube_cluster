@@ -14,8 +14,8 @@
         state: absent
       become: true
 
-- name: Clean up on controller
-  hosts: controller
+- name: Clean up on control_node
+  hosts: control_node
   gather_facts: false
   tasks:
     - name: Clean up control plane

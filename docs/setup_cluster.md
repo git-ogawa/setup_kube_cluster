@@ -68,7 +68,7 @@ Others
 
 At first, you need edit the host definition in `inventory` in top directory.
 
-- `control_plane.hosts.controller`
+- `control_plane.hosts.control_node`
     - An instance belonging to the control-plane, on which a cluster is created.
 
 - `worker.hosts.worker` (optional)
@@ -91,7 +91,7 @@ all:
   children:
     control_plane:
       hosts:
-        controller:
+        control_node:
           ansible_host: 35.78.70.178
           ansible_user: rocky
           ansible_ssh_port: 22
@@ -134,7 +134,7 @@ The following steps will be run in setup process. If you want to run a part of s
 # Steps
 
 ## Create cluster
-Run `setup.yml` with tag `cluster` to create a kubernetes cluster on controller with kubeadm.
+Run `setup.yml` with tag `cluster` to create a kubernetes cluster on control_node with kubeadm.
 ```
 $ ansible-playbook setup.yml -t cluster
 ```
@@ -183,7 +183,7 @@ $ ansible-playbook setup_ingress_controller.yml -e nginx_ingress_node_port=[port
 ```
 
 ### Access from outside cluster
-To access the application on instances from outside the cluster, you need to create Application Load Balancer (ALB) on AWS after deployed ingress controller.
+To access the application on instances from outside the cluster, you need to create Application Load Balancer (ALB) on AWS after deployed ingress control_node.
 
 Note the following.
 

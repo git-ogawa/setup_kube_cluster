@@ -9,7 +9,7 @@
         tasks_from: make_hostpath
 
 - name: Deploy harbor
-  hosts: controller
+  hosts: control_node
   gather_facts: false
   tasks:
     - name: Make persistenceVolume and persistentVolumeClaim

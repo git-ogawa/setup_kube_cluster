@@ -5,9 +5,22 @@ This repository is for setting up a kubernetes cluster for development on cloud 
 - Baremetal cluster on your local environment such as raspberry pi.
 
 
+A node that runs Ansible (referred to as executor here) creates the following components by using kubeadm.
+
+- Control node with control plane components
+- Worker nodes (optional)
+
+![Cannot load image](docs/images/component.png)
+
+
 # Requirements
+An executor requires ansible module.
+
 - ansible >= 2.10.0
 - ansible-playbook >= 2.10.0
+
+The control node and workers need to meet [kubernetes hardware requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#before-you-begin).
+
 
 # Quickstart
 Clone the repository.
@@ -17,7 +30,7 @@ git clone https://github.com/git-ogawa/setup_ec2
 cd setup_ec2
 ```
 
-In `inventory`, set global ip address, username, port and ssh key of your instance under `controller` section.
+In `inventory`, set global ip address, username, port and ssh key of your instance under `control_node` section.
 
 ```yml
 ---
@@ -26,7 +39,7 @@ all:
   children:
     control_plane:
       hosts:
-        controller:
+        control_node:
           ansible_host: 10.10.10.10  # Global IPv4 address
           ansible_user: ubuntu  # Username
           ansible_ssh_port: 22  # SSH port

@@ -10,7 +10,7 @@
         query: "*.ansible_facts.architecture"
 
 - name: Update kube-proxy
-  hosts: controller
+  hosts: control_node
   gather_facts: false
   tasks:
     - name: Update kube-proxy for arm nodes

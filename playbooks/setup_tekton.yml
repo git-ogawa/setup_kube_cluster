@@ -1,6 +1,6 @@
 ---
 - name: Deploy tekton components
-  hosts: controller
+  hosts: control_node
   gather_facts: false
   roles:
     - role: tekton
