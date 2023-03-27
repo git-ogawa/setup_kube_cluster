@@ -1,4 +1,8 @@
 ---
+- name: Check ansible module
+  ansible.builtin.import_playbook: playbooks/setup_module.yml
+  tags: module
+
 - name: Install components
   ansible.builtin.import_playbook: playbooks/setup_components.yml
   tags: components

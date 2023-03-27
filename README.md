@@ -5,10 +5,10 @@ This repository is for setting up a kubernetes cluster for development on cloud 
 - Baremetal cluster on your local environment such as raspberry pi.
 
 
-A node that runs Ansible (referred to as executor here) creates the following components by using kubeadm.
+A node that runs Ansible (referred to as executor here) creates kubernetes cluster using kubeadm. The cluster consists of the following nodes.
 
-- Control node with control plane components
-- Worker nodes (optional)
+- One control node including control plane components
+- Multiple worker nodes (optional)
 
 ![Cannot load image](docs/images/component.png)
 
@@ -19,32 +19,40 @@ An executor requires ansible module.
 - ansible >= 2.10.0
 - ansible-playbook >= 2.10.0
 
-The control node and workers need to meet [kubernetes hardware requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#before-you-begin).
+The executor also requires [kubernetes module](https://docs.ansible.com/ansible/latest/collections/kubernetes/core/k8s_module.html) to deploy manifests to cluster using ansible module. Install the kubernetes collection using `ansible-galaxy`.
+
+```
+
+ansible-galaxy collection install kubernetes.core
+```
+
+
+
+The control node and workers need to meet [kubernetes hardware requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#before-you-begin) and to install python3.
 
 
 # Quickstart
-Clone the repository.    harbor_storage_class: "openebs-hostpath"
-
+Clone the repository.
 
 ```
 git clone https://github.com/git-ogawa/setup_kube_cluster
 cd setup_kube_cluster
 ```
 
-In `inventory`, set global ip address, username, port and ssh key of your instance under `control_node` section.
+Edit public IPv4 address, username, port and ssh key of your node under `control_node` section in `inventory`.
 
 ```yml
----
+# inventory
 all:
   ...
   children:
     control_plane:
       hosts:
         control_node:
-          ansible_host: 10.10.10.10  # Global IPv4 address
+          ansible_host: 10.10.10.10  # Public IPv4 address
           ansible_user: ubuntu  # Username
           ansible_ssh_port: 22  # SSH port
-          ansible_ssh_private_key_file: ~/.ssh/id_rsa  # Path to key
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa  # Path to ssh key
 ```
 
 To add worker nodes to cluster, set values for worker1, worker2 and more in the same way under `worker` section.
@@ -55,7 +63,7 @@ Then, run the following command to create the cluster.
 $ ansible-playbook setup.yml
 ```
 
-The setup playbook installs the necessary tools, builds the cluster, and deploys the following components. You can manage whether each component is installed during the installation process by editing the inventory file. See [setup_cluster.md](docs/setup_cluster.md) for details.
+The setup playbook installs the necessary CLI tools, creates the cluster, and deploys the following components. You can manage whether each component is installed during the installation process by editing the inventory file. See [setup_cluster.md](docs/setup_cluster.md) for details.
 
 
 | Component | Used for | Installed by default |
@@ -68,6 +76,9 @@ The setup playbook installs the necessary tools, builds the cluster, and deploys
 | Argocd | CD tool | no |
 | Harbor | Image registry | no |
 | Gitea | Git server | no |
+
+# Details
+See [setup_cluster.md](docs/setup_cluster.md)
 
 
 # Support distributions

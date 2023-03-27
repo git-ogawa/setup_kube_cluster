@@ -3,4 +3,4 @@
   ansible.builtin.set_fact:
     os_family: "{{ ansible_facts.distribution_file_variety | lower }}"
 
-- ansible.builtin.import_tasks: install_rhel.yml
+- ansible.builtin.import_tasks: install.yml

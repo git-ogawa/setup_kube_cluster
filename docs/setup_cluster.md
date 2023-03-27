@@ -24,7 +24,7 @@
 
 
 # Setup cluster
-Setup cluster is to create a kubernetes cluster on ompute instances with kubeadm. This makes it easy to create and reset clusters for testing and development.
+Setup cluster is to create a kubernetes cluster on compute instances with kubeadm. This makes it easy to create and reset clusters for testing and development.
 
 
 Create a cluster with the following configuration based on [official start guide](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/).
@@ -49,11 +49,11 @@ It is recommended to use the project for development environment.
 # Requirements
 The machine where the playbooks will be run
 
-- [Ansible kubernets.core modules](https://galaxy.ansible.com/kubernetes/core?extIdCarryOver=true&sc_cid=701f2000001OH6uAAG) must be installed on machine running the playbook. If you don't install yet, install with `ansible-galaxy collection install kubernetes.core`.
+- [Ansible kubernetes.core modules](https://galaxy.ansible.com/kubernetes/core?extIdCarryOver=true&sc_cid=701f2000001OH6uAAG) must be installed on machine running the playbook. If you don't install yet, install with `ansible-galaxy collection install kubernetes.core`.
 
 Target nodes
 
-- At least one instance for contorol-plane is required. The number of worker node is optional.
+- At least one instance for control-plane is required. The number of worker node is optional.
 - Instance type have to be more than 2 GiB RAM and 2 vCPU. ([Requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#before-you-begin))
 - Check that [the required ports](https://kubernetes.io/docs/reference/ports-and-protocols/) are open in security group.
 - It is recommended that more than 10 GB of storage.
@@ -105,7 +105,7 @@ all:
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
 ```
 
-By default, CI/CD components are deployed to the cluster on setup. If you don't install the components, Set the value to `false`.
+If you want to install the CI/CD components, set the values to `true`.
 
 ```yaml
 all:
@@ -123,13 +123,14 @@ $ ansible-playbook setup.yml
 ```
 The following steps will be run in setup process. If you want to run a part of steps, see the each section in [Steps](#steps).
 
-- Create a clsuter with kubeadm
+- Create a cluster with kubeadm
 - Add worker nodes to the cluster (if exists)
 - Deploy nginx ingress controller
 - Deploy argocd
 - Deploy tekton
 - Deploy harbor
 - Deploy gitea
+
 
 # Steps
 
@@ -259,11 +260,15 @@ Some settings about harbor server can be changed to edit values in `group_vars/a
 | harbor_domain | Server domain name of harbor | core.harbor.domain |
 | harbor_node_port | HTTPS port of harbor nodePort | 30003 |
 | harbor_admin_password | Admin user password | Harbor12345 |
-| harbor_storage_class | StorageClass used in persistentVolumeClaim | openebs-hostpath |
+| harbor_storage_class | StorageClass used in persistentVolumeClaim | empty |
 
 
-PersistentVolume is dynamically provisioned by openebs-host (so openebs need to be installed) to store data. If you want to use host path pv,
-set `harbor_pv_enabled` is true and `harbor_host_path_dir`.
+By default, PersistentVolume whose type is hostpath is created on the node and persistentVolumeClaim uses them. If `openebs` is already installed and used as pv provisioner, set the `harbor_pv_enabled` and `harbor_storage_class` in `group_vars/all.yml` as follows.
+
+```yaml
+harbor_storage_class: "openebs-hostpath"
+harbor_pv_enabled: false
+```
 
 
 ## Gitea
@@ -285,10 +290,12 @@ Some settings about gitea server can be changed to edit values in `group_vars/al
 | gitea_config_server_domain | Server domain name | git.example.com |
 
 
-PersistentVolume is dynamically provisioned by openebs-host (so openebs need to be installed) to store data. If you want to use host path pv,
-set `gitea_pv_enabled` is true and `gitea_host_path_dir`.
+By default, PersistentVolume whose type is hostpath is created on the node and persistentVolumeClaim uses them. If `openebs` is already installed and used as pv provisioner, set the `gitea_pv_enabled` and `gitea_storage_class` in `group_vars/all.yml` as follows.
 
-
+```yaml
+gitea_storage_class: "openebs-hostpath"
+gitea_pv_enabled: false
+```
 
 # Clean up cluster
 To clean up the cluster, run the `cleanup_cluster.yml`. This play runs `kubeadm reset` on workers and controller.

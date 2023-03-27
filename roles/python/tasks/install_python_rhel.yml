@@ -1,8 +1,0 @@
----
-- name: Install python3.9 and pip
-  ansible.builtin.dnf:
-    name:
-      - python39
-      - python39-pip
-    state: present
-  become: true

@@ -29,8 +29,8 @@ kubevious_pv:
     host_path: "/opt/kube/kubevious/mysql"
 
 kubevious_pvc:
-  # storage_class: ""
-  storage_class: "openebs-hostpath"
+  storage_class: ""
+  # storage_class: "openebs-hostpath"
 
 kubevious_values:
   mysql:
@@ -54,11 +54,15 @@ harbor_release_name: harbor
 harbor_namespace: harbor
 harbor_domain: core.harbor.domain
 harbor_admin_password: "Harbor12345"
-harbor_storage_class: "openebs-hostpath"
+
+# If storage class is empty, pvc will use hostpath pv.
+# If you want to use pv provisioned by openebs, set gitea_storage_class to "openebs-hostpath".
+harbor_storage_class: ""
 
 # Harbor persistentVolume settings.
-# harbor_storage_class: ""
-harbor_pv_enabled: false
+# If harbor_pv_enabled is true, create directories specified as harbor_host_path_dir for hostpath pv.
+# Create host directory on target node.
+harbor_pv_enabled: true
 harbor_host_path_dir: "/opt/kube/harbor"
 harbor_pv:
   registry:
@@ -137,14 +141,16 @@ gitea_admin_username: gitea_admin
 gitea_admin_password: "r8sA8CPHD9!bt6d"
 gitea_admin_email: "gitea@local.domain"
 gitea_config_server_domain: git.example.com
-gitea_storage_class: "openebs-hostpath"
-# gitea_storage_class: ""
 
+# If storage class is empty, pvc will use hostpath pv.
+# If you want to use pv provisioned by openebs, set gitea_storage_class to "openebs-hostpath".
+gitea_storage_class: ""
 
-# Harbor persistentVolume settings.
+# Gitea persistentVolume settings.
+# If gitea_pv_enabled is true, create directories specified as gitea_host_path_dir for hostpath pv.
 # Create host directory on target node.
-gitea_host_path_dir: /opt/kube/gitea
 gitea_pv_enabled: true
+gitea_host_path_dir: /opt/kube/gitea
 gitea_pv:
   gitea:
     name: gitea

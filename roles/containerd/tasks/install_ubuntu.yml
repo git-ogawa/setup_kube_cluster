@@ -72,42 +72,42 @@
 
 - name: Install the latest containerd
   ansible.builtin.apt:
-    name: containerd.io
+    name: containerd
     state: present
   become: true
   when: containerd_version == "latest"
 
 - name: "Install containerd version {{ containerd_version }}"
   ansible.builtin.apt:
-    name: "containerd.io={{ containerd_version }}"
+    name: "containerd={{ containerd_version }}"
     state: present
   become: true
   when: containerd_version != "latest"
 
-- name: Put /etc/containerd/config.toml
-  ansible.builtin.copy:
-    src: config_amd64.toml
-    dest: /etc/containerd/config.toml
-    mode: "0644"
-    owner: root
-    group: root
-  become: true
-  when: architecture == "x86_64" or architecture == "amd64"
+# - name: Put /etc/containerd/config.toml
+#   ansible.builtin.copy:
+#     src: config_amd64.toml
+#     dest: /etc/containerd/config.toml
+#     mode: "0644"
+#     owner: root
+#     group: root
+#   become: true
+#   when: architecture == "x86_64" or architecture == "amd64"
 
-- name: Put /etc/containerd/config.toml
-  ansible.builtin.copy:
-    src: config_arm64_v8.toml
-    dest: /etc/containerd/config.toml
-    mode: "0644"
-    owner: root
-    group: root
-  become: true
-  when: architecture == "aarch64" or architecture == "arm64"
+# - name: Put /etc/containerd/config.toml
+#   ansible.builtin.copy:
+#     src: config_arm64_v8.toml
+#     dest: /etc/containerd/config.toml
+#     mode: "0644"
+#     owner: root
+#     group: root
+#   become: true
+#   when: architecture == "aarch64" or architecture == "arm64"
 
-- name: Restart containerd
-  ansible.builtin.systemd:
-    name: containerd
-    state: restarted
-    enabled: true
-    daemon_reload: true
-  become: true
+# - name: Restart containerd
+#   ansible.builtin.systemd:
+#     name: containerd
+#     state: restarted
+#     enabled: true
+#     daemon_reload: true
+#   become: true

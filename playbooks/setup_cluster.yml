@@ -5,7 +5,7 @@
   tasks:
     - name: sysctl settings
       ansible.builtin.import_role:
-        name: setup_cluster
+        name: cluster
         tasks_from: sysctl
 
 - name: Setup kubernetes cluster with kubeadm
@@ -14,7 +14,7 @@
   tasks:
     - name: Kubeadm init
       ansible.builtin.import_role:
-        name: setup_cluster
+        name: cluster
         tasks_from: kubeadm_init
       vars:
         ipv4_address: "{{ ansible_facts.default_ipv4.address }}"
@@ -28,8 +28,3 @@
         kubectl taint nodes --all node-role.kubernetes.io/control-plane-
       changed_when: true
       when: taint_control_plane_node | bool
-
-    - name: Check python and pip is installed
-      ansible.builtin.import_role:
-        name: setup_cluster
-        tasks_from: check_python

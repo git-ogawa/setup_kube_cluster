@@ -13,7 +13,7 @@
 
 - name: Put service manifest
   ansible.builtin.template:
-    src: nginx_service.yml.j2
+    src: service.yml.j2
     dest: /tmp/service.yml
     mode: "0644"
 
