@@ -1,0 +1,4 @@
+---
+example_app_name: example_app
+example_app_state: present
+example_app_host: test-nginx

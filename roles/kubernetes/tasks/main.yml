@@ -1,12 +1,6 @@
 ---
 - name: Check distribution
   ansible.builtin.set_fact:
-    family: "{{ ansible_facts.distribution_file_variety | lower }}"
+    os_family: "{{ ansible_facts.distribution_file_variety | lower }}"
 
-- name: Install kubernetes for rhel-like
-  import_tasks: install_rhel.yml
-  when: family == "redhat"
-
-- name: Install kubernetes for ubuntu
-  import_tasks: "install_ubuntu.yml"
-  when: family != "redhat"
+- ansible.builtin.import_tasks: install_rhel.yml

@@ -1,5 +1,5 @@
 ---
-- name: Install CRI
+- name: module load and IP forwarding
   hosts: all
   gather_facts: true
   tasks:
@@ -19,10 +19,9 @@
       vars:
         ipv4_address: "{{ ansible_facts.default_ipv4.address }}"
 
-    - name: Install CNI
+    - name: Install CNI (flannel)
       ansible.builtin.import_role:
-        name: setup_cluster
-        tasks_from: deploy_cni
+        name: flannel
 
     - name: Taint control plane nodes
       ansible.builtin.command: |

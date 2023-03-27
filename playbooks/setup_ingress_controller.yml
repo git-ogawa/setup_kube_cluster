@@ -1,9 +1,5 @@
 ---
-- name: Deploy nignx ingress control_node
+- name: Deploy nginx ingress controller
   hosts: control_node
-  gather_facts: false
-  tasks:
-    - name: Deploy
-      ansible.builtin.import_role:
-        name: setup_cluster
-        tasks_from: deploy_ingress
+  roles:
+    - role: nginx_ingress

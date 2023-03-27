@@ -1,0 +1,2 @@
+---
+flannel_manifest_url: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml

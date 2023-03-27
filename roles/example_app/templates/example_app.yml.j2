@@ -2,16 +2,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: example-nginx-deployment
+  name: {{ example_app_name }}-deployment
 spec:
   selector:
     matchLabels:
-      app: example-nginx
+      app: {{ example_app_name }}
   replicas: 1
   template:
     metadata:
       labels:
-        app: example-nginx
+        app: {{ example_app_name }}
     spec:
       containers:
         - name: nginx
@@ -23,20 +23,20 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: example-nginx-service
+  name: {{ example_app_name }}-service
 spec:
   ports:
     - port: 80
       targetPort: 80
       protocol: TCP
   selector:
-    app: example-nginx
+    app: {{ example_app_name }}
 
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: example-nginx-ingress
+  name: {{ example_app_name }}-ingress
 spec:
   ingressClassName: nginx
   rules:
@@ -47,6 +47,6 @@ spec:
           pathType: Prefix
           backend:
             service:
-              name: example-nginx-service
+              name: {{ example_app_name }}-service
               port:
                 number: 80

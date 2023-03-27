@@ -2,8 +2,5 @@
 - name: Deploy example app (nginx)
   hosts: control_node
   gather_facts: false
-  tasks:
-    - name: Deploy example application
-      ansible.builtin.import_role:
-        name: setup_cluster
-        tasks_from: deploy_example_app
+  roles:
+    - role: example_app

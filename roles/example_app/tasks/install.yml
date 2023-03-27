@@ -1,0 +1,12 @@
+---
+- name: Put example app manifest
+  ansible.builtin.template:
+    src: example_app.yml.j2
+    dest: /tmp/example_app.yml
+    mode: "0644"
+
+- name: Deploy example app
+  kubernetes.core.k8s:
+    state: present
+    src: /tmp/example_app.yml
+    namespace: default

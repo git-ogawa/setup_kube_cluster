@@ -2,12 +2,3 @@
 # kubeadm
 pod_network_cidr: "10.244.0.0/16"
 working: "/home/{{ ansible_user }}/kubernetes_working"
-
-# nginx ingress controller
-nginx_ingress_repository: https://raw.githubusercontent.com/kubernetes/ingress-nginx/
-nginx_ingress_version: "1.3.0"
-nginx_ingress_node_port: 32323
-
-# Example app settings
-example_app_state: present
-example_app_host: test-nginx
