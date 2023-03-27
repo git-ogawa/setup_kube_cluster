@@ -1,4 +1,4 @@
-# setup ec2
+# setup kube-cluster
 This repository is for setting up a kubernetes cluster for development on cloud instances (AWS EC2) by `Ansible`. It is useful to build a cluster in the following environments.
 
 - Cluster on EC2 instances instead of cloud-managed service (EKS).
@@ -26,8 +26,8 @@ The control node and workers need to meet [kubernetes hardware requirements](htt
 Clone the repository.
 
 ```
-git clone https://github.com/git-ogawa/setup_ec2
-cd setup_ec2
+git clone https://github.com/git-ogawa/setup_kube_cluster
+cd setup_kube_cluster
 ```
 
 In `inventory`, set global ip address, username, port and ssh key of your instance under `control_node` section.
