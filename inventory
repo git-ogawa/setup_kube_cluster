@@ -5,13 +5,13 @@ all:
     kubernetes_version: latest
     # kubernetes_version: "1.24.4"
     taint_control_plane_node: false
-    openebs_install: true
+    openebs_install: false
     longhorn_install: false
-    kubevious_install: true
-    argocd_install: true
-    tekton_install: true
-    gitea_install: true
-    harbor_install: true
+    kubevious_install: false
+    argocd_install: false
+    tekton_install: false
+    gitea_install: false
+    harbor_install: false
   children:
     control_plane:
       hosts:

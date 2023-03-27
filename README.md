@@ -23,7 +23,8 @@ The control node and workers need to meet [kubernetes hardware requirements](htt
 
 
 # Quickstart
-Clone the repository.
+Clone the repository.    harbor_storage_class: "openebs-hostpath"
+
 
 ```
 git clone https://github.com/git-ogawa/setup_kube_cluster
@@ -60,13 +61,13 @@ The setup playbook installs the necessary tools, builds the cluster, and deploys
 | Component | Used for | Installed by default |
 | - | - | - |
 | Nginx controller | Ingress controller | yes |
-| OpenEBS | Storage | yes |
+| OpenEBS | Storage | no |
 | Longhorn | Storage | no |
-| Kubevious | Dashboard | yes |
-| Tekton | CI/CD platform | yes |
-| Argocd | CD tool | yes |
-| Harbor | Image registry | yes |
-| Gitea | Git server | yes |
+| Kubevious | Dashboard | no |
+| Tekton | CI/CD platform | no |
+| Argocd | CD tool | no |
+| Harbor | Image registry | no |
+| Gitea | Git server | no |
 
 
 # Support distributions
@@ -75,4 +76,4 @@ The following distribution (platform) instances are supported.
 - RHEL-based distribution (such as rocky linux)
 - Ubuntu 22.04
 - Amazon linux
-  - Supported only to install commands
+  - Supported only to install CLI commands such as kubectl
