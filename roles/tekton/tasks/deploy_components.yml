@@ -13,7 +13,7 @@
   loop:
     - name: pipeline/latest/release.yaml
       dest: pipeline.yml
-    - name: dashboard/latest/tekton-dashboard-release.yaml
+    - name: dashboard/latest/release.yaml
       dest: dashboard.yml
     - name: triggers/latest/release.yaml
       dest: triggers.yml
