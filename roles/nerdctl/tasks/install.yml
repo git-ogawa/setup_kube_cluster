@@ -1,0 +1,28 @@
+---
+- name: Download nerdctl CLI
+  ansible.builtin.get_url:
+    url: "{{ nerdctl_repo_url }}"
+    dest: /tmp/nerdctl.tar.gz
+
+- name: Extract nerdctl
+  ansible.builtin.unarchive:
+    src: /tmp/nerdctl.tar.gz
+    dest: /tmp
+    remote_src: true
+
+- name: Put nerdctl CLI
+  ansible.builtin.copy:
+    src: "/tmp/nerdctl"
+    dest: "{{ nerdctl_install_dir }}/nerdctl"
+    mode: "0755"
+    remote_src: true
+  become: true
+
+- name: Cleanup
+  ansible.builtin.file:
+    path: "/tmp/{{ item }}"
+    state: absent
+  loop:
+    - nerdctl.tar.gz
+    - containerd-rootless-setuptool.sh
+    - containerd-rootless.sh

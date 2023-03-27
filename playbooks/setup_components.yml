@@ -11,5 +11,8 @@
       vars:
         architecture: "{{ ansible_facts.architecture }}"
 
+    - role: nerdctl
+      tags: nerdctl
+
     - role: helm
       tags: helm
