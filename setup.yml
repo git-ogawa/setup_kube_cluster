@@ -38,6 +38,11 @@
   tags: longhorn
   when: longhorn_install | bool
 
+- name: Setup kubevious
+  ansible.builtin.import_playbook: playbooks/setup_kubevious.yml
+  tags: kubevious
+  when: kubevious_install | bool
+
 - name: Setup argocd
   ansible.builtin.import_playbook: playbooks/setup_argocd.yml
   tags: argocd

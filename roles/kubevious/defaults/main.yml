@@ -16,3 +16,4 @@ kubevious_values:
     persistence:
       enabled: true
       size: "{{ kubevious_pv.mysql.storage }}"
+      storage_class: "{{ kubevious_storage_class }}"

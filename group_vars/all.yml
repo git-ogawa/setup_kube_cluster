@@ -6,8 +6,8 @@ architectures:
 
 
 # Containerd settings
-containerd_version: latest
-# containerd_version: "1.6.8-1"
+# containerd_version: latest
+containerd_version: "1.6.20"
 
 
 # Helm settings
@@ -15,11 +15,9 @@ containerd_version: latest
 helm_version: "3.9.4"
 
 
-
 # kubevious settings
 kubevious_release_name: kubevious
 kubevious_namespace: kubevious
-
 kubevious_pv:
   enabled: false
   mysql:
@@ -27,17 +25,13 @@ kubevious_pv:
     storage: 10Gi
     label: kubevious
     host_path: "/opt/kube/kubevious/mysql"
-
-kubevious_pvc:
-  storage_class: ""
-  # storage_class: "openebs-hostpath"
-
+kubevious_storage_class: "{% if openebs_install %}openebs-hostpath{% endif %}"
 kubevious_values:
   mysql:
     persistence:
       enabled: true
       size: "{{ kubevious_pv.mysql.storage }}"
-      storage_class: "{{ kubevious_pvc.storage_class }}"
+      storage_class: "{{ kubevious_storage_class }}"
 
 
 # Tekton settings
@@ -57,12 +51,13 @@ harbor_admin_password: "Harbor12345"
 
 # If storage class is empty, pvc will use hostpath pv.
 # If you want to use pv provisioned by openebs, set gitea_storage_class to "openebs-hostpath".
-harbor_storage_class: ""
+harbor_storage_class: "{% if openebs_install %}openebs-hostpath{% endif %}"
+
 
 # Harbor persistentVolume settings.
 # If harbor_pv_enabled is true, create directories specified as harbor_host_path_dir for hostpath pv.
 # Create host directory on target node.
-harbor_pv_enabled: true
+harbor_pv_enabled: "{% if openebs_install %}false{% else %}true{% endif %}"
 harbor_host_path_dir: "/opt/kube/harbor"
 harbor_pv:
   registry:
@@ -144,12 +139,12 @@ gitea_config_server_domain: git.example.com
 
 # If storage class is empty, pvc will use hostpath pv.
 # If you want to use pv provisioned by openebs, set gitea_storage_class to "openebs-hostpath".
-gitea_storage_class: ""
+gitea_storage_class: "{% if openebs_install %}openebs-hostpath{% endif %}"
 
 # Gitea persistentVolume settings.
 # If gitea_pv_enabled is true, create directories specified as gitea_host_path_dir for hostpath pv.
 # Create host directory on target node.
-gitea_pv_enabled: true
+gitea_pv_enabled: "{% if openebs_install %}false{% else %}true{% endif %}"
 gitea_host_path_dir: /opt/kube/gitea
 gitea_pv:
   gitea:
