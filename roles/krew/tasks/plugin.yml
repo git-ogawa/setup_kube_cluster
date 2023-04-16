@@ -1,0 +1,21 @@
+---
+- name: Install plugins using krew
+  ansible.builtin.command:
+    argv:
+      - "/home/{{ ansible_user }}/.krew/bin/kubectl-krew"
+      - install
+      - "{{ item }}"
+  become_user: "{{ ansible_user }}"
+  loop: "{{ krew_plugins }}"
+  register: result
+  changed_when: result.rc == 0
+  failed_when: result.rc != 0
+
+- name: Check plugins are installed
+  ansible.builtin.shell:
+    cmd: "/home/{{ ansible_user }}/.krew/bin/kubectl-krew list | grep {{ item }}"
+  become_user: "{{ ansible_user }}"
+  loop: "{{ krew_plugins }}"
+  register: result
+  changed_when: false
+  failed_when: result.rc != 0

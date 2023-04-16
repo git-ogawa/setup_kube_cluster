@@ -10,11 +10,19 @@
 - name: Create cluster
   ansible.builtin.import_playbook: playbooks/setup_cluster.yml
   tags: cluster
+  when: not ha_cluster.enabled | bool
+
+- name: Create HA cluster
+  ansible.builtin.import_playbook: playbooks/setup_ha_cluster.yml
+  tags: cluster
+  when: ha_cluster.enabled | bool
 
 - name: Add worker nodes
   ansible.builtin.import_playbook: playbooks/add_worker.yml
   tags: add_worker
-  when: groups.worker | default([]) | length > 0
+  when:
+    - not ha_cluster.enabled | bool
+    - groups.worker | default([]) | length > 0
 
 - name: Setup ingress controller
   ansible.builtin.import_playbook: playbooks/setup_ingress_controller.yml

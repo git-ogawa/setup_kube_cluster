@@ -1,8 +1,8 @@
 ---
-- name: Load playbook
-  import_tasks: install_rhel.yml
-  when: ansible_facts.distribution_file_variety | lower == "redhat"
+# - ansible.builtin.import_tasks: install_rhel.yml
+#   when: ansible_facts.distribution_file_variety | lower == "redhat"
 
-- name: Load playbook
-  import_tasks: install_ubuntu.yml
-  when: ansible_facts.distribution_file_variety | lower != "redhat"
+# - ansible.builtin.import_tasks: install_ubuntu.yml
+#   when: ansible_facts.distribution_file_variety | lower != "redhat"
+
+- ansible.builtin.import_tasks: install_binary.yml

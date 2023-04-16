@@ -1,6 +1,6 @@
 ---
 - name: Uninstall gitea
-  hosts: control_node
+  hosts: control_plane[0]
   gather_facts: false
   tasks:
     - name: Uninstall gitea
@@ -14,7 +14,7 @@
         tasks_from: delete_pv
 
 - name: Delete host path
-  hosts: all
+  hosts: cluster
   gather_facts: false
   tasks:
     - name: Delete host path

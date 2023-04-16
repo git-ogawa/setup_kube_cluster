@@ -14,8 +14,15 @@
         state: absent
       become: true
 
-- name: Clean up on control_node
-  hosts: control_node
+    - name: Delete flannel interface
+      ansible.builtin.command: ip link delete flannel.1
+      changed_when: true
+      become: true
+      register: delete_result
+      failed_when: delete_result.rc != 0 and delete_result.rc != 1
+
+- name: Clean up on control_plane
+  hosts: control_plane
   gather_facts: false
   tasks:
     - name: Clean up control plane

@@ -1,5 +1,5 @@
 ---
 - name: Deploy nginx ingress controller
-  hosts: control_node
+  hosts: control_plane[0]
   roles:
     - role: nginx_ingress

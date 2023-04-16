@@ -1,4 +1,5 @@
 # setup kube-cluster
+
 This repository is for setting up a kubernetes cluster for development on cloud instances (AWS EC2) by `Ansible`. It is useful to build a cluster in the following environments.
 
 - Cluster on EC2 instances instead of cloud-managed service (EKS).
@@ -59,6 +60,7 @@ To add worker nodes to cluster, set values for worker1, worker2 and more in the 
 
 
 Then, run the following command to create the cluster.
+
 ```
 $ ansible-playbook setup.yml
 ```
@@ -76,6 +78,94 @@ The setup playbook installs the necessary CLI tools, creates the cluster, and de
 | Argocd | CD tool | no |
 | Harbor | Image registry | no |
 | Gitea | Git server | no |
+
+
+# HA cluster
+
+The project can create HA (High Availability) cluster consisting of stacked control plane nodes with kubeadm. The machines that meet the following requirements are required to create the HA cluster.
+
+- Two or more machine that meet requirements (see [Creating Highly Available Clusters with kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/#before-you-begin) ) are required as control plane nodes.
+- One or more load balancer that routing to nodes on control plane.
+
+
+To create HA cluster, set `ha_cluster.enabled: true` in `inventory`.
+
+``` yml
+all:
+  vars:
+    ...
+    ha_cluster:
+      enabled: true
+```
+
+Set host definitions used as nodes on control plane, worker nodes and load balancer.
+
+- Set name of hosts (e.g. kube-master1 below) to match the hostname on the machine.
+- When the ip address used for communication between nodes is different from the one used by the machine running the playbook for ssh (such as public ip or floating ip), set the former value `internal_ipv4`. Otherwise, set the same value for `ansible_host` and `internal_ipv4`.
+
+
+```yml
+# inventory
+all:
+  ...
+  children:
+    cluster:
+      children:
+        control_plane:
+        worker:
+    control_plane:
+      # Define Two or more hosts to be used as control plane.
+      hosts:
+        kube-master1:
+          ansible_host: 10.10.10.11
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          internal_ipv4: 192.168.3.11
+        kube-master2:
+          ansible_host: 10.10.10.12
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          internal_ipv4: 192.168.3.12
+        kube-master3:
+          ansible_host: 10.10.10.13
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          internal_ipv4: 192.168.3.13
+    worker:
+      # Define zero or more hosts to be used as worker node.
+      hosts:
+        kube-worker1:
+          ansible_host: 10.10.10.14
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          internal_ipv4: 192.168.3.14
+    load_balancer:
+      # Define One or more hosts to be used as load balancer.
+      hosts:
+        load-balancer1:
+          ansible_host: 10.10.10.20
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          internal_ipv4: 192.168.3.20
+```
+
+Then run `setup.yml`.
+
+```
+$ ansible-playbook setup.yml
+```
+
+If successfully finished, multiple control plane nodes are created as shown below.
+
+```
+$ kubectl get node
+NAME           STATUS   ROLES           AGE   VERSION
+kube-master1   Ready    control-plane   93m   v1.26.0
+kube-master2   Ready    control-plane   83m   v1.26.0
+kube-master3   Ready    control-plane   81m   v1.26.0
+kube-worker1   Ready    <none>          41m   v1.26.0
+```
+
 
 # Details
 See [setup_cluster.md](docs/setup_cluster.md)

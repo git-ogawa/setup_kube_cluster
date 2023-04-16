@@ -1,13 +1,13 @@
 ---
 - name: Deploy tekton components
-  hosts: control_node
+  hosts: control_plane[0]
   gather_facts: false
   roles:
     - role: tekton
       tags: tekton
 
 - name: Install tekton cli
-  hosts: all
+  hosts: cluster
   gather_facts: true
   tasks:
     - name: Check distribution

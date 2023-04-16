@@ -1,0 +1,14 @@
+---
+node_os: linux
+node_architecture: amd64
+node_package_manager: apt
+node_shell: bash
+node_user: "{{ ansible_user }}"
+
+krew_binary: "krew-{{ node_os }}_{{ node_architecture }}"
+krew_repo_url: "https://github.com/kubernetes-sigs/krew/releases/latest/download/{{ krew_binary }}.tar.gz"
+
+krew_plugins:
+  - ctx
+  - ns
+  - access-matrix

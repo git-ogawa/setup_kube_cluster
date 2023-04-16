@@ -1,15 +1,15 @@
 ---
-- name: module load and IP forwarding
-  hosts: all
+- name: Load module and set IP forwarding
+  hosts: cluster
   gather_facts: true
   tasks:
-    - name: sysctl settings
+    - name: Set sysctl
       ansible.builtin.import_role:
         name: cluster
         tasks_from: sysctl
 
 - name: Setup kubernetes cluster with kubeadm
-  hosts: control_node
+  hosts: control_plane[0]
   gather_facts: true
   tasks:
     - name: Kubeadm init

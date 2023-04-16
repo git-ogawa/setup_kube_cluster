@@ -1,6 +1,6 @@
 ---
 - name: Make host path
-  hosts: all
+  hosts: cluster
   gather_facts: false
   tasks:
     - name: Make host path
@@ -9,7 +9,7 @@
         tasks_from: make_hostpath
 
 - name: Deploy harbor
-  hosts: control_node
+  hosts: control_plane[0]
   gather_facts: false
   tasks:
     - name: Make persistenceVolume and persistentVolumeClaim

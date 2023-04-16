@@ -1,15 +1,20 @@
 ---
 - name: Install components on compute instances
-  hosts: all
+  hosts: cluster
   gather_facts: true
   roles:
     - role: kubernetes
       tags: kubernetes
 
+    - role: krew
+      tags: krew
+      vars:
+        node_package_manager: "{{ ansible_facts.pkg_mgr }}"
+
     - role: containerd
       tags: containerd
       vars:
-        architecture: "{{ ansible_facts.architecture }}"
+        architecture: "{{ architectures[ansible_facts.architecture] }}"
 
     - role: nerdctl
       tags: nerdctl

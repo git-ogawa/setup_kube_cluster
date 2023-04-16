@@ -1,15 +1,16 @@
 ---
 - name: Make host path
-  hosts: all
+  hosts: cluster
   gather_facts: false
   tasks:
     - name: Make host path
       ansible.builtin.import_role:
         name: gitea
         tasks_from: make_hostpath
+      when: gitea_pv_enabled | bool
 
 - name: Install gitea
-  hosts: control_node
+  hosts: control_plane[0]
   gather_facts: false
   tasks:
     - name: Make persistenceVolume and persistentVolumeClaim

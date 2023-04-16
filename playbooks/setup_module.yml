@@ -1,6 +1,6 @@
 ---
 - name: Setup kubernetes cluster with kubeadm
-  hosts: control_node
+  hosts: control_plane
   gather_facts: true
   roles:
     - role: python
