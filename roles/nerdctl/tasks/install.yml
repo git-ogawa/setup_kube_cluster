@@ -3,6 +3,7 @@
   ansible.builtin.get_url:
     url: "{{ nerdctl_repo_url }}"
     dest: /tmp/nerdctl.tar.gz
+    mode: "0755"
 
 - name: Extract nerdctl
   ansible.builtin.unarchive:

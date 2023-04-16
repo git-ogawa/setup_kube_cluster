@@ -1,3 +1,2 @@
 ---
-- name: Install tekton components
-  import_tasks: deploy_components.yml
+- ansible.builtin.import_tasks: deploy_components.yml
