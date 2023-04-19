@@ -3,6 +3,9 @@
   hosts: cluster
   gather_facts: true
   roles:
+    - role: facts
+      tags: always
+
     - role: kubernetes
       tags: kubernetes
 

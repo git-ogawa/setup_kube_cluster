@@ -10,23 +10,10 @@
   hosts: cluster
   gather_facts: true
   tasks:
-    - name: Check distribution
-      ansible.builtin.set_fact:
-        distribution: "{{ ansible_facts.distribution | lower }}"
-        family: "{{ ansible_facts.distribution_file_variety | lower }}"
-
-    - name: Install cli for rhel-like distribution
+    - name: Install cli
       ansible.builtin.import_role:
         name: tekton
-        tasks_from: cli_rhel
-      when: family == "redhat"
+        tasks_from: cli
       vars:
-        architecture: "{{ ansible_facts.architecture }}"
-
-    - name: Install cli for ubuntu
-      ansible.builtin.import_role:
-        name: tekton
-        tasks_from: cli_ubuntu
-      when: family != "redhat"
-      vars:
-        architecture: "{{ ansible_facts.architecture }}"
+        package_manager: "{{ ansible_facts.pkg_mgr }}"
+        architecture: "{{ architectures[ansible_facts.architecture] }}"

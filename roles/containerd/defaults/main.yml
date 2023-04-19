@@ -2,17 +2,20 @@
 architecture: amd64
 # architecture: arm64
 
-containerd_version: 1.6.20
+containerd_version: latest
+# containerd_version: 1.6.20
 containerd_config: /etc/containerd/config.toml
 containerd_release_url: https://github.com/containerd/containerd/releases/download
 
 # runc
-runc_version: 1.1.6
+runc_version: latest
+# runc_version: 1.1.6
 runc_release_url: https://github.com/opencontainers/runc/releases/download
 
 # cni
 cni_plugin_install_dir: /opt/cni/bin
-cni_plugin_version: "1.2.0"
+cni_plugin_version: latest
+# cni_plugin_version: "1.2.0"
 cni_plugin_repo_url: "https://github.com/containernetworking/plugins/releases/download"
 
 # Cert

@@ -7,10 +7,29 @@
   become: true
 
 - name: Download containerd binary
+  when: containerd_version == "latest"
+  block:
+    - name: Get the latest version
+      ansible.builtin.import_role:
+        name: github
+      vars:
+        organization: containerd
+        repository: containerd
+        query_string: "linux-{{ architecture }}"
+
+    - name: "Download containerd v{{ release_latest_version }} binary"
+      ansible.builtin.get_url:
+        url: "{{ containerd_release_url }}/v{{ release_latest_version }}/containerd-{{ release_latest_version }}-linux-{{ architecture }}.tar.gz"
+        dest: "/tmp/containerd_download/containerd_{{ architecture }}.tar.gz"
+        mode: "0644"
+      become: true
+
+- name: "Download containerd v{{ containerd_version }} binary"
   ansible.builtin.get_url:
     url: "{{ containerd_release_url }}/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-{{ architecture }}.tar.gz"
     dest: "/tmp/containerd_download/containerd_{{ architecture }}.tar.gz"
     mode: "0644"
+  when: containerd_version != "latest"
   become: true
 
 - name: Extract
@@ -52,11 +71,30 @@
   when: architecture == "x86_64" or architecture == "amd64"
 
 - name: Download runc
+  when: runc_version == "latest"
+  block:
+    - name: Get the latest version
+      ansible.builtin.import_role:
+        name: github
+      vars:
+        organization: opencontainers
+        repository: runc
+        query_string: "runc.{{ architecture }}"
+
+    - name: "Download runc v{{ runc_version }} binary"
+      ansible.builtin.get_url:
+        url: "{{ runc_release_url }}/v{{ release_latest_version }}//runc.{{ architecture }}"
+        dest: /usr/local/sbin/runc
+        mode: "0755"
+      become: true
+
+- name: Download runc
   ansible.builtin.get_url:
     url: "{{ runc_release_url }}/v{{ runc_version }}/runc.{{ architecture }}"
     dest: /usr/local/sbin/runc
     mode: "0755"
   become: true
+  when: runc_version != "latest"
 
 - name: Make tmp directory
   ansible.builtin.file:
@@ -72,10 +110,29 @@
   become: true
 
 - name: Download cni plugin
+  when: cni_plugin_version == "latest"
+  block:
+    - name: Get the latest version
+      ansible.builtin.import_role:
+        name: github
+      vars:
+        organization: containernetworking
+        repository: plugins
+        query_string: "linux-{{ architecture }}"
+
+    - name: "Download cni_plugin v{{ release_latest_version }} binary"
+      ansible.builtin.get_url:
+        url: "{{ cni_plugin_repo_url }}/v{{ release_latest_version }}/cni-plugins-linux-{{ architecture }}-v{{ release_latest_version }}.tgz"
+        dest: /tmp/cni_plugin/cni_plugin.tar.gz
+        mode: "0755"
+      become: true
+
+- name: Download cni plugin
   ansible.builtin.get_url:
     url: "{{ cni_plugin_repo_url }}/v{{ cni_plugin_version }}/cni-plugins-linux-{{ architecture }}-v{{ cni_plugin_version }}.tgz"
     dest: /tmp/cni_plugin/cni_plugin.tar.gz
     mode: "0755"
+  when: cni_plugin_version != "latest"
   become: true
 
 - name: Extract cni plugin

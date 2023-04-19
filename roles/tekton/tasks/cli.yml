@@ -1,0 +1,62 @@
+---
+- name: Set architecture for tekton cli
+  ansible.builtin.set_fact:
+    tekton_arch: "{{ arch_list[architecture] }}"
+  vars:
+    arch_list:
+      amd64: Linux-64bit
+      arm64: Linux-ARM64
+
+- name: Install tekton CLI (apt)
+  when: package_manager == "apt"
+  block:
+    - name: Install tekton CLI
+      when: tekton_cli_version == "latest"
+      block:
+        - name: Get the latest version
+          ansible.builtin.import_role:
+            name: github
+          vars:
+            organization: tektoncd
+            repository: cli
+            query_string: "{{ tekton_arch }}"
+
+        - name: "Install tekton CLI v{{ release_latest_version }}"
+          ansible.builtin.apt:
+            deb: "{{ tekton_release_url }}/v{{ release_latest_version }}/tektoncd-cli-{{ release_latest_version }}_{{ tekton_arch }}.deb"
+          become: true
+
+    - name: "Install tekton CLI v{{ tekton_cli_version }}"
+      ansible.builtin.apt:
+        deb: "{{ tekton_release_url }}/v{{ tekton_cli_version }}/tektoncd-cli-{{ tekton_cli_version }}_{{ tekton_arch }}.deb"
+      become: true
+      when: tekton_cli_version != "latest"
+
+- name: Install tekton CLI (dnf)
+  when: package_manager == "dnf"
+  block:
+    - name: Install tekton CLI
+      when: tekton_cli_version == "latest"
+      block:
+        - name: Get the latest version
+          ansible.builtin.import_role:
+            name: github
+          vars:
+            organization: tektoncd
+            repository: cli
+            query_string: "Linux-{{ tekton_arch }}"
+
+        - name: "Install tekton CLI v{{ release_latest_version }}"
+          ansible.builtin.dnf:
+            name: "{{ tekton_release_url }}/v{{ tekton_cli_version }}/tektoncd-cli-{{ tekton_cli_version }}_{{ tekton_arch }}.rpm"
+            state: present
+            disable_gpg_check: true
+          become: true
+
+    - name: "Install tekton CLI v{{ tekton_cli_version }}"
+      ansible.builtin.dnf:
+        name: "{{ tekton_release_url }}/v{{ tekton_cli_version }}/tektoncd-cli-{{ tekton_cli_version }}_Linux-64bit.rpm"
+        state: present
+        disable_gpg_check: true
+      become: true
+      when: tekton_cli_version != "latest"
