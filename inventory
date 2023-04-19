@@ -11,6 +11,7 @@ all:
     tekton_install: false
     gitea_install: false
     harbor_install: false
+    kube_prometheus_install: false
   children:
     control_plane:
       hosts:

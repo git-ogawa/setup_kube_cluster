@@ -1,0 +1,9 @@
+---
+- name: Uninstall kube-prometheus
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Uninstall kube-prometheus
+      ansible.builtin.import_role:
+        name: kube_prometheus
+        tasks_from: uninstall

@@ -80,3 +80,9 @@
   when:
     - action is defined
     - action == "uninstall"
+
+- name: Setup kube-prometheus
+  ansible.builtin.import_playbook: playbooks/setup_kube_prometheus.yml
+  tags: kube_prometheus
+  when: kube_prometheus_install | bool
+
