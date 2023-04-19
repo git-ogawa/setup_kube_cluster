@@ -1,0 +1,24 @@
+---
+# Common settings
+architectures:
+  x86_64: amd64
+  aarch64: arm64
+
+
+# Containerd settings
+containerd_version: latest
+# containerd_version: "1.6.20"
+
+# Helm settings
+helm_version: latest
+# helm_version: "3.9.4"
+
+
+# Tekton settings
+tekton_cli_version: latest
+# tekton_cli_version: "0.25.0"
+
+
+# Argocd settings
+argocd_cli_version: latest
+# argocd_cli_version: "2.4.11"
