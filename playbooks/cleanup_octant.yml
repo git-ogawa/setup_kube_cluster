@@ -1,0 +1,12 @@
+---
+- name: Uninstall octant
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Uninstall octant
+      ansible.builtin.import_role:
+        name: octant
+        tasks_from: uninstall
+      vars:
+        architecture: "{{ ansible_facts.architecture }}"
+        package_manager: "{{ ansible_facts.pkg_mgr }}"

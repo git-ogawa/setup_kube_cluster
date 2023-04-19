@@ -86,3 +86,7 @@
   tags: kube_prometheus
   when: kube_prometheus_install | bool
 
+- name: Setup octant
+  ansible.builtin.import_playbook: playbooks/setup_octant.yml
+  tags: octant
+  when: octant_install | bool

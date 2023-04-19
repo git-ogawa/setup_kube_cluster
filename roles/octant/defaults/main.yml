@@ -1,0 +1,8 @@
+---
+octant_repo: https://github.com/vmware-archive/octant
+octant_release_url: "{{ octant_repo }}/releases/download"
+octant_version: latest
+octant_port: 7777
+
+user: ubuntu
+kubeconfig_path: /home/{{ user }}/.kube/config

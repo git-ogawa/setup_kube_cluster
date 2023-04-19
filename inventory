@@ -12,6 +12,7 @@ all:
     gitea_install: false
     harbor_install: false
     kube_prometheus_install: false
+    octant_install: false
   children:
     control_plane:
       hosts:
