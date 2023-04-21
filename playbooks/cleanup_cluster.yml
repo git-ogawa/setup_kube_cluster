@@ -8,18 +8,46 @@
       changed_when: true
       become: true
 
-    - name: Remove /etc/cni/net.d
-      ansible.builtin.file:
-        path: /etc/cni/net.d
-        state: absent
-      become: true
+    # - name: Remove /etc/cni/net.d
+    #   ansible.builtin.file:
+    #     path: /etc/cni/net.d
+    #     state: absent
+    #   become: true
 
-    - name: Delete flannel interface
-      ansible.builtin.command: ip link delete flannel.1
-      changed_when: true
-      become: true
-      register: delete_result
-      failed_when: delete_result.rc != 0 and delete_result.rc != 1
+    - name: Cleanup flannel
+      when: cni_type == "flannel"
+      block:
+        - name: Delete flannel interface
+          ansible.builtin.command: ip link delete flannel.1
+          become: true
+          register: delete_result
+          changed_when: delete_result.rc == 0
+          failed_when: delete_result.rc != 0 and delete_result.rc != 1
+
+        - name: Delete flannel config
+          ansible.builtin.file:
+            path: /etc/cni/net.d/10-flannel.conflist
+            state: absent
+          become: true
+
+    - name: Cleanup calico
+      when: cni_type == "calico"
+      block:
+        - name: Delete calico interface
+          ansible.builtin.command: ip link delete vxlan.calico
+          become: true
+          register: delete_result
+          changed_when: delete_result.rc == 0
+          failed_when: delete_result.rc != 0 and delete_result.rc != 1
+
+        - name: Delete calico config
+          ansible.builtin.file:
+            path: "/etc/cni/net.d/{{ item }}"
+            state: absent
+          become: true
+          loop:
+            - 10-calico.conflist
+            - calico-kubeconfig
 
 - name: Clean up on control_plane
   hosts: control_plane
@@ -30,9 +58,37 @@
       changed_when: true
       become: true
 
-    - name: Delete flannel interface
-      ansible.builtin.command: ip link delete flannel.1
-      changed_when: true
-      become: true
-      register: delete_result
-      failed_when: delete_result.rc != 0 and delete_result.rc != 1
+    - name: Cleanup flannel
+      when: cni_type == "flannel"
+      block:
+        - name: Delete flannel interface
+          ansible.builtin.command: ip link delete flannel.1
+          become: true
+          register: delete_result
+          changed_when: delete_result.rc == 0
+          failed_when: delete_result.rc != 0 and delete_result.rc != 1
+
+        - name: Delete flannel config
+          ansible.builtin.file:
+            path: /etc/cni/net.d/10-flannel.conflist
+            state: absent
+          become: true
+
+    - name: Cleanup calico
+      when: cni_type == "calico"
+      block:
+        - name: Delete calico interface
+          ansible.builtin.command: ip link delete vxlan.calico
+          become: true
+          register: delete_result
+          changed_when: delete_result.rc == 0
+          failed_when: delete_result.rc != 0 and delete_result.rc != 1
+
+        - name: Delete calico config
+          ansible.builtin.file:
+            path: "/etc/cni/net.d/{{ item }}"
+            state: absent
+          become: true
+          loop:
+            - 10-calico.conflist
+            - calico-kubeconfig
