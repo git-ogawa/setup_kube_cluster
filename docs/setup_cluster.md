@@ -24,14 +24,16 @@
 
 
 # Setup cluster
-Setup cluster is to create a kubernetes cluster on compute instances with kubeadm. This makes it easy to create and reset clusters for testing and development.
+Setup cluster is to create a kubernetes cluster on compute instances with kubeadm. This makes it easy to create and destroy clusters for testing and development.
 
 
 Create a cluster with the following configuration based on [official start guide](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/).
 
 - CRI : [Containerd](https://kubernetes.io/docs/setup/production-environment/container-runtimes/#containerd)
-- CNI : [Flannel](https://github.com/flannel-io/flannel)
-- Single control-plane node (no high availability).
+- CNI : [Calico](https://github.com/projectcalico/calico) or [Flannel](https://github.com/flannel-io/flannel)
+- Clsuter
+    - Single control-plane node (no high availability).
+    - [HA cluster by stacked control plane nodes](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/)
 - Worker nodes (optional)
 - nginx ingress controller (optional)
 
@@ -41,7 +43,6 @@ The following CI/CD components can be installed on setup.
 - Argocd
 - Harbor
 - Gitea
-
 
 It is recommended to use the project for development environment.
 
@@ -68,7 +69,7 @@ Others
 
 At first, you need edit the host definition in `inventory` in top directory.
 
-- `control_plane.hosts.control_node`
+- `control_plane.hosts.control_plane`
     - An instance belonging to the control-plane, on which a cluster is created.
 
 - `worker.hosts.worker` (optional)
@@ -110,10 +111,15 @@ If you want to install the CI/CD components, set the values to `true`.
 ```yaml
 all:
   vars:
+    openebs_install: true
+    longhorn_install: true
+    kubevious_install: true
     argocd_install: true
     tekton_install: true
     gitea_install: true
     harbor_install: true
+    kube_prometheus_install: true
+    octant_install: true
 ```
 
 # Run
@@ -125,11 +131,7 @@ The following steps will be run in setup process. If you want to run a part of s
 
 - Create a cluster with kubeadm
 - Add worker nodes to the cluster (if exists)
-- Deploy nginx ingress controller
-- Deploy argocd
-- Deploy tekton
-- Deploy harbor
-- Deploy gitea
+- Deploy components
 
 
 # Steps

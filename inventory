@@ -15,7 +15,13 @@ all:
     harbor_install: false
     kube_prometheus_install: false
     octant_install: false
+    ha_cluster:
+      enabled: false
   children:
+    cluster:
+      children:
+        control_plane:
+        worker:
     control_plane:
       hosts:
         control_node1:

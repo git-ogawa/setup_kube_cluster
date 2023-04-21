@@ -40,7 +40,7 @@ git clone https://github.com/git-ogawa/setup_kube_cluster
 cd setup_kube_cluster
 ```
 
-Edit public IPv4 address, username, port and ssh key of your node under `control_node` section in `inventory`.
+Edit public IPv4 address, username, port and ssh key of your node under `master1` section in `inventory`.
 
 ```yml
 # inventory
@@ -49,23 +49,53 @@ all:
   children:
     control_plane:
       hosts:
-        control_node:
+        master1:
           ansible_host: 10.10.10.10  # Public IPv4 address
           ansible_user: ubuntu  # Username
           ansible_ssh_port: 22  # SSH port
           ansible_ssh_private_key_file: ~/.ssh/id_rsa  # Path to ssh key
 ```
 
-To add worker nodes to cluster, set values for worker1, worker2 and more in the same way under `worker` section.
+To add worker nodes to cluster, set values for hosts as worker more in the same way under `worker`. The following are the example to add two host `myworker1, 2` to the cluster as worker nodes.
+
+``` yaml
+all:
+  ...
+  children:
+    worker:
+      hosts:
+        myworker1:
+          ansible_host: 10.10.10.11
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+        myworker2:
+          ansible_host: 10.10.10.12
+          ansible_user: rocky
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+```
 
 
-Then, run the following command to create the cluster.
+The `calico` is used for CNI by default. When you want to use other CNI, set the CNI name to `cni_type` and cidr `network_cidr`. The supported cni are the followings.
+
+- calico
+- flannel
+
+
+``` yaml
+all:
+  vars:
+    cni_type: calico
+    network_cidr: "10.244.0.0/16"
+```
+
+
+To create a new cluster, run the following command to create the cluster.
 
 ```
 $ ansible-playbook setup.yml
 ```
 
-The setup playbook installs the necessary CLI tools, creates the cluster, and deploys the following components. You can manage whether each component is installed during the installation process by editing the inventory file. See [setup_cluster.md](docs/setup_cluster.md) for details.
+The setup playbook installs the necessary CLI, creates the cluster, and deploys the following components. You can manage whether each component is installed during the installation process by editing the inventory file. See [setup_cluster.md](docs/setup_cluster.md) for details.
 
 
 | Component | Used for | Installed by default |
@@ -74,11 +104,12 @@ The setup playbook installs the necessary CLI tools, creates the cluster, and de
 | OpenEBS | Storage | no |
 | Longhorn | Storage | no |
 | Kubevious | Dashboard | no |
+| Octant | Dashboard | no |
 | Tekton | CI/CD platform | no |
 | Argocd | CD tool | no |
 | Harbor | Image registry | no |
 | Gitea | Git server | no |
-
+| kube-prometheus-stack | Monitoring | no |
 
 # HA cluster
 
