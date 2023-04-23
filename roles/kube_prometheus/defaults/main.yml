@@ -1,0 +1,3 @@
+---
+kube_prometheus_namespace: kube-prometheus
+kube_prometheus_release_name: kube-prometheus

@@ -45,7 +45,7 @@ spec:
       storage: {{ harbor_pvc.trivy.storage }}
   volumeMode: Filesystem
   storageClassName: {{ harbor_storage_class }}
-{% if harbor_pv_enabled %}
+{% if harbor_pv_enabled | bool %}
   selector:
     matchLabels:
       app: harbor
@@ -72,7 +72,7 @@ spec:
       storage: {{ harbor_pvc.database.storage }}
   volumeMode: Filesystem
   storageClassName: {{ harbor_storage_class }}
-{% if harbor_pv_enabled %}
+{% if harbor_pv_enabled | bool %}
   selector:
     matchLabels:
       app: harbor
@@ -100,7 +100,7 @@ spec:
       storage: {{ harbor_pvc.chartmuseum.storage }}
   volumeMode: Filesystem
   storageClassName: {{ harbor_storage_class }}
-{% if harbor_pv_enabled %}
+{% if harbor_pv_enabled | bool %}
   selector:
     matchLabels:
       app: harbor
@@ -128,7 +128,7 @@ spec:
       storage: {{ harbor_pvc.jobservice_jobLog.storage }}
   volumeMode: Filesystem
   storageClassName: {{ harbor_storage_class }}
-{% if harbor_pv_enabled %}
+{% if harbor_pv_enabled | bool %}
   selector:
     matchLabels:
       app: harbor
@@ -156,7 +156,7 @@ spec:
       storage: {{ harbor_pvc.jobservice_scanDataExports.storage }}
   volumeMode: Filesystem
   storageClassName: {{ harbor_storage_class }}
-{% if harbor_pv_enabled %}
+{% if harbor_pv_enabled | bool %}
   selector:
     matchLabels:
       app: harbor
@@ -184,7 +184,7 @@ spec:
       storage: {{ harbor_pvc.registry.storage }}
   volumeMode: Filesystem
   storageClassName: {{ harbor_storage_class }}
-{% if harbor_pv_enabled %}
+{% if harbor_pv_enabled | bool %}
   selector:
     matchLabels:
       app: harbor

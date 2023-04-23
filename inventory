@@ -3,19 +3,28 @@ all:
   vars:
     ec2_cluster: true
     kubernetes_version: latest
-    # kubernetes_version: "1.24.4"
+    cni_type: calico
+    network_cidr: "10.244.0.0/16"
     taint_control_plane_node: false
-    openebs_install: true
+    openebs_install: false
     longhorn_install: false
-    kubevious_install: true
-    argocd_install: true
-    tekton_install: true
-    gitea_install: true
-    harbor_install: true
+    kubevious_install: false
+    argocd_install: false
+    tekton_install: false
+    gitea_install: false
+    harbor_install: false
+    kube_prometheus_install: false
+    octant_install: false
+    ha_cluster:
+      enabled: false
   children:
+    cluster:
+      children:
+        control_plane:
+        worker:
     control_plane:
       hosts:
-        controller:
+        control_node1:
           ansible_host: 35.78.70.178
           ansible_user: rocky
           ansible_ssh_port: 22
@@ -28,3 +37,11 @@ all:
         #   ansible_ssh_port: 22
         #   ansible_ssh_private_key_file: ~/.ssh/id_rsa
         #   ansible_become_password: xxxx
+    load_balancer:
+      hosts:
+        # load_balancer1:
+          # ansible_host: xx.xx.xx.xx
+          # ansible_user: ubuntu
+          # ansible_ssh_port: 22
+          # ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          # ansible_become_password: xxxx

@@ -1,0 +1,12 @@
+---
+- name: Install octant
+  hosts: control_plane[0]
+  gather_facts: true
+  tasks:
+    - name: Install octant
+      ansible.builtin.import_role:
+        name: octant
+      vars:
+        architecture: "{{ architectures[ansible_facts.architecture] }}"
+        package_manager: "{{ ansible_facts.pkg_mgr }}"
+        user: "{{ ansible_user }}"

@@ -1,0 +1,5 @@
+---
+calico_organization: projectcalico
+calico_repository: calico
+calico_version: latest
+calico_network_cidr: 10.244.0.0/16

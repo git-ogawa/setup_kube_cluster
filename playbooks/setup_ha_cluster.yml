@@ -1,0 +1,152 @@
+---
+- name: Load module and set IP forwarding
+  hosts: cluster
+  gather_facts: true
+  tasks:
+    - name: Set sysctl
+      ansible.builtin.import_role:
+        name: cluster
+        tasks_from: sysctl
+
+    - name: Add cluster server address to /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '^{{ hostvars[item].internal_ipv4 }}'
+        line: '{{ hostvars[item].internal_ipv4 }} {{ item }}'
+      become: true
+      loop: "{{ groups.all }}"
+
+- name: Setup kubernetes cluster with kubeadm
+  hosts: control_plane[0]
+  gather_facts: true
+  tasks:
+    - name: Kubeadm init
+      ansible.builtin.import_role:
+        name: cluster
+        tasks_from: kubeadm_ha_init
+      vars:
+        load_balancer_dns: "{{ groups.load_balancer[0] }}"
+        ipv4_address: "{{ ansible_facts.default_ipv4.address }}"
+        pod_network_cidr: "{{ network_cidr }}"
+
+    - name: Install CNI
+      ansible.builtin.include_role:
+        name: "{{ cni_type }}"
+
+    - name: Wait 30 sec until pod status is up
+      ansible.builtin.wait_for:
+        timeout: 30
+      delegate_to: localhost
+
+- name: Get cluster token, ca.crt hash and certificate-key
+  hosts: control_plane[0]
+  gather_facts: true
+  tasks:
+    - name: Generate token
+      ansible.builtin.command: kubeadm token create
+      register: token
+      changed_when: true
+
+    - name: Get ca-cert-hash
+      ansible.builtin.shell: >
+        set -o pipefail &&
+        openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt |
+        openssl rsa -pubin -outform der 2>/dev/null |
+        openssl dgst -sha256 -hex | sed 's/^.* //'
+      register: hash
+      changed_when: false
+      args:
+        executable: /bin/bash
+
+    - name: Generate new certificate-key
+      ansible.builtin.command: kubeadm init phase upload-certs --upload-certs
+      become: true
+      register: result
+      changed_when: result.rc == 0
+      failed_when: result.rc != 0
+
+    - name: Set certificate-key
+      ansible.builtin.set_fact:
+        certificate_key: "{{ result.stdout.splitlines()[-1] }}"
+
+- name: Add nodes to control plane
+  hosts: control_plane[1:]
+  gather_facts: false
+  tasks:
+    - name: Start kubelet
+      ansible.builtin.systemd:
+        name: kubelet
+        state: started
+        enabled: true
+      become: true
+
+    - name: Add nodes to control plane
+      ansible.builtin.command: >
+        kubeadm join {{ groups.load_balancer[0] }}:6443
+        --discovery-token {{ hostvars[primary_node].token.stdout }}
+        --discovery-token-ca-cert-hash sha256:{{ hostvars[primary_node].hash.stdout }}
+        --control-plane --certificate-key {{ hostvars[primary_node].certificate_key }}
+      become: true
+      vars:
+        primary_node: "{{ groups.control_plane[0] }}"
+      changed_when: true
+
+    - name: Create ~/.kube
+      ansible.builtin.file:
+        path: "/home/{{ hostvars[inventory_hostname].ansible_user }}/.kube"
+        state: directory
+        mode: "0755"
+        owner: "{{ hostvars[inventory_hostname].ansible_user }}"
+        group: "{{ hostvars[inventory_hostname].ansible_user }}"
+
+    - name: Delete previous config
+      ansible.builtin.file:
+        state: absent
+        path: "/home/{{ hostvars[inventory_hostname] }}/.kube/config"
+
+    - name: Copy admin.conf to ~/.kube/config
+      ansible.builtin.copy:
+        src: /etc/kubernetes/admin.conf
+        dest: "/home/{{ hostvars[inventory_hostname].ansible_user }}/.kube/config"
+        mode: "0600"
+        owner: "{{ hostvars[inventory_hostname].ansible_user }}"
+        group: "{{ hostvars[inventory_hostname].ansible_user }}"
+        remote_src: true
+      become: true
+
+- name: Add worker nodes to cluster
+  hosts: worker
+  gather_facts: false
+  tasks:
+    - name: Start kubelet
+      ansible.builtin.systemd:
+        name: kubelet
+        state: started
+        enabled: true
+      become: true
+
+    - name: Add worker node
+      ansible.builtin.command: >
+        kubeadm join {{ groups.load_balancer[0] }}:6443
+        --discovery-token {{ hostvars[primary_node].token.stdout }}
+        --discovery-token-ca-cert-hash sha256:{{ hostvars[primary_node].hash.stdout }}
+      become: true
+      vars:
+        primary_node: "{{ groups.control_plane[0] }}"
+      changed_when: true
+
+- name: Post process
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Delete the token on control_node
+      ansible.builtin.command: "kubeadm token delete {{ hostvars[primary_node].token.stdout }}"
+      changed_when: true
+      vars:
+        primary_node: "{{ groups.control_plane[0] }}"
+
+    - name: Taint control plane nodes
+      ansible.builtin.command: |
+        kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+      changed_when: true
+      when: taint_control_plane_node | bool

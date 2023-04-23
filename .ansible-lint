@@ -1,0 +1,9 @@
+---
+skip_list:
+  - 'yaml[comments-indentation]'
+  - 'name[template]'
+  - 'name[missing]'
+  - 'risky-shell-pipe'
+
+kinds:
+  - playbook: "**/playbooks/*.yml"

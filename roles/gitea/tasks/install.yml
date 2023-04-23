@@ -50,23 +50,23 @@
         nodeSelector:
           kubernetes.io/arch: amd64
 
-- name: Delete postgresql statefulset
-  kubernetes.core.k8s:
-    state: absent
-    name: gitea-postgresql
-    kind: StatefulSet
-    api_version: v1
-    namespace: "{{ gitea_namespace }}"
+# - name: Delete postgresql statefulset
+#   kubernetes.core.k8s:
+#     state: absent
+#     name: gitea-postgresql
+#     kind: StatefulSet
+#     api_version: v1
+#     namespace: "{{ gitea_namespace }}"
 
-- name: Update postgresql statefulset
-  kubernetes.core.k8s:
-    state: present
-    template: statefulset.yml.j2
+# - name: Update postgresql statefulset
+#   kubernetes.core.k8s:
+#     state: present
+#     template: statefulset.yml.j2
 
-- name: Update postgresql pod
-  kubernetes.core.k8s:
-    state: absent
-    name: gitea-postgresql-0
-    kind: pod
-    api_version: v1
-    namespace: "{{ gitea_namespace }}"
+# - name: Update postgresql pod
+#   kubernetes.core.k8s:
+#     state: absent
+#     name: gitea-postgresql-0
+#     kind: pod
+#     api_version: v1
+#     namespace: "{{ gitea_namespace }}"

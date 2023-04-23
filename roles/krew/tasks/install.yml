@@ -1,0 +1,46 @@
+---
+- name: Install git (apt)
+  ansible.builtin.apt:
+    name: git
+    state: present
+  become: true
+  when: node_package_manager == "apt"
+
+- name: Install git (dnf)
+  ansible.builtin.dnf:
+    name: git
+    state: present
+  become: true
+  when: node_package_manager == "dnf"
+
+- name: Download krew binary
+  ansible.builtin.get_url:
+    url: "{{ krew_repo_url }}"
+    dest: "/tmp/krew.tar.gz"
+    mode: "0755"
+
+- name: Extract krew binary
+  ansible.builtin.unarchive:
+    src: "/tmp/krew.tar.gz"
+    dest: /tmp
+    remote_src: true
+
+- name: "Add krew path to {{ node_shell }}rc"
+  ansible.builtin.lineinfile:
+    path: "/home/{{ node_user }}/.{{ node_shell }}rc"
+    line: 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"'
+  when: node_shell == "bash" or node_shell == "zsh"
+
+- name: Install krew
+  ansible.builtin.command:
+    cmd: "/tmp/{{ krew_binary }} install krew"
+  register: result
+  changed_when: result.rc == 0
+  failed_when: result.rc != 0
+
+# - name: Check that krew is successfully installed
+#   ansible.builtin.command:
+#     cmd: "kubectl krew"
+#   register: result
+#   failed_when: result.rc != 0
+#   changed_when: false

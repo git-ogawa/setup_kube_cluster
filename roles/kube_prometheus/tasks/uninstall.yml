@@ -1,0 +1,6 @@
+---
+- name: Delete kube_prometheus release
+  kubernetes.core.helm:
+    name: "{{ kube_prometheus_release_name }}"
+    release_namespace: "{{ kube_prometheus_namespace }}"
+    release_state: absent

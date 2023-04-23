@@ -1,36 +1,31 @@
 ---
-- name: Install CRI
-  hosts: all
+- name: Load module and set IP forwarding
+  hosts: cluster
   gather_facts: true
   tasks:
-    - name: Precheck
+    - name: Set sysctl
       ansible.builtin.import_role:
-        name: setup_cluster
-        tasks_from: precheck
-
-    - name: Common settings
-      ansible.builtin.import_role:
-        name: setup_cluster
-        tasks_from: common_settings
+        name: cluster
+        tasks_from: sysctl
 
 - name: Setup kubernetes cluster with kubeadm
-  hosts: controller
+  hosts: control_plane[0]
   gather_facts: true
   tasks:
     - name: Kubeadm init
       ansible.builtin.import_role:
-        name: setup_cluster
+        name: cluster
         tasks_from: kubeadm_init
       vars:
         ipv4_address: "{{ ansible_facts.default_ipv4.address }}"
+        pod_network_cidr: "{{ network_cidr }}"
 
     - name: Install CNI
-      ansible.builtin.import_role:
-        name: setup_cluster
-        tasks_from: deploy_cni
+      ansible.builtin.include_role:
+        name: "{{ cni_type }}"
 
     - name: Taint control plane nodes
       ansible.builtin.command: |
-        kubectl taint nodes --all node-role.kubernetes.io/control-plane- node-role.kubernetes.io/master-
+        kubectl taint nodes --all node-role.kubernetes.io/control-plane-
       changed_when: true
       when: taint_control_plane_node | bool

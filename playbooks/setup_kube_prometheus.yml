@@ -1,0 +1,8 @@
+---
+- name: Install kube-prometheus
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Install kube-prometheus
+      ansible.builtin.import_role:
+        name: kube_prometheus

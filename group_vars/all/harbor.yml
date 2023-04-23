@@ -1,0 +1,84 @@
+---
+harbor_release_name: harbor
+harbor_namespace: harbor
+harbor_domain: core.harbor.domain
+harbor_admin_password: "Harbor12345"
+
+# If storage class is empty, pvc will use hostpath pv.
+# If you want to use pv provisioned by openebs, set gitea_storage_class to "openebs-hostpath".
+harbor_storage_class: "{% if openebs_install %}openebs-hostpath{% endif %}"
+
+
+# Harbor persistentVolume settings.
+# If harbor_pv_enabled is true, create directories specified as harbor_host_path_dir for hostpath pv.
+# Create host directory on target node.
+harbor_pv_enabled: "{% if openebs_install %}false{% else %}true{% endif %}"
+harbor_host_path_dir: "/opt/kube/harbor"
+harbor_pv:
+  registry:
+    name: registry
+    storage: 1Gi
+    host_path: "{{ harbor_host_path_dir }}/registry"
+    label: registry
+  chartmuseum:
+    name: chartmuseum
+    storage: 1Gi
+    host_path: "{{ harbor_host_path_dir }}/chartmuseum"
+    label: chartmuseum
+  jobservice_jobLog:
+    name: jobservice-log
+    storage: 1Gi
+    host_path: "{{ harbor_host_path_dir }}/jobservice_job_log"
+    label: jobservice-log
+  jobservice_scanDataExports:
+    name: jobservice-scan
+    storage: 1Gi
+    host_path: "{{ harbor_host_path_dir }}/jobservice_scan"
+    label: jobservice-scan
+  database:
+    name: database
+    storage: 1Gi
+    host_path: "{{ harbor_host_path_dir }}/database"
+    label: database
+  redis:
+    name: redis
+    storage: 1Gi
+    host_path: "{{ harbor_host_path_dir }}/redis"
+    label: redis
+  trivy:
+    name: trivy
+    storage: 1Gi
+    host_path: "{{ harbor_host_path_dir }}/trivy"
+    label: trivy
+
+# PersistentVolumeClaim settings.
+# Set label selector to use the persistVolume defined above.
+harbor_pvc:
+  registry:
+    name: harbor-registry
+    storage: "{{ harbor_pv.registry.storage }}"
+    selector_label: "{{ harbor_pv.registry.label }}"
+  chartmuseum:
+    name: harbor-chartmuseum
+    storage: "{{ harbor_pv.chartmuseum.storage }}"
+    selector_label: "{{ harbor_pv.chartmuseum.label }}"
+  jobservice_jobLog:
+    name: harbor-jobservice
+    storage: "{{ harbor_pv.jobservice_jobLog.storage }}"
+    selector_label: "{{ harbor_pv.jobservice_jobLog.label }}"
+  jobservice_scanDataExports:
+    name: harbor-jobservice-scandata
+    storage: "{{ harbor_pv.jobservice_scanDataExports.storage }}"
+    selector_label: "{{ harbor_pv.jobservice_scanDataExports.label }}"
+  database:
+    name: database-data-harbor-database-0
+    storage: "{{ harbor_pv.database.storage }}"
+    selector_label: "{{ harbor_pv.database.label }}"
+  redis:
+    name: data-harbor-redis-0
+    storage: "{{ harbor_pv.redis.storage }}"
+    selector_label: "{{ harbor_pv.redis.label }}"
+  trivy:
+    name: data-harbor-trivy-0
+    storage: "{{ harbor_pv.trivy.storage }}"
+    selector_label: "{{ harbor_pv.trivy.label }}"

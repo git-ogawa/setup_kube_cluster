@@ -1,0 +1,8 @@
+---
+- name: Setup kubernetes cluster with kubeadm
+  hosts: control_plane
+  gather_facts: true
+  roles:
+    - role: python
+      vars:
+        package_manager: "{{ ansible_facts.pkg_mgr }}"

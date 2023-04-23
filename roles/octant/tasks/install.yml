@@ -1,0 +1,79 @@
+---
+- name: Set architecture for octant
+  ansible.builtin.set_fact:
+    octant_arch: "{{ arch_list[architecture] }}"
+  vars:
+    arch_list:
+      amd64: Linux-64bit
+      arm64: Linux-ARM64
+
+- name: Install octant (apt)
+  when: package_manager == "apt"
+  block:
+    - name: Install octant
+      when: octant_version == "latest"
+      block:
+        - name: Get the latest version
+          ansible.builtin.import_role:
+            name: github
+          vars:
+            organization: vmware-archive
+            repository: octant
+            query_string: "{{ octant_arch }}"
+
+        - name: "Install octant v{{ release_latest_version }}"
+          ansible.builtin.apt:
+            deb: "{{ octant_release_url }}/v{{ release_latest_version }}/octant_{{ release_latest_version }}_{{ octant_arch }}.deb"
+          become: true
+
+    - name: "Install octant v{{ octant_version }}"
+      ansible.builtin.apt:
+        deb: "{{ octant_release_url }}/v{{ octant_version }}/octant_{{ octant_version }}_{{ octant_arch }}.deb"
+      become: true
+      when: octant_version != "latest"
+
+- name: Install octant (dnf)
+  when: package_manager == "dnf"
+  block:
+    - name: Install octant
+      when: octant_version == "latest"
+      block:
+        - name: Get the latest version
+          ansible.builtin.import_role:
+            name: github
+          vars:
+            organization: vmware-archive
+            repository: octant
+            query_string: "{{ octant_arch }}"
+
+        - name: "Install octant v{{ release_latest_version }}"
+          ansible.builtin.dnf:
+            name: "{{ octant_release_url }}/v{{ release_latest_version }}/octant_{{ release_latest_version }}_{{ octant_arch }}.rpm"
+            state: present
+            disable_gpg_check: true
+          become: true
+
+    - name: "Install octant v{{ octant_version }}"
+      ansible.builtin.dnf:
+        name: "{{ octant_release_url }}/v{{ octant_version }}/octant_{{ octant_version }}_{{ octant_arch }}.rpm"
+        state: present
+        disable_gpg_check: true
+      become: true
+      when: octant_version != "latest"
+
+- name: Put systemd unit file
+  ansible.builtin.template:
+    src: octant.service.j2
+    dest: /usr/lib/systemd/system/octant.service
+    mode: "0644"
+    owner: root
+    group: root
+  become: true
+
+- name: Start octant service
+  ansible.builtin.systemd:
+    name: octant
+    state: started
+    enabled: true
+    daemon-reload: true
+  become: true

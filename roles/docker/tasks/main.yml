@@ -5,9 +5,9 @@
     family: "{{ ansible_facts.distribution_file_variety | lower }}"
 
 - name: Install docker for rhel-like
-  import_tasks: install_rhel.yml
+  ansible.builtin.import_tasks: install_rhel.yml
   when: family == "redhat"
 
 - name: Install docker for other distro
-  import_tasks: "install_{{ distribution }}.yml"
+  ansible.builtin.import_tasks: "install_{{ distribution }}.yml"
   when: family != "redhat"

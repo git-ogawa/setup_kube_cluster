@@ -1,0 +1,40 @@
+---
+gitea_release_name: gitea
+gitea_namespace: gitea
+gitea_admin_username: gitea_admin
+gitea_admin_password: "r8sA8CPHD9!bt6d"
+gitea_admin_email: "gitea@local.domain"
+gitea_config_server_domain: git.example.com
+
+# If storage class is empty, pvc will use hostpath pv.
+# If you want to use pv provisioned by openebs, set gitea_storage_class to "openebs-hostpath".
+gitea_storage_class: "{% if openebs_install %}openebs-hostpath{% endif %}"
+
+# Gitea persistentVolume settings.
+# If gitea_pv_enabled is true, create directories specified as gitea_host_path_dir for hostpath pv.
+# Create host directory on target node.
+gitea_pv_enabled: "{% if openebs_install %}false{% else %}true{% endif %}"
+gitea_host_path_dir: /opt/kube/gitea
+gitea_pv:
+  gitea:
+    name: gitea
+    storage: 10Gi
+    label: gitea
+    host_path: "{{ gitea_host_path_dir }}/gitea"
+  postgresql:
+    name: gitea-postgresql
+    storage: 10Gi
+    label: postgresql
+    host_path: "{{ gitea_host_path_dir }}/postgresql"
+
+gitea_pvc:
+  gitea:
+    name: data-gitea-0
+    storage: "{{ gitea_pv.gitea.storage }}"
+    label: "{{ gitea_pv.gitea.label }}"
+    selector_label: "{{ gitea_pv.gitea.label }}"
+  postgresql:
+    name: data-gitea-postgresql-0
+    storage: "{{ gitea_pv.postgresql.storage }}"
+    label: "{{ gitea_pv.postgresql.label }}"
+    selector_label: "{{ gitea_pv.postgresql.label }}"

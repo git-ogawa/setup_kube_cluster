@@ -10,11 +10,11 @@
         query: "*.ansible_facts.architecture"
 
 - name: Update kube-proxy
-  hosts: controller
+  hosts: control_node
   gather_facts: false
   tasks:
     - name: Update kube-proxy for arm nodes
       ansible.builtin.import_role:
-        name: setup_cluster
+        name: cluster
         tasks_from: kube-proxy
       when: "'aarch64' in nodes_architecture"

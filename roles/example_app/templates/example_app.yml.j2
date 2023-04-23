@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ example_app_name }}-deployment
+spec:
+  selector:
+    matchLabels:
+      app: {{ example_app_name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ example_app_name }}
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.14.2
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ example_app_name }}-service
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: {{ example_app_name }}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ example_app_name }}-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{ example_app_host }}
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ example_app_name }}-service
+              port:
+                number: 80

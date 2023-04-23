@@ -1,0 +1,105 @@
+---
+- name: Install kubeadm, kubectl, kubelet (ubuntu)
+  when: os_family != "redhat"
+  block:
+    - name: Apt update
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - curl
+          - ca-certificates
+        state: present
+      become: true
+
+    - name: Download the Google Cloud public signing key
+      ansible.builtin.get_url:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        dest: /usr/share/keyrings/kubernetes-archive-keyring.gpg
+        mode: "0644"
+      become: true
+
+    - name: Add kubernetes repository
+      ansible.builtin.apt_repository:
+        repo: >
+          deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg]
+          https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes
+      become: true
+
+    - name: Apt update
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+
+    - name: Install the latest kubernetes commands
+      ansible.builtin.apt:
+        name:
+          - kubectl
+          - kubelet
+          - kubeadm
+        state: present
+      become: true
+      when: kubernetes_version == "latest"
+
+    - name: "Install kubernetes commands version {{ kubernetes_version }}"
+      ansible.builtin.apt:
+        name:
+          - "kubectl={{ kubernetes_version }}-00"
+          - "kubelet={{ kubernetes_version }}-00"
+          - "kubeadm={{ kubernetes_version }}-00"
+        state: present
+        allow_downgrade: true
+        allow_change_held_packages: true
+      become: true
+      when: kubernetes_version != "latest"
+
+    - name: Hold kubernetes commands to be upgraded
+      ansible.builtin.dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      become: true
+      loop:
+        - kubectl
+        - kubelet
+        - kubeadm
+
+- name: Install kubeadm, kubectl, kubelet (RHEL)
+  when: os_family == "redhat"
+  block:
+    - name: Add kubernetes repository
+      ansible.builtin.yum_repository:
+        name: kubernetes
+        description: kubernetes
+        baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
+        enabled: true
+        gpgcheck: true
+        gpgkey: >
+          https://packages.cloud.google.com/yum/doc/yum-key.gpg
+          https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+      become: true
+
+    - name: Install the latest kubernetes commands
+      ansible.builtin.dnf:
+        name:
+          - kubectl
+          - kubelet
+          - kubeadm
+        state: present
+      become: true
+      when: kubernetes_version == "latest"
+
+    - name: "Install kubernetes commands version {{ kubernetes_version }}"
+      ansible.builtin.dnf:
+        name:
+          - "kubectl-{{ kubernetes_version }}-0"
+          - "kubelet-{{ kubernetes_version }}-0"
+          - "kubeadm-{{ kubernetes_version }}-0"
+        state: present
+      become: true
+      when: kubernetes_version != "latest"

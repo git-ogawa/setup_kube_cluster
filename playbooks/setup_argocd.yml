@@ -1,13 +1,13 @@
 ---
 - name: Deploy argocd components
-  hosts: controller
+  hosts: control_plane[0]
   gather_facts: false
   roles:
     - role: argocd
       tags: argocd
 
 - name: Install argocd CLI
-  hosts: all
+  hosts: cluster
   gather_facts: true
   tasks:
     - name: Install argocd CLI

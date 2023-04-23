@@ -1,4 +1,8 @@
 ---
+- name: Check ansible module
+  ansible.builtin.import_playbook: playbooks/setup_module.yml
+  tags: module
+
 - name: Install components
   ansible.builtin.import_playbook: playbooks/setup_components.yml
   tags: components
@@ -6,11 +10,19 @@
 - name: Create cluster
   ansible.builtin.import_playbook: playbooks/setup_cluster.yml
   tags: cluster
+  when: not ha_cluster.enabled | bool
+
+- name: Create HA cluster
+  ansible.builtin.import_playbook: playbooks/setup_ha_cluster.yml
+  tags: cluster
+  when: ha_cluster.enabled | bool
 
 - name: Add worker nodes
   ansible.builtin.import_playbook: playbooks/add_worker.yml
   tags: add_worker
-  when: groups.worker | default([]) | length > 0
+  when:
+    - not ha_cluster.enabled | bool
+    - groups.worker | default([]) | length > 0
 
 - name: Setup ingress controller
   ansible.builtin.import_playbook: playbooks/setup_ingress_controller.yml
@@ -25,6 +37,11 @@
   ansible.builtin.import_playbook: playbooks/setup_longhorn.yml
   tags: longhorn
   when: longhorn_install | bool
+
+- name: Setup kubevious
+  ansible.builtin.import_playbook: playbooks/setup_kubevious.yml
+  tags: kubevious
+  when: kubevious_install | bool
 
 - name: Setup argocd
   ansible.builtin.import_playbook: playbooks/setup_argocd.yml
@@ -63,3 +80,13 @@
   when:
     - action is defined
     - action == "uninstall"
+
+- name: Setup kube-prometheus
+  ansible.builtin.import_playbook: playbooks/setup_kube_prometheus.yml
+  tags: kube_prometheus
+  when: kube_prometheus_install | bool
+
+- name: Setup octant
+  ansible.builtin.import_playbook: playbooks/setup_octant.yml
+  tags: octant
+  when: octant_install | bool

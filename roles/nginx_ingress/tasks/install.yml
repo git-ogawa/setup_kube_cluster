@@ -1,0 +1,23 @@
+---
+- name: Download nginx ingress controller manifest
+  ansible.builtin.get_url:
+    url: |
+      {{ nginx_ingress_repository }}/controller-v{{ nginx_ingress_version }}/deploy/static/provider/cloud/deploy.yaml
+    dest: /tmp/nginx_ingress_controller.yml
+    mode: "0644"
+
+- name: Deploy nginx ingress controller
+  kubernetes.core.k8s:
+    state: present
+    src: /tmp/nginx_ingress_controller.yml
+
+- name: Put service manifest
+  ansible.builtin.template:
+    src: service.yml.j2
+    dest: /tmp/service.yml
+    mode: "0644"
+
+- name: Override nginx ingress controller service manifest
+  kubernetes.core.k8s:
+    state: present
+    src: /tmp/service.yml

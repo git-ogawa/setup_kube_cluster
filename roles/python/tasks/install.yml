@@ -1,0 +1,27 @@
+---
+- name: Install pip (dnf)
+  ansible.builtin.dnf:
+    name:
+      - python39-pip
+    state: present
+  become: true
+  when: package_manager == "dnf"
+
+- name: Install pip (apt)
+  ansible.builtin.apt:
+    name:
+      - python3-pip
+    state: present
+    update_cache: true
+  become: true
+  when: package_manager == "apt"
+
+- name: Install dependencies for ansible kubernetes module
+  ansible.builtin.pip:
+    name:
+      - kubernetes >= 12.0.0
+      - pyyaml >= 3.11
+      - jsonpatch
+    state: present
+    extra_args: --user
+    executable: pip3

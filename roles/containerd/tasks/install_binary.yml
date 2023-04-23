@@ -1,0 +1,163 @@
+---
+- name: Make /tmp/containerd
+  ansible.builtin.file:
+    path: /tmp/containerd_download
+    mode: "0755"
+    state: directory
+  become: true
+
+- name: Download containerd binary
+  when: containerd_version == "latest"
+  block:
+    - name: Get the latest version
+      ansible.builtin.import_role:
+        name: github
+      vars:
+        organization: containerd
+        repository: containerd
+        query_string: "linux-{{ architecture }}"
+
+    - name: "Download containerd v{{ release_latest_version }} binary"
+      ansible.builtin.get_url:
+        url: "{{ containerd_release_url }}/v{{ release_latest_version }}/containerd-{{ release_latest_version }}-linux-{{ architecture }}.tar.gz"
+        dest: "/tmp/containerd_download/containerd_{{ architecture }}.tar.gz"
+        mode: "0644"
+      become: true
+
+- name: "Download containerd v{{ containerd_version }} binary"
+  ansible.builtin.get_url:
+    url: "{{ containerd_release_url }}/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-{{ architecture }}.tar.gz"
+    dest: "/tmp/containerd_download/containerd_{{ architecture }}.tar.gz"
+    mode: "0644"
+  when: containerd_version != "latest"
+  become: true
+
+- name: Extract
+  ansible.builtin.unarchive:
+    src: "/tmp/containerd_download/containerd_{{ architecture }}.tar.gz"
+    dest: /usr/local
+    remote_src: true
+  become: true
+
+- name: Make /usr/local/lib/systemd/system
+  ansible.builtin.file:
+    path: /usr/local/lib/systemd/system
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Download unit file
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/containerd/containerd/main/containerd.service
+    dest: /usr/local/lib/systemd/system
+    mode: "0644"
+  become: true
+
+- name: Make /etc/containerd
+  ansible.builtin.file:
+    path: /etc/containerd
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Put /etc/containerd/config.toml
+  ansible.builtin.copy:
+    src: config_amd64.toml
+    dest: /etc/containerd/config.toml
+    mode: "0644"
+    owner: root
+    group: root
+  become: true
+  when: architecture == "x86_64" or architecture == "amd64"
+
+- name: Download runc
+  when: runc_version == "latest"
+  block:
+    - name: Get the latest version
+      ansible.builtin.import_role:
+        name: github
+      vars:
+        organization: opencontainers
+        repository: runc
+        query_string: "runc.{{ architecture }}"
+
+    - name: "Download runc v{{ runc_version }} binary"
+      ansible.builtin.get_url:
+        url: "{{ runc_release_url }}/v{{ release_latest_version }}//runc.{{ architecture }}"
+        dest: /usr/local/sbin/runc
+        mode: "0755"
+      become: true
+
+- name: Download runc
+  ansible.builtin.get_url:
+    url: "{{ runc_release_url }}/v{{ runc_version }}/runc.{{ architecture }}"
+    dest: /usr/local/sbin/runc
+    mode: "0755"
+  become: true
+  when: runc_version != "latest"
+
+- name: Make tmp directory
+  ansible.builtin.file:
+    path: /tmp/cni_plugin
+    state: directory
+    mode: "0755"
+
+- name: "Make {{ cni_plugin_install_dir }}"
+  ansible.builtin.file:
+    path: "{{ cni_plugin_install_dir }}"
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Download cni plugin
+  when: cni_plugin_version == "latest"
+  block:
+    - name: Get the latest version
+      ansible.builtin.import_role:
+        name: github
+      vars:
+        organization: containernetworking
+        repository: plugins
+        query_string: "linux-{{ architecture }}"
+
+    - name: "Download cni_plugin v{{ release_latest_version }} binary"
+      ansible.builtin.get_url:
+        url: "{{ cni_plugin_repo_url }}/v{{ release_latest_version }}/cni-plugins-linux-{{ architecture }}-v{{ release_latest_version }}.tgz"
+        dest: /tmp/cni_plugin/cni_plugin.tar.gz
+        mode: "0755"
+      become: true
+
+- name: Download cni plugin
+  ansible.builtin.get_url:
+    url: "{{ cni_plugin_repo_url }}/v{{ cni_plugin_version }}/cni-plugins-linux-{{ architecture }}-v{{ cni_plugin_version }}.tgz"
+    dest: /tmp/cni_plugin/cni_plugin.tar.gz
+    mode: "0755"
+  when: cni_plugin_version != "latest"
+  become: true
+
+- name: Extract cni plugin
+  ansible.builtin.unarchive:
+    src: /tmp/cni_plugin/cni_plugin.tar.gz
+    dest: "{{ cni_plugin_install_dir }}"
+    remote_src: true
+  become: true
+
+- name: Cleanup
+  ansible.builtin.file:
+    path: "/tmp/cni_plugin"
+    state: absent
+  become: true
+
+- name: Start containerd service
+  ansible.builtin.systemd:
+    name: containerd
+    state: started
+    enabled: true
+    daemon_reload: true
+  become: true
+
+- name: Remove /tmp/containerd
+  ansible.builtin.file:
+    path: /tmp/containerd_download
+    state: absent
+  become: true

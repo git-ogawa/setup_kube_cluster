@@ -1,0 +1,32 @@
+---
+- name: Stop octant service
+  ansible.builtin.systemd:
+    name: octant
+    state: stopped
+    enabled: false
+  become: true
+
+- name: Remove systemd unit file
+  ansible.builtin.file:
+    path: /usr/lib/systemd/system/octant.service
+    state: absent
+  become: true
+
+- name: Daemon reload
+  ansible.builtin.systemd:
+    daemon-reload: true
+  become: true
+
+- name: Uninstall octant (apt)
+  ansible.builtin.apt:
+    name: octant
+    state: absent
+  become: true
+  when: package_manager == "apt"
+
+- name: Uninstall octant (dnf)
+  ansible.builtin.dnf:
+    name: octant
+    state: absent
+  become: true
+  when: package_manager == "dnf"
