@@ -15,6 +15,7 @@ all:
     harbor_install: false
     kube_prometheus_install: false
     octant_install: false
+    openfaas_install: false
     ha_cluster:
       enabled: false
   children:

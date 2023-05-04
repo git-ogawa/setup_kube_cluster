@@ -1,0 +1,14 @@
+---
+openfaas_github_raw_url: "https://raw.githubusercontent.com/openfaas/faas-netes"
+
+openfaas_release_name: openfaas
+openfaas_namespace: openfaas
+openfaas_service_type: ClusterIP
+
+openfaas_cli_repo_url: https://github.com/openfaas/faas-cli
+openfaas_cli_version: latest
+openfaas_cli_arch: amd64
+openfaas_cli_query_string: faas-cli
+openfaas_cli_path: /usr/local/bin/faas-cli
+
+openfaas_cli_completion_enabled: true

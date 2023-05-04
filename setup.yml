@@ -90,3 +90,8 @@
   ansible.builtin.import_playbook: playbooks/setup_octant.yml
   tags: octant
   when: octant_install | bool
+
+- name: Setup openfaas
+  ansible.builtin.import_playbook: playbooks/setup_openfaas.yml
+  tags: openfaas
+  when: openfaas_install | bool
