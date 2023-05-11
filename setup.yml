@@ -95,3 +95,13 @@
   ansible.builtin.import_playbook: playbooks/setup_openfaas.yml
   tags: openfaas
   when: openfaas_install | bool
+
+- name: Setup cert_manager
+  ansible.builtin.import_playbook: playbooks/setup_cert_manager.yml
+  tags: cert_manager
+  when: cert_manager_install | bool
+
+- name: Setup jaeger
+  ansible.builtin.import_playbook: playbooks/setup_jaeger.yml
+  tags: jaeger
+  when: jaeger_install | bool

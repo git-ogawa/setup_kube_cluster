@@ -1,0 +1,49 @@
+---
+- name: Create temporary directory
+  ansible.builtin.file:
+    path: /tmp/jaeger
+    mode: "0755"
+    state: directory
+
+- name: Create namespace
+  kubernetes.core.k8s:
+    name: "{{ jaeger_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: Download manifest
+  ansible.builtin.get_url:
+    url: "{{ jaeger_release_url }}/v{{ jaeger_version }}/jaeger-operator.yaml"
+    mode: "0644"
+    dest: /tmp/jaeger/jaeger-operator.yaml
+
+- name: Check cert-manager webhook is running
+  kubernetes.core.k8s_info:
+    kind: Pod
+    namespace: cert-manager
+    label_selectors:
+      - "app=webhook"
+      - "app.kubernetes.io/component=webhook"
+      - "app.kubernetes.io/instance=cert-manager"
+  register: result
+  until: resources[0].status.phase == "Running"
+  retries: 30
+  delay: 5
+
+- name: Apply manifest
+  kubernetes.core.k8s:
+    src: /tmp/jaeger/jaeger-operator.yaml
+    state: present
+
+- name: Put simplest.yml
+  ansible.builtin.copy:
+    src: simplest.yml
+    mode: "0644"
+    dest: /tmp/jaeger/simplest.yml
+
+- name: Apply simplest.yml
+  kubernetes.core.k8s:
+    src: /tmp/jaeger/simplest.yml
+    state: present
+    namespace: "{{ jaeger_namespace }}"

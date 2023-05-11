@@ -1,0 +1,5 @@
+---
+jaeger_namespace: observability
+jaeger_operator_url: https://github.com/jaegertracing/jaeger-operator
+jaeger_release_url: "{{ jaeger_operator_url }}/releases/download"
+jaeger_version: "1.44.0"
