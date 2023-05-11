@@ -105,3 +105,8 @@
   ansible.builtin.import_playbook: playbooks/setup_jaeger.yml
   tags: jaeger
   when: jaeger_install | bool
+
+- name: Setup linkerd
+  ansible.builtin.import_playbook: playbooks/setup_linkerd.yml
+  tags: linkerd
+  when: linkerd_install | bool

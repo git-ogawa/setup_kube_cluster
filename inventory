@@ -16,6 +16,7 @@ all:
     kube_prometheus_install: false
     octant_install: false
     openfaas_install: false
+    linkerd_install: false
     cert_manager_install: false
     jaeger_install: false
     ha_cluster:
