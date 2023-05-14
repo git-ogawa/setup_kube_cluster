@@ -4,6 +4,16 @@
     url: "https://api.github.com/repos/{{ organization }}/{{ repository }}/releases/latest"
     return_content: true
   register: result
+  when: not github_api_token_enabled | bool
+
+- name: "Get the latest release of {{ organization }}/{{ repository }} (with PAT)"
+  ansible.builtin.uri:
+    url: "https://api.github.com/repos/{{ organization }}/{{ repository }}/releases/latest"
+    return_content: true
+    headers:
+      Authorization: "Bearer {{ github_api_token }}"
+  register: result
+  when: github_api_token_enabled | bool
 
 - name: Fix json format
   ansible.builtin.set_fact:
