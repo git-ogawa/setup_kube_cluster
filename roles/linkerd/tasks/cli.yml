@@ -5,14 +5,6 @@
     mode: "0755"
     state: directory
 
-- name: Get cli version
-  ansible.builtin.import_role:
-    name: github
-  vars:
-    organization: linkerd
-    repository: linkerd2
-    query_string: linkerd2-cli
-
 - name: Download install script
   ansible.builtin.get_url:
     url: https://run.linkerd.io/install
@@ -25,9 +17,21 @@
   changed_when: result.rc == 0
   failed_when: result.rc != 0
 
+- name: Get cli version
+  block:
+    - name: List files
+      ansible.builtin.command: "ls /home/{{ ansible_user }}/.linkerd2/bin"
+      changed_when: false
+      register: result
+      failed_when: result.rc != 0
+
+    - name: Extract version
+      ansible.builtin.set_fact:
+        linkerd_cli_version: "{{ result.stdout | regex_search('[0-9]{1,2}\\.[0-9]{1,2}\\.[0-9]{1,2}') }}"
+
 - name: Put cli in PATH
   ansible.builtin.copy:
-    src: "/home/{{ ansible_user }}/.linkerd2/bin/linkerd-stable-{{ release_latest_version }}"
+    src: "/home/{{ ansible_user }}/.linkerd2/bin/linkerd-stable-{{ linkerd_cli_version }}"
     dest: "{{ linkerd_cli_path }}"
     mode: "0755"
     remote_src: true
