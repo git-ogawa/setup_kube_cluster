@@ -1,0 +1,30 @@
+---
+- name: Install velero (aws)
+  when: velero_provider == "aws"
+  block:
+    - name: Check credentials
+      ansible.builtin.assert:
+        that:
+          - velero_aws_bucket | length > 0
+          - velero_aws_region | length > 0
+          - velero_access_key_id | length > 0
+          - velero_secret_access_key | length > 0
+
+    - name: Put aws credential file
+      ansible.builtin.template:
+        src: credentials-velero.j2
+        dest: /tmp/velero/credentials-velero
+        mode: "0644"
+
+    - name: Install velero
+      ansible.builtin.command: >
+        velero install
+        --provider aws
+        --plugins velero/velero-plugin-for-aws:v1.6.0
+        --bucket {{ velero_aws_bucket }}
+        --backup-location-config region={{ velero_aws_region }}
+        --snapshot-location-config region={{ velero_aws_region }}
+        --secret-file /tmp/velero/credentials-velero
+      register: result
+      changed_when: result.rc == 0
+      failed_when: result.rc != 0

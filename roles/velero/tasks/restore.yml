@@ -1,0 +1,10 @@
+---
+- name: Create restore object
+  ansible.builtin.command: >
+    velero restore
+    create {{ velero_restore_name }}
+    --from-backup {{ velero_backup_name }}
+    --existing-resource-policy=update
+  register: result
+  changed_when: result.rc == 0
+  failed_when: result.rc != 0

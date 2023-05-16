@@ -98,7 +98,7 @@ $ ansible-playbook setup.yml
 The setup playbook installs the necessary CLI, creates the cluster, and deploys the following components. You can manage whether each component is installed during the installation process by editing the inventory file. See [setup_cluster.md](docs/setup_cluster.md) for details.
 
 
-| Component | Used for | Installed by default |
+| Component | Category | Installed by default |
 | - | - | - |
 | Nginx controller | Ingress controller | yes |
 | OpenEBS | Storage | no |
@@ -109,7 +109,12 @@ The setup playbook installs the necessary CLI, creates the cluster, and deploys 
 | Argocd | CD tool | no |
 | Harbor | Image registry | no |
 | Gitea | Git server | no |
-| kube-prometheus-stack | Monitoring | no |
+| Kube-prometheus-stack | Monitoring | no |
+| Openfaas | Serverless framework | no |
+| Cert manager | Certificates management | no |
+| Jaeger | Distributed tracing system | no |
+| Linkerd | Service mesh | no |
+| Velero | Backup and restore management | no |
 
 # HA cluster
 

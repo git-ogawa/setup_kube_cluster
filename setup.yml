@@ -110,3 +110,8 @@
   ansible.builtin.import_playbook: playbooks/setup_linkerd.yml
   tags: linkerd
   when: linkerd_install | bool
+
+- name: Setup velero
+  ansible.builtin.import_playbook: playbooks/setup_velero.yml
+  tags: velero
+  when: velero_install | bool

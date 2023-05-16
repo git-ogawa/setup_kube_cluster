@@ -18,6 +18,7 @@
   - [Tekton](#tekton)
   - [Harbor](#harbor)
   - [Gitea](#gitea)
+  - [Velero](#velero)
 - [Clean up cluster](#clean-up-cluster)
 
 <!-- /code_chunk_output -->
@@ -298,6 +299,61 @@ By default, PersistentVolume whose type is hostpath is created on the node and p
 gitea_storage_class: "openebs-hostpath"
 gitea_pv_enabled: false
 ```
+
+## Velero
+
+Velero is an open source tool to safely backup and restore, perform disaster recovery, and migrate Kubernetes cluster resources and persistent volumes. In this project, user can use velero to restore a cluster from a backup created in advanced instead of installing components on setup. This will be useful to recreate a cluster repeatedly for test or development.
+
+To restore a cluster from backup on setup, user have to create a backup to cloud providers using velero in advance. Only the aws provider is supported currently in this project. See [velero-plugin-for-aws setup](https://github.com/vmware-tanzu/velero-plugin-for-aws#setup) how to create a backup and store them in S3.
+
+
+Make sure that a backup is stored and available in S3 using velero as below.
+
+```
+$ velero backup get
+NAME                  STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+full-cluster-backup   Completed   0        8          2023-05-15 04:53:09 +0000 UTC   29d       default            <none>
+```
+
+To use the backup to create cluster on setup, set the following variables in `inventory`.
+
+- velero_install : Set `true` to install velero in the cluster.
+- velero_provider: Set `aws`.
+- velero_aws_bucket : The S3 bucket name. The value must match the bucket name in which the backup is stored.
+- velero_aws_region : The aws region. The region must match the one in which the bucket is created.
+- velero_access_key_id : The access key of IAM user. The user must have permissions to access S3.
+- velero_secret_key_id : The secret access key of IAM user. The user must have permissions to access S3.
+- velero_backup_name : The name of backup. The name must match the resource name of velero backup (backups.velero.io) created in advance.
+- velero_restore_name (optional) : The resource name of velero restore object. `full-cluster-restore` by default.
+
+``` yaml
+all:
+  vars:
+    ...
+    velero_install: true
+    velero_provider: aws
+    velero_aws_bucket: velero-backup-bucket
+    velero_aws_region: us-east-1
+    velero_access_key: set-your-access-key
+    velero_secret_key: set-your-secret-access-key
+    velero_backup_name: full-cluster-backup
+```
+
+Then run `setup.yml` to create a cluster and install velero.
+
+```
+$ ansible-playbook setup.yml
+```
+
+The velero pod for restore will be created after successfully finished. Run `tools/velero/restore.yml` to restore the cluster from the velero backup. By this play, all kubernetes resources included in the backup will be created in your cluster.
+
+```
+$ ansible-playbook tools/velero/restore.yml
+```
+
+Note: The restore is executed with policy `--existing-resource-policy=update`. See [Restore existing resource policy](https://velero.io/docs/v1.11/restore-reference/#restore-existing-resource-policy).
+
+
 
 # Clean up cluster
 To clean up the cluster, run the `cleanup_cluster.yml`. This play runs `kubeadm reset` on workers and controller.

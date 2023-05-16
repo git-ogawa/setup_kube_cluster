@@ -1,0 +1,12 @@
+---
+velero_repo_url: https://github.com/vmware-tanzu/velero
+velero_release_url: "{{ velero_repo_url }}/releases/download"
+velero_cli_version: latest
+velero_cli_architecture: amd64
+
+velero_aws_bucket: ""
+velero_aws_region: ""
+velero_access_key_id: ""
+velero_secret_access_key: ""
+velero_backup_name: full-cluster-backup
+velero_restore_name: full-cluster-restore
