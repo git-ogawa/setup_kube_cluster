@@ -1,0 +1,7 @@
+---
+- name: Deploy cert-manager
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - ansible.builtin.import_role:
+        name: cert_manager

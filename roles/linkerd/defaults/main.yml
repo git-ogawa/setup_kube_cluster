@@ -1,0 +1,20 @@
+---
+linkerd_work_dir: /tmp/linkerd
+
+linkerd_cli_repo_url: https://github.com/linkerd/linkerd2
+linkerd_cli_version: latest
+linkerd_cli_path: /usr/local/bin/linkerd
+linkerd_cli_completion_enabled: true
+
+linkerd_release_name: linkerd-control-plane
+linkerd_namespace: linkerd
+
+linkerd_crd_release_name: linkerd-crds
+linkerd_crd_namespace: linkerd
+
+linkerd_cni_release_name: linkerd-cni
+linkerd_cni_namespace: linkerd-cni
+
+linkerd_viz_release_name: linkerd-viz
+linkerd_viz_namespace: linkerd-viz
+linkerd_viz_hostname: linkerd.example.com

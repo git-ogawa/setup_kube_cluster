@@ -3,6 +3,7 @@ extends: default
 
 ignore: |
   .github/workflows/*.yml
+  tmp*
 
 rules:
   line-length:

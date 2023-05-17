@@ -1,0 +1,59 @@
+---
+- name: Install faas-cli
+  when: openfaas_cli_version == "latest"
+  block:
+    - name: Get the latest version
+      ansible.builtin.import_role:
+        name: github
+      vars:
+        organization: openfaas
+        repository: faas-cli
+        query_string: faas-cli
+
+    - name: "Download faas_cli {{ release_latest_version }} (amd64)"
+      ansible.builtin.get_url:
+        url: "{{ openfaas_cli_repo_url }}/releases/download/{{ release_latest_version }}/faas-cli"
+        dest: "{{ openfaas_cli_path }}"
+        mode: "0755"
+      become: true
+      when: openfaas_cli_arch == "amd64" or openfaas_cli_arch == "x86_64"
+
+    - name: "Download faas_cli {{ release_latest_version }} (arm64)"
+      ansible.builtin.get_url:
+        url: "{{ openfaas_cli_repo_url }}/releases/download/{{ release_latest_version }}/faas-cli-{{ openfaas_cli_arch }}"
+        dest: "{{ openfaas_cli_path }}"
+        mode: "0755"
+      become: true
+      when: openfaas_cli_arch == "aarch64" or openfaas_cli_arch == "arm64"
+
+- name: Install faas-cli specified version
+  when: openfaas_cli_version != "latest"
+  block:
+    - name: "Download faas_cli {{ openfaas_cli_version }} (amd64)"
+      ansible.builtin.get_url:
+        url: "{{ openfaas_cli_repo_url }}/releases/download/{{ openfaas_cli_version }}/faas-cli-{{ openfaas_cli_arch }}"
+        dest: "{{ openfaas_cli_path }}"
+        mode: "0755"
+      become: true
+      when: openfaas_cli_arch == "amd64" or openfaas_cli_arch == "x86_64"
+
+    - name: "Download faas_cli {{ openfaas_cli_version }} (arm64)"
+      ansible.builtin.get_url:
+        url: "{{ openfaas_cli_repo_url }}/releases/download/{{ openfaas_cli_version }}/faas-cli-{{ openfaas_cli_arch }}"
+        dest: "{{ openfaas_cli_path }}"
+        mode: "0755"
+      become: true
+      when: openfaas_cli_arch == "aarch64" or openfaas_cli_arch == "arm64"
+
+- name: Add completion
+  when: openfaas_cli_completion_enabled | bool
+  block:
+    - name: Get shell
+      ansible.builtin.set_fact:
+        shell: "{{ ansible_facts.env.SHELL | default('/usr/bin/zsh') | split('/') | last }}"
+
+    - name: "Add completion to ~/.{{ shell }}rc"
+      ansible.builtin.lineinfile:
+        path: "~/.{{ shell }}rc"
+        line: "source <(faas-cli completion --shell {{ shell }})"
+      when: shell == "bash" or shell == "zsh"

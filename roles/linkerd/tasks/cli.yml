@@ -1,0 +1,54 @@
+---
+- name: "Create {{ linkerd_work_dir }}"
+  ansible.builtin.file:
+    path: "{{ linkerd_work_dir }}"
+    mode: "0755"
+    state: directory
+
+- name: Download install script
+  ansible.builtin.get_url:
+    url: https://run.linkerd.io/install
+    dest: "{{ linkerd_work_dir }}/cli_install.sh"
+    mode: "0755"
+
+- name: Install cli
+  ansible.builtin.command: "sh {{ linkerd_work_dir }}/cli_install.sh"
+  register: result
+  changed_when: result.rc == 0
+  failed_when: result.rc != 0
+
+- name: Get cli version
+  block:
+    - name: List files
+      ansible.builtin.command: "ls /home/{{ ansible_user }}/.linkerd2/bin"
+      changed_when: false
+      register: result
+      failed_when: result.rc != 0
+
+    - name: Extract version
+      ansible.builtin.set_fact:
+        linkerd_cli_version: "{{ result.stdout | regex_search('[0-9]{1,2}\\.[0-9]{1,2}\\.[0-9]{1,2}') }}"
+
+- name: Put cli in PATH
+  ansible.builtin.copy:
+    src: "/home/{{ ansible_user }}/.linkerd2/bin/linkerd-stable-{{ linkerd_cli_version }}"
+    dest: "{{ linkerd_cli_path }}"
+    mode: "0755"
+    remote_src: true
+  become: true
+
+# - name: Add completion (zsh)
+#   when: linkerd_cli_completion_enabled | bool
+#   block:
+#     - name: Make plugin directory
+#       ansible.builtin.file:
+#         name: "{{ ansible_facts.env.ZSH }}/plugins/linkerd"
+#         state: directory
+
+#     - name: Add fpath in .zshrc
+#       ansible.builtin.lineinfile:
+#         path: "~/.zshrc"
+#         line: "fpath=($ZSH/plugins/linkerd {{ ansible_facts.env.fpath }})"
+
+#     - name: Add completion
+#       ansible.builtin.shell: "linkerd completion zsh > {{ ansible_facts.env.ZSH }}/plugins/linkerd/_linkerd"

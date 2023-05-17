@@ -1,0 +1,17 @@
+---
+- name: Install cli
+  hosts: control_plane
+  gather_facts: true
+  tasks:
+    - name: Install cli
+      ansible.builtin.import_role:
+        name: linkerd
+        tasks_from: cli
+
+- name: Deploy linkerd
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Deploy linkerd
+      ansible.builtin.import_role:
+        name: linkerd

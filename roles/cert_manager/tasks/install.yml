@@ -1,0 +1,37 @@
+---
+- name: Create temporary directory
+  ansible.builtin.file:
+    path: /tmp/cert-manager
+    mode: "0755"
+    state: directory
+
+- name: Download manifest
+  when: cert_manager_version == "latest"
+  block:
+    - name: Get the latest version
+      ansible.builtin.import_role:
+        name: github
+      vars:
+        organization: cert-manager
+        repository: cert-manager
+        query_string: "cert-manager"
+
+    - name: "Download cert-manager v{{ release_latest_version }}"
+      ansible.builtin.get_url:
+        url: "{{ cert_manager_release_url }}/v{{ release_latest_version }}/cert-manager.yaml"
+        dest: "/tmp/cert-manager/cert-manager.yml"
+        mode: "0644"
+      become: true
+
+- name: "Download cert-manager v{{ cert_manager_version }}"
+  ansible.builtin.get_url:
+    url: "{{ cert_manager_release_url }}/v{{ cert_manager_version }}/cert-manager.yml"
+    dest: "/tmp/cert-manager/cert-manager.yaml"
+    mode: "0644"
+  become: true
+  when: cert_manager_version != "latest"
+
+- name: Apply manifest
+  kubernetes.core.k8s:
+    src: "/tmp/cert-manager/cert-manager.yml"
+    state: present

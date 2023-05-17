@@ -1,2 +1,4 @@
 ---
 version_regex: '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
+github_api_token_enabled: false
+github_api_token: ""
