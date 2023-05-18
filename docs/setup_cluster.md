@@ -334,9 +334,10 @@ all:
     velero_provider: aws
     velero_aws_bucket: velero-backup-bucket
     velero_aws_region: us-east-1
-    velero_access_key: set-your-access-key
-    velero_secret_key: set-your-secret-access-key
+    velero_access_key_id: set-your-access-key
+    velero_secret_access_key: set-your-secret-access-key
     velero_backup_name: full-cluster-backup
+    velero_restore_name: full-cluster-restore  # Optional
 ```
 
 Then run `setup.yml` to create a cluster and install velero.
