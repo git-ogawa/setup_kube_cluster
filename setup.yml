@@ -115,3 +115,8 @@
   ansible.builtin.import_playbook: playbooks/setup_velero.yml
   tags: velero
   when: velero_install | bool
+
+- name: Setup awx
+  ansible.builtin.import_playbook: playbooks/setup_awx.yml
+  tags: awx
+  when: awx_install | bool

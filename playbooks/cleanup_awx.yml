@@ -1,0 +1,9 @@
+---
+- name: Uninstall awx
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Uninstall awx
+      ansible.builtin.import_role:
+        name: awx
+        tasks_from: uninstall

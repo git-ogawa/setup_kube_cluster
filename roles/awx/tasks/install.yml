@@ -1,0 +1,78 @@
+---
+- name: Make temporary directory
+  ansible.builtin.file:
+    path: /tmp/awx
+    state: directory
+    mode: "0755"
+
+- name: Get the latest tag
+  when: awx_release_tag == "latest"
+  block:
+    - name: Get the latest tag
+      ansible.builtin.import_role:
+        name: github
+      vars:
+        organization: ansible
+        repository: awx-operator
+        query_string: operator
+
+    - name: Set tag
+      ansible.builtin.set_fact:
+        awx_release_tag: "{{ release_latest_version }}"
+
+- name: Create namespace
+  kubernetes.core.k8s:
+    kind: Namespace
+    name: awx
+    state: present
+
+- name: Create secret for admin user
+  kubernetes.core.k8s:
+    template: adminpass.yml.j2
+    state: present
+  when: awx_deploy_admin_password is defined
+
+- name: Create secret for custom CA certificate
+  kubernetes.core.k8s:
+    template: bundle-ca.yml.j2
+    state: present
+  when: awx_deploy_bundle_cacert is defined
+
+- name: Put kustomization.yml
+  ansible.builtin.template:
+    src: kustomization.yml.j2
+    dest: /tmp/awx/kustomization.yml
+    mode: "0644"
+    lstrip_blocks: true
+
+- name: Install awx operator
+  ansible.builtin.command: >
+    kubectl apply -k /tmp/awx
+  register: result
+  changed_when: result.rc == 0
+  failed_when: result.rc != 0
+
+- name: Wait until the operator pod is running
+  kubernetes.core.k8s_info:
+    kind: Pod
+    namespace: awx
+    label_selectors:
+      - "control-plane=controller-manager"
+  register: res
+  until: res.resources[0].status.phase == "Running"
+  retries: 30
+  delay: 10
+
+- name: Put awx_deploy.yml
+  ansible.builtin.template:
+    src: awx_deploy.yml.j2
+    dest: /tmp/awx/awx_deploy.yml
+    mode: "0644"
+    lstrip_blocks: true
+
+- name: Deploy awx project (create web)
+  ansible.builtin.command: >
+    kubectl apply -f /tmp/awx/awx_deploy.yml
+  register: result
+  changed_when: result.rc == 0
+  failed_when: result.rc != 0

@@ -115,6 +115,7 @@ The setup playbook installs the necessary CLI, creates the cluster, and deploys 
 | Jaeger | Distributed tracing system | no |
 | Linkerd | Service mesh | no |
 | Velero | Backup and restore management | no |
+| Awx | Web-based platform for Ansible | no |
 
 # HA cluster
 

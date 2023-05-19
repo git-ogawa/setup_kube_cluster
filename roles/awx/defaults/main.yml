@@ -1,0 +1,17 @@
+---
+awx_operator_repo_url: https://github.com/ansible/awx-operator
+awx_release_tag: latest
+
+awx_deploy_name: awx
+awx_deploy_service_type: ClusterIP
+awx_deploy_ingress_type: none
+awx_deploy_admin_user: admin
+# awx_deploy_admin_password: ""
+# awx_deploy_host_aliases:
+#   - ip: 10.0.0.1
+#     hostnames:
+#       - my.example.com
+# awx_deploy_bundle_cacert: >
+#   -----BEGIN CERTIFICATE-----
+#   your_certificates
+#   -----END CERTIFICATE-----

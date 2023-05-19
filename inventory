@@ -20,6 +20,7 @@ all:
     cert_manager_install: false
     jaeger_install: false
     velero_install: false
+    awx_install: false
     ha_cluster:
       enabled: false
   children:

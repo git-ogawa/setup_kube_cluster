@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ awx_deploy_name }}-custom-certs
+  namespace: awx
+data:
+  bundle-ca.crt: {{ awx_deploy_bundle_cacert | b64encode }}
+type: Opaque
