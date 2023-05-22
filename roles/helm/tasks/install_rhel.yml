@@ -1,9 +1,27 @@
 ---
-- name: "Download helm version {{ helm_version }}"
+- name: Download helm binary
+  when: helm_version == "latest"
+  block:
+    - name: Get the latest version
+      ansible.builtin.import_role:
+        name: github
+      vars:
+        organization: helm
+        repository: helm
+        query_string: "linux-{{ architecture }}"
+
+    - name: "Download the latest helm"
+      ansible.builtin.get_url:
+        url: "https://get.helm.sh/helm-v{{ release_latest_version }}-linux-{{ architecture }}.tar.gz"
+        dest: /tmp/helm.tar.gz
+        mode: "0755"
+
+- name: "Download helm binary v{{ helm_version }}"
   ansible.builtin.get_url:
-    url: "https://get.helm.sh/helm-v{{ helm_version }}-linux-amd64.tar.gz"
+    url: "https://get.helm.sh/helm-v{{ helm_version }}-linux-{{ architecture }}.tar.gz"
     dest: /tmp/helm.tar.gz
     mode: "0755"
+  when: helm_version != "latest"
 
 - name: Unarchive helm
   ansible.builtin.unarchive:
@@ -13,7 +31,7 @@
 
 - name: Put helm binary
   ansible.builtin.copy:
-    src: /tmp/linux-amd64/helm
+    src: /tmp/linux-{{ architecture }}/helm
     dest: "{{ helm_path }}"
     mode: "0755"
     remote_src: true

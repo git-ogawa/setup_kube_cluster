@@ -45,7 +45,7 @@
   gather_facts: false
   tasks:
     - name: Delete the token on control_node
-      ansible.builtin.command: "kubeadm token delete {{ hostvars[control_node].token.stdout }}"
+      ansible.builtin.command: "kubeadm token delete '{{ hostvars[control_node].token.stdout }}'"
       changed_when: true
       vars:
         control_node: "{{ groups.control_plane[0] }}"

@@ -28,7 +28,7 @@
 - name: Set up helm repository
   ansible.builtin.apt_repository:
     repo: >
-      deb [arch={{ arch }} signed-by={{ helm_key_path }}]
+      deb [arch={{ architecture }} signed-by={{ helm_key_path }}]
       https://baltocdn.com/helm/stable/debian/ all main
     state: present
     filename: helm-stable-debian
