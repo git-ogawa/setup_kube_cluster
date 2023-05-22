@@ -120,3 +120,8 @@
   ansible.builtin.import_playbook: playbooks/setup_awx.yml
   tags: awx
   when: awx_install | bool
+
+- name: Setup st2
+  ansible.builtin.import_playbook: playbooks/setup_st2.yml
+  tags: st2
+  when: st2_install | bool

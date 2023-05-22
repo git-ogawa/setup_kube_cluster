@@ -116,6 +116,8 @@ The setup playbook installs the necessary CLI, creates the cluster, and deploys 
 | Linkerd | Service mesh | no |
 | Velero | Backup and restore management | no |
 | Awx | Web-based platform for Ansible | no |
+| Stackstorm | Platform for integration and automation | no |
+
 
 # HA cluster
 

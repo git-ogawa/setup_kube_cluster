@@ -1,0 +1,90 @@
+---
+- name: Install dependencies (apt)
+  ansible.builtin.apt:
+    name:
+      - libffi-dev
+      - python3-cffi
+    state: present
+  become: true
+  when: package_manager == "apt"
+
+- name: Install dependencies (dnf)
+  ansible.builtin.dnf:
+    name:
+      - libffi-devel
+      - python3-cffi
+    state: present
+  become: true
+  when: package_manager == "dnf"
+
+- name: Install st2 client
+  ansible.builtin.pip:
+    name: st2client
+
+# To fix ImportError: cannot import name Mapping from 'collections'
+- name: Upgrade prompt_toolkit (if python >=3.10)
+  ansible.builtin.pip:
+    name: prompt_toolkit
+    state: latest
+  when: ansible_facts.python.version.minor >= 10
+
+- name: Check that config exists
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_user }}/.st2/config"
+  register: config_result
+
+- name: Check that token exists
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_user }}/.st2/token-st2admin"
+  register: token_result
+
+- name: Setup cli config
+  when: not config_result.stat.exists or not token_result.stat.exists
+  block:
+    - name: Get st2 auth url
+      kubernetes.core.k8s_info:
+        kind: Service
+        namespace: "{{ st2_namespace }}"
+        label_selectors:
+          - app=st2auth
+      register: result
+
+    - name: Set st2 auth url
+      ansible.builtin.set_fact:
+        st2_auth_url: "{{ result.resources[0].spec.clusterIP }}"
+
+    - name: Get st2 stream url
+      kubernetes.core.k8s_info:
+        kind: Service
+        namespace: "{{ st2_namespace }}"
+        label_selectors:
+          - app=st2stream
+      register: result
+
+    - name: Set st2 stream url
+      ansible.builtin.set_fact:
+        st2_stream_url: "{{ result.resources[0].spec.clusterIP }}"
+
+    - name: Get st2 api url
+      kubernetes.core.k8s_info:
+        kind: Service
+        namespace: "{{ st2_namespace }}"
+        label_selectors:
+          - app=st2api
+      register: result
+
+    - name: Set st2 api url
+      ansible.builtin.set_fact:
+        st2_api_url: "{{ result.resources[0].spec.clusterIP }}"
+
+    - name: Create ~/.st2
+      ansible.builtin.file:
+        path: "~/.st2"
+        state: directory
+        mode: "0770"
+
+    - name: Put ~/.st2/config
+      ansible.builtin.template:
+        src: config.j2
+        dest: "~/.st2/config"
+        mode: "0660"

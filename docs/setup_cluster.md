@@ -19,6 +19,7 @@
   - [Harbor](#harbor)
   - [Gitea](#gitea)
   - [Velero](#velero)
+  - [Stackstorm](#stackstorm)
 - [Clean up cluster](#clean-up-cluster)
 
 <!-- /code_chunk_output -->
@@ -354,6 +355,51 @@ $ ansible-playbook tools/velero/restore.yml
 
 Note: The restore is executed with policy `--existing-resource-policy=update`. See [Restore existing resource policy](https://velero.io/docs/v1.11/restore-reference/#restore-existing-resource-policy).
 
+
+## Stackstorm
+
+StackStorm is a platform for integration and automation across services and tools. To install stackstorm in the cluster, set the following variables in `inventory`.
+
+- st2_install : Set `true` to install stackstorm in the cluster.
+- st2_password: A password of admin user `st2admin`.
+
+``` yaml
+all:
+  vars:
+    st2_install: true
+    st2_password: Ch@ngeMe
+```
+
+Then run `setup.yml` to create a cluster and install stackstorm. The tasks will take a while since many components in stackstorm are installed.
+
+```
+$ ansible-playbook setup.yml -t st2
+```
+
+If users want to install additional st2 packs in the k8s cluster after stackstorm is installed, there are two ways (See [Install custom st2 packs in the cluster](https://github.com/StackStorm/stackstorm-k8s#install-custom-st2-packs-in-the-cluster)). In this project, persistent volume is used as shared volume to store the packs. To enable shared volume, set the following environment variables in `inventory`. and make sure that PV provisioner such as openebs are installed in advance and default storage class is set.
+
+- st2_persistent_volume_enabled : Set `true` to create persistent volume claim on setup.
+- st2_persistent_volume_pack_name : The pvc name for packs.
+- st2_persistent_volume_pack_storage : Volume size of storage for packs.
+- st2_persistent_volume_config_name : The pvc name for configs.
+- st2_persistent_volume_config_storage : Volume size of storage for configs.
+- st2_persistent_volume_virtualenv_name : The pvc name for virtualenvs.
+- st2_persistent_volume_virtualenv_storage : Volume size of storage for virtualenvs.
+
+``` yaml
+all:
+  vars:
+    ...
+    st2_persistent_volume_enabled: true
+    st2_persistent_volume_pack_name: pvc-st2-packs
+    st2_persistent_volume_pack_storage: 5Gi
+    st2_persistent_volume_config_name: pvc-st2-configs
+    st2_persistent_volume_config_storage: 5Gi
+    st2_persistent_volume_virtualenv_name: pvc-st2-virtualenvs
+    st2_persistent_volume_virtualenv_storage: 5Gi
+```
+
+Run setup.yml to install stackstorm and pvc.
 
 
 # Clean up cluster
