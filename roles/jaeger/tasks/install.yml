@@ -27,7 +27,7 @@
       - "app.kubernetes.io/component=webhook"
       - "app.kubernetes.io/instance=cert-manager"
   register: result
-  until: resources[0].status.phase == "Running"
+  until: result.resources[0].status.phase == "Running"
   retries: 30
   delay: 5
 
@@ -35,6 +35,23 @@
   kubernetes.core.k8s:
     src: /tmp/jaeger/jaeger-operator.yaml
     state: present
+
+- name: Wait until the operator pod is running
+  kubernetes.core.k8s_info:
+    kind: Pod
+    namespace: "{{ jaeger_namespace }}"
+    label_selectors:
+      - "name=jaeger-operator"
+  register: result
+  until: result.resources[0].status.phase == "Running"
+  retries: 30
+  delay: 5
+
+# Wait 10 sec to avoid internal service error when post simplest.yml
+- name: Wait 10 sec
+  ansible.builtin.wait_for:
+    timeout: 10
+  delegate_to: localhost
 
 - name: Put simplest.yml
   ansible.builtin.copy:
