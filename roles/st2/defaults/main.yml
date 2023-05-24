@@ -1,0 +1,44 @@
+---
+st2_namespace: stackstorm
+st2_release_name: stackstorm
+
+st2_password: Ch@ngeMe
+st2_web_service_type: ClusterIP
+
+st2_web_replicas: 1
+st2_auth_replicas: 1
+st2_api_replicas: 1
+st2_stream_replicas: 1
+st2_rulesengine_replicas: 1
+st2_workflowengine_replicas: 1
+st2_scheduler_replicas: 1
+st2_notifier_replicas: 1
+st2_actionrunner_replicas: 1
+st2_garbagecollector_replicas: 1
+st2_mongodb_replicas: 1
+st2_rabbitmq_replicas: 1
+st2_redis_replicas: 1
+
+# Default number of replicas for HA
+# st2_web_replicas: 2
+# st2_auth_replicas: 2
+# st2_api_replicas: 2
+# st2_stream_replicas: 2
+# st2_rulesengine_replicas: 2
+# st2_workflowengine_replicas: 2
+# st2_scheduler_replicas: 2
+# st2_notifier_replicas: 2
+# st2_actionrunner_replicas: 5
+# st2_garbagecollector_replicas: 1
+# st2_mongodb_replicas: 3
+# st2_rabbitmq_replicas: 3
+# st2_redis_replicas: 3
+
+
+st2_persistent_volume_enabled: false
+st2_persistent_volume_pack_name: pvc-st2-packs
+st2_persistent_volume_pack_storage: 5Gi
+st2_persistent_volume_config_name: pvc-st2-configs
+st2_persistent_volume_config_storage: 5Gi
+st2_persistent_volume_virtualenv_name: pvc-st2-virtualenvs
+st2_persistent_volume_virtualenv_storage: 5Gi

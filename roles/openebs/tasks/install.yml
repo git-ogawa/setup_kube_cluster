@@ -23,3 +23,29 @@
     name: "{{ openebs_release_name }}"
     chart_ref: openebs/openebs
     release_namespace: "{{ openebs_namespace }}"
+
+- name: Set openebs provisioner as default storage class
+  when: openebs_set_default_storage_class | bool
+  block:
+    - name: Wait until openebs provisioner is running
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: "{{ openebs_namespace }}"
+        label_selectors:
+          - app=openebs
+          - component=localpv-provisioner
+      register: result
+      until: result.resources[0].status.phase == "Running"
+      retries: 30
+      delay: 5
+
+    - name: Set openebs provisioner as default storage class
+      kubernetes.core.k8s:
+        kind: StorageClass
+        name: openebs-hostpath
+        namespace: "{{ openebs_namespace }}"
+        state: patched
+        definition:
+          metadata:
+            annotations:
+              storageclass.kubernetes.io/is-default-class: "true"

@@ -1,0 +1,90 @@
+---
+- name: Check if instance exist
+  ansible.builtin.command:
+    kubectl get
+    -n awx
+    awxs.awx.ansible.com
+    {{ awx_deploy_name }}
+  register: check_result
+  changed_when: false
+  failed_when: check_result.rc != 0 and check_result.rc != 1
+
+- name: Delete instance
+  when: check_result.rc == 0
+  block:
+    - name: Patch garbage_collect_secrets=true
+      ansible.builtin.command: >
+        kubectl patch
+        -n awx
+        awxs.awx.ansible.com
+        {{ awx_deploy_name }}
+        --type=merge
+        -p '{"spec":{"garbage_collect_secrets":true}}'
+      register: result
+      changed_when: result.rc == 0
+      failed_when: result.rc != 0
+
+    - name: Delete instance
+      ansible.builtin.command: >
+        kubectl delete
+        -n awx
+        awxs.awx.ansible.com
+        {{ awx_deploy_name }}
+      register: result
+      changed_when: result.rc == 0
+      failed_when: result.rc != 0
+
+- name: Delete awx operator
+  kubernetes.core.k8s:
+    name: awx-operator-controller-manager
+    kind: Deployment
+    namespace: awx
+    state: absent
+
+- name: Delete all secrets
+  block:
+    - name: Get secrets
+      kubernetes.core.k8s_info:
+        kind: Secret
+        namespace: awx
+      register: result
+
+    - name: Delete secrets
+      kubernetes.core.k8s:
+        name: "{{ item }}"
+        kind: Secret
+        namespace: awx
+        state: absent
+      loop: "{{ result | json_query('resources[*].metadata.name') }}"
+
+- name: Delete all configmaps
+  block:
+    - name: Get configmaps
+      kubernetes.core.k8s_info:
+        kind: ConfigMap
+        namespace: awx
+      register: result
+
+    - name: Delete configmaps
+      kubernetes.core.k8s:
+        name: "{{ item }}"
+        kind: ConfigMap
+        namespace: awx
+        state: absent
+      loop: "{{ result | json_query('resources[*].metadata.name') }}"
+
+- name: Delete PVC
+  block:
+    - name: Get pvc
+      kubernetes.core.k8s_info:
+        kind: PersistentVolumeClaim
+        namespace: awx
+      register: result
+
+    - name: Delete pvc
+      kubernetes.core.k8s:
+        name: "{{ item }}"
+        kind: PersistentVolumeClaim
+        namespace: awx
+        state: absent
+      loop: "{{ result | json_query('resources[*].metadata.name') }}"

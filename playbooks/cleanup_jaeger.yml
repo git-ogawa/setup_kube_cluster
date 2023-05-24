@@ -1,0 +1,9 @@
+---
+- name: Uninstall jaeger
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Uninstall jaeger
+      ansible.builtin.import_role:
+        name: jaeger
+        tasks_from: uninstall

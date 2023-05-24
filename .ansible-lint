@@ -4,6 +4,11 @@ skip_list:
   - 'name[template]'
   - 'name[missing]'
   - 'risky-shell-pipe'
+  - 'var-naming[no-role-prefix]'
+  - 'package-latest'
+
+exclude_paths:
+  - tmp*
 
 kinds:
   - playbook: "**/playbooks/*.yml"

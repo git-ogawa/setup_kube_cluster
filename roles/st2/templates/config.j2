@@ -1,0 +1,14 @@
+[credentials]
+username = st2admin
+{% if st2_password is defined %}
+password = {{ st2_password }}
+{% endif %}
+
+[api]
+url = http://{{ st2_api_url }}:9101
+
+[auth]
+url = http://{{ st2_auth_url }}:9100
+
+[stream]
+url = http://{{ st2_stream_url }}:9102

@@ -1,0 +1,106 @@
+---
+- name: Add st2 repository
+  kubernetes.core.helm_repository:
+    name: stackstorm
+    repo_url: https://helm.stackstorm.com/
+
+- name: Deploy st2
+  kubernetes.core.helm:
+    name: "{{ st2_release_name }}"
+    chart_ref: stackstorm/stackstorm-ha
+    namespace: "{{ st2_namespace }}"
+    create_namespace: true
+    timeout: 10m
+    set_values:
+      - value: "st2.password={{ st2_password }}"
+        value_type: raw
+      - value: "st2web.replicas={{ st2_web_replicas }}"
+        value_type: raw
+      - value: "st2web.service.type={{ st2_web_service_type }}"
+        value_type: raw
+      - value: "st2auth.replicas={{ st2_auth_replicas }}"
+        value_type: raw
+      - value: "st2api.replicas={{ st2_api_replicas }}"
+        value_type: raw
+      - value: "st2stream.replicas={{ st2_stream_replicas }}"
+        value_type: raw
+      - value: "st2rulesengine.replicas={{ st2_rulesengine_replicas }}"
+        value_type: raw
+      - value: "st2workflowengine.replicas={{ st2_workflowengine_replicas }}"
+        value_type: raw
+      - value: "st2scheduler.replicas={{ st2_scheduler_replicas }}"
+        value_type: raw
+      - value: "st2notifier.replicas={{ st2_notifier_replicas }}"
+        value_type: raw
+      - value: "st2actionrunner.replicas={{ st2_actionrunner_replicas }}"
+        value_type: raw
+      - value: "st2garbagecollector.replicas={{ st2_garbagecollector_replicas }}"
+        value_type: raw
+      - value: "mongodb.replicaCount={{ st2_mongodb_replicas }}"
+        value_type: raw
+      - value: "rabbitmq.replicaCount={{ st2_rabbitmq_replicas }}"
+        value_type: raw
+      - value: "redis.cluster.slaveCount={{ st2_redis_replicas }}"
+        value_type: raw
+  when: not st2_persistent_volume_enabled | bool
+
+
+- name: Deploy st2 with persistent volume
+  when: st2_persistent_volume_enabled | bool
+  block:
+    - name: Create Namespace
+      kubernetes.core.k8s:
+        state: present
+        name: "{{ st2_namespace }}"
+        kind: Namespace
+
+    - name: Create PVC
+      kubernetes.core.k8s:
+        state: present
+        template: pvc.yml.j2
+
+    - name: Deploy st2
+      kubernetes.core.helm:
+        name: "{{ st2_release_name }}"
+        chart_ref: stackstorm/stackstorm-ha
+        namespace: "{{ st2_namespace }}"
+        timeout: 10m
+        set_values:
+          - value: "st2.password={{ st2_password }}"
+            value_type: raw
+          - value: "st2web.replicas={{ st2_web_replicas }}"
+            value_type: raw
+          - value: "st2web.service.type={{ st2_web_service_type }}"
+            value_type: raw
+          - value: "st2auth.replicas={{ st2_auth_replicas }}"
+            value_type: raw
+          - value: "st2api.replicas={{ st2_api_replicas }}"
+            value_type: raw
+          - value: "st2stream.replicas={{ st2_stream_replicas }}"
+            value_type: raw
+          - value: "st2rulesengine.replicas={{ st2_rulesengine_replicas }}"
+            value_type: raw
+          - value: "st2workflowengine.replicas={{ st2_workflowengine_replicas }}"
+            value_type: raw
+          - value: "st2scheduler.replicas={{ st2_scheduler_replicas }}"
+            value_type: raw
+          - value: "st2notifier.replicas={{ st2_notifier_replicas }}"
+            value_type: raw
+          - value: "st2actionrunner.replicas={{ st2_actionrunner_replicas }}"
+            value_type: raw
+          - value: "st2garbagecollector.replicas={{ st2_garbagecollector_replicas }}"
+            value_type: raw
+          - value: "mongodb.replicaCount={{ st2_mongodb_replicas }}"
+            value_type: raw
+          - value: "rabbitmq.replicaCount={{ st2_rabbitmq_replicas }}"
+            value_type: raw
+          - value: "redis.cluster.slaveCount={{ st2_redis_replicas }}"
+            value_type: raw
+          - value: st2.packs.volumes.enabled=true
+            value_type: raw
+          - value: st2.packs.volumes.packs.persistentVolumeClaim.claimName=pvc-st2-packs
+            value_type: string
+          - value: st2.packs.volumes.virtualenvs.persistentVolumeClaim.claimName=pvc-st2-virtualenvs
+            value_type: string
+          - value: st2.packs.volumes.configs.persistentVolumeClaim.claimName=pvc-st2-configs
+            value_type: string

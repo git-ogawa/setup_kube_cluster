@@ -1,0 +1,26 @@
+---
+apiVersion: awx.ansible.com/v1beta1
+kind: AWX
+metadata:
+  name: {{ awx_deploy_name }}
+  namespace: awx
+spec:
+  service_type: {{ awx_deploy_service_type }}
+  ingress_type: {{ awx_deploy_ingress_type }}
+  admin_user: {{ awx_deploy_admin_user }}
+  {% if awx_deploy_admin_password is defined %}
+  admin_password_secret: {{ awx_deploy_name }}-admin-password
+  {% endif %}
+  {% if awx_deploy_host_aliases is defined %}
+  host_aliases:
+    {% for host in awx_deploy_host_aliases %}
+    - ip: {{ host.ip }}
+      hostnames:
+        {% for hostname in host.hostnames %}
+        - {{ hostname }}
+        {% endfor %}
+    {% endfor %}
+  {% endif %}
+  {% if awx_deploy_bundle_cacert is defined %}
+  bundle_cacert_secret: {{ awx_deploy_name }}-custom-certs
+  {% endif %}

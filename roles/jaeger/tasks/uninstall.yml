@@ -1,0 +1,49 @@
+---
+- name: Create temporary directory
+  ansible.builtin.file:
+    path: /tmp/jaeger
+    mode: "0755"
+    state: directory
+
+- name: Download manifest
+  ansible.builtin.get_url:
+    url: "{{ jaeger_release_url }}/v{{ jaeger_version }}/jaeger-operator.yaml"
+    mode: "0644"
+    dest: /tmp/jaeger/jaeger-operator.yaml
+
+- name: Delete resources
+  kubernetes.core.k8s:
+    src: /tmp/jaeger/jaeger-operator.yaml
+    state: absent
+
+- name: Delete all secrets
+  block:
+    - name: Get secrets
+      kubernetes.core.k8s_info:
+        kind: Secret
+        namespace: "{{ jaeger_namespace }}"
+      register: result
+
+    - name: Delete secrets
+      kubernetes.core.k8s:
+        name: "{{ item }}"
+        kind: Secret
+        namespace: "{{ jaeger_namespace }}"
+        state: absent
+      loop: "{{ result | json_query('resources[*].metadata.name') }}"
+
+- name: Delete all configmaps
+  block:
+    - name: Get configmaps
+      kubernetes.core.k8s_info:
+        kind: ConfigMap
+        namespace: "{{ jaeger_namespace }}"
+      register: result
+
+    - name: Delete configmaps
+      kubernetes.core.k8s:
+        name: "{{ item }}"
+        kind: ConfigMap
+        namespace: "{{ jaeger_namespace }}"
+        state: absent
+      loop: "{{ result | json_query('resources[*].metadata.name') }}"

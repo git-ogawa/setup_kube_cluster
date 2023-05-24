@@ -1,0 +1,38 @@
+---
+- name: Uninstall st2
+  kubernetes.core.helm:
+    name: "{{ st2_release_name }}"
+    namespace: "{{ st2_namespace }}"
+    state: absent
+
+- name: Delete job batches
+  block:
+    - name: Get job batch
+      kubernetes.core.k8s_info:
+        kind: Job
+        namespace: "{{ st2_namespace }}"
+      register: result
+
+    - name: Delete jobs
+      kubernetes.core.k8s:
+        name: "{{ item }}"
+        kind: Job
+        namespace: "{{ st2_namespace }}"
+        state: absent
+      loop: "{{ result | json_query('resources[*].metadata.name') }}"
+
+- name: Delete PVC
+  block:
+    - name: Get pvc
+      kubernetes.core.k8s_info:
+        kind: PersistentVolumeClaim
+        namespace: "{{ st2_namespace }}"
+      register: result
+
+    - name: Delete pvc
+      kubernetes.core.k8s:
+        name: "{{ item }}"
+        kind: PersistentVolumeClaim
+        namespace: "{{ st2_namespace }}"
+        state: absent
+      loop: "{{ result | json_query('resources[*].metadata.name') }}"

@@ -1,0 +1,19 @@
+---
+- name: Deploy st2
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Deploy st2
+      ansible.builtin.import_role:
+        name: st2
+
+- name: Install cli
+  hosts: control_plane
+  gather_facts: true
+  tasks:
+    - name: Install cli
+      ansible.builtin.import_role:
+        name: st2
+        tasks_from: cli
+      vars:
+        package_manager: "{{ ansible_facts.pkg_mgr }}"

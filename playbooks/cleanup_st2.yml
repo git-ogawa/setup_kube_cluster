@@ -1,0 +1,9 @@
+---
+- name: Uninstall st2
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Uninstall st2
+      ansible.builtin.import_role:
+        name: st2
+        tasks_from: uninstall
