@@ -3,3 +3,4 @@ package_manager: apt
 
 openebs_namespace: openebs
 openebs_release_name: openebs
+openebs_set_default_storage_class: true
