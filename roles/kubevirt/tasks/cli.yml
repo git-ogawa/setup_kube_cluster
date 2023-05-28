@@ -1,0 +1,26 @@
+---
+- name: Get the latest version
+  when: virtctl_version == "latest"
+  block:
+    - name: Get the latest version
+      ansible.builtin.import_role:
+        name: github
+      vars:
+        organization: kubevirt
+        repository: kubevirt
+        query_string: "kubevirt"
+
+    - name: "Download virtctl v{{ release_latest_version }}"
+      ansible.builtin.get_url:
+        url: "{{ kubevirt_release_url }}/v{{ release_latest_version }}/virtctl-v{{ release_latest_version }}-linux-amd64"
+        dest: "/usr/local/bin/virtctl"
+        mode: "0755"
+      become: true
+
+- name: "Download virtctl v{{ virtctl_version }}"
+  ansible.builtin.get_url:
+    url: "{{ kubevirt_release_url }}/v{{ virtctl_version }}/virtctl-v{{ virtctl_version }}-linux-amd64"
+    dest: "/usr/local/bin/virtctl"
+    mode: "0755"
+  become: true
+  when: virtctl_version != "latest"

@@ -22,6 +22,7 @@ all:
     velero_install: false
     awx_install: false
     st2_install: false
+    kubevirt_install: false
     ha_cluster:
       enabled: false
   children:

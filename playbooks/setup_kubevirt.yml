@@ -1,0 +1,17 @@
+---
+- name: Deploy kubevirt
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Deploy kubevirt
+      ansible.builtin.import_role:
+        name: kubevirt
+
+- name: Install cli
+  hosts: control_plane
+  gather_facts: true
+  tasks:
+    - name: Install cli
+      ansible.builtin.import_role:
+        name: kubevirt
+        tasks_from: cli

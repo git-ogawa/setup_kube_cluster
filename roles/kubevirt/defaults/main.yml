@@ -1,0 +1,6 @@
+---
+
+kubevirt_release_url: https://github.com/kubevirt/kubevirt/releases/download/
+kubevirt_version: latest
+
+virtctl_version: latest
