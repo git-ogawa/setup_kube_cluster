@@ -1,30 +1,48 @@
 ---
-- name: "Get the latest release of {{ organization }}/{{ repository }}"
-  ansible.builtin.uri:
-    url: "https://api.github.com/repos/{{ organization }}/{{ repository }}/releases/latest"
-    return_content: true
-  register: result
+- name: Get version
   when: not github_api_token_enabled | bool
+  block:
+    - name: "Get the latest release of {{ organization }}/{{ repository }}"
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/{{ organization }}/{{ repository }}/releases/latest"
+        return_content: true
+      register: query_result
 
-- name: "Get the latest release of {{ organization }}/{{ repository }} (with PAT)"
-  ansible.builtin.uri:
-    url: "https://api.github.com/repos/{{ organization }}/{{ repository }}/releases/latest"
-    return_content: true
-    headers:
-      Authorization: "Bearer {{ github_api_token }}"
-  register: result
+    - name: Fix json format
+      ansible.builtin.set_fact:
+        query_result: "{{ query_result.content | from_json }}"
+
+    - name: Extract the latest version from assets
+      ansible.builtin.set_fact:
+        release_latest_version: "{{ query_result.assets | json_query(condition) | first | regex_search(version_regex) }}"
+      vars:
+        condition: "[?contains(name, '{{ query_string }}')].browser_download_url"
+
+    - name: Show the extracted version (debug)
+      ansible.builtin.debug:
+        var: release_latest_version
+
+- name: Get version with PAT
   when: github_api_token_enabled | bool
+  block:
+    - name: "Get the latest release of {{ organization }}/{{ repository }} (with PAT)"
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/{{ organization }}/{{ repository }}/releases/latest"
+        return_content: true
+        headers:
+          Authorization: "Bearer {{ github_api_token }}"
+      register: query_result
 
-- name: Fix json format
-  ansible.builtin.set_fact:
-    result: "{{ result.content | from_json }}"
+    - name: Fix json format
+      ansible.builtin.set_fact:
+        query_result: "{{ query_result.content | from_json }}"
 
-- name: Extract the latest version from assets
-  ansible.builtin.set_fact:
-    release_latest_version: "{{ result.assets | json_query(condition) | first | regex_search(version_regex) }}"
-  vars:
-    condition: "[?contains(name, '{{ query_string }}')].browser_download_url"
+    - name: Extract the latest version from assets
+      ansible.builtin.set_fact:
+        release_latest_version: "{{ query_result.assets | json_query(condition) | first | regex_search(version_regex) }}"
+      vars:
+        condition: "[?contains(name, '{{ query_string }}')].browser_download_url"
 
-- name: Show the extracted version (debug)
-  ansible.builtin.debug:
-    var: release_latest_version
+    - name: Show the extracted version (debug)
+      ansible.builtin.debug:
+        var: release_latest_version
