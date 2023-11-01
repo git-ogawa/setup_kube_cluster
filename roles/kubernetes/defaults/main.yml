@@ -1,3 +1,7 @@
 ---
 kubernetes_version: latest
 os_family: ubuntu
+node_shell: bash
+node_user: "{{ ansible_user }}"
+
+kubectl_add_completion: true

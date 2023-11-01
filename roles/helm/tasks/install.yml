@@ -1,0 +1,113 @@
+---
+- name: Install helm (apt)
+  when: node_package_manager == "apt"
+  block:
+    - name: Download key
+      ansible.builtin.get_url:
+        url: https://baltocdn.com/helm/signing.asc
+        dest: /tmp/helm_signing.asc
+        mode: "0644"
+      become: true
+
+    - name: Remove current key if exists
+      ansible.builtin.file:
+        path: "{{ helm_key_path }}"
+        state: absent
+      become: true
+
+    - name: Dearmor gpg key
+      ansible.builtin.command: |
+        sudo gpg --dearmor -o {{ helm_key_path }} /tmp/helm_signing.asc
+      changed_when: true
+      become: true
+
+    - name: Remove tmp key
+      ansible.builtin.file:
+        path: /tmp/helm_signing.asc
+        state: absent
+      become: true
+
+    - name: Set up helm repository
+      ansible.builtin.apt_repository:
+        repo: >
+          deb [arch={{ architecture }} signed-by={{ helm_key_path }}]
+          https://baltocdn.com/helm/stable/debian/ all main
+        state: present
+        filename: helm-stable-debian
+      become: true
+
+    - name: Apt update
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+
+    - name: Install the latest helm
+      ansible.builtin.apt:
+        name: helm
+        state: present
+      become: true
+      when: helm_version == "latest"
+
+    - name: "Install helm version {{ helm_version }}"
+      ansible.builtin.apt:
+        name: "helm={{ helm_version }}-1"
+        state: present
+        allow_downgrade: true
+        allow_change_held_packages: true
+      become: true
+      when: helm_version != "latest"
+
+- name: Install helm (dnf)
+  when: node_package_manager != "apt"
+  block:
+    - name: Download helm binary
+      when: helm_version == "latest"
+      block:
+        - name: Get the latest version
+          ansible.builtin.import_role:
+            name: github
+          vars:
+            organization: helm
+            repository: helm
+            query_string: "linux-{{ architecture }}"
+
+        - name: "Download the latest helm"
+          ansible.builtin.get_url:
+            url: "https://get.helm.sh/helm-v{{ release_latest_version }}-linux-{{ architecture }}.tar.gz"
+            dest: /tmp/helm.tar.gz
+            mode: "0755"
+
+    - name: "Download helm binary v{{ helm_version }}"
+      ansible.builtin.get_url:
+        url: "https://get.helm.sh/helm-v{{ helm_version }}-linux-{{ architecture }}.tar.gz"
+        dest: /tmp/helm.tar.gz
+        mode: "0755"
+      when: helm_version != "latest"
+
+    - name: Unarchive helm
+      ansible.builtin.unarchive:
+        src: /tmp/helm.tar.gz
+        dest: /tmp/
+        remote_src: true
+
+    - name: Put helm binary
+      ansible.builtin.copy:
+        src: /tmp/linux-{{ architecture }}/helm
+        dest: "{{ helm_path }}"
+        mode: "0755"
+        remote_src: true
+      become: true
+
+- name: Add completion
+  when:
+    - helm_add_completion | bool
+    - '"bash" in node_shell or "zsh" in node_shell'
+  block:
+    - name: Get shell
+      ansible.builtin.set_fact:
+        node_shell: "{{ 'zsh' if 'zsh' in node_shell else 'bash' }}"
+
+    - name: "Add helm completion in {{ node_shell }}rc"
+      ansible.builtin.lineinfile:
+        path: "/home/{{ node_user }}/.{{ node_shell }}rc"
+        line: 'source <(helm completion {{ node_shell }})'

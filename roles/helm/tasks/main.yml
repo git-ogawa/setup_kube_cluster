@@ -1,10 +1,6 @@
 ---
-- ansible.builtin.import_tasks: install_rhel.yml
+- ansible.builtin.import_tasks: install.yml
   vars:
     architecture: "{{ architectures[ansible_facts.architecture] }}"
-  when: ansible_facts.distribution_file_variety | lower == "redhat"
-
-- ansible.builtin.import_tasks: install_ubuntu.yml
-  vars:
-    architecture: "{{ architectures[ansible_facts.architecture] }}"
-  when: ansible_facts.distribution_file_variety | lower != "redhat"
+    node_shell: "{{ ansible_facts.user_shell }}"
+    node_package_manager: "{{ ansible_facts.pkg_mgr }}"

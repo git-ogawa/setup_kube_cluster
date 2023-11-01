@@ -1,4 +1,7 @@
 ---
 - ansible.builtin.import_tasks: install.yml
+  vars:
+    node_shell: "{{ ansible_facts.user_shell }}"
+    node_package_manager: "{{ ansible_facts.pkg_mgr }}"
 
 - ansible.builtin.import_tasks: plugin.yml
