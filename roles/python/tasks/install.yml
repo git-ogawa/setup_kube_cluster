@@ -2,7 +2,7 @@
 - name: Install pip (dnf)
   ansible.builtin.dnf:
     name:
-      - python39-pip
+      - python3-pip
     state: present
   become: true
   when: package_manager == "dnf"

@@ -4,21 +4,18 @@
   changed_when: true
   become: true
 
-- name: Kubeadm init
-  ansible.builtin.command: >
-    kubeadm init
-      --pod-network-cidr={{ pod_network_cidr }}
-      --apiserver-advertise-address={{ ipv4_address }}
-  changed_when: true
-  become: true
-  when: ec2_cluster | bool
+- name: Put kubeadm config file
+  ansible.builtin.template:
+    src: kubeadm_config_v1beta3.yml.j2
+    dest: "{{ kubeadm_config_path }}"
+    mode: "0755"
+    lstrip_blocks: true
 
 - name: Kubeadm init
-  ansible.builtin.command: |
-    kubeadm init --pod-network-cidr={{ pod_network_cidr }}
+  ansible.builtin.command: >
+    kubeadm init --config {{ kubeadm_config_path }}
   changed_when: true
   become: true
-  when: not ec2_cluster | bool
 
 - name: Create ~/.kube
   ansible.builtin.file:

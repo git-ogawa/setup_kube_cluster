@@ -8,17 +8,21 @@
         name: cluster
         tasks_from: sysctl
 
+    - name: Check resolv.conf
+      ansible.builtin.import_role:
+        name: kubelet
+        tasks_from: resolv
+
 - name: Setup kubernetes cluster with kubeadm
   hosts: control_plane[0]
   gather_facts: true
   tasks:
     - name: Kubeadm init
       ansible.builtin.import_role:
-        name: cluster
-        tasks_from: kubeadm_init
+        name: kubeadm
+        tasks_from: init
       vars:
         ipv4_address: "{{ ansible_facts.default_ipv4.address }}"
-        pod_network_cidr: "{{ network_cidr }}"
 
     - name: Install CNI
       ansible.builtin.include_role:

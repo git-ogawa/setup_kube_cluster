@@ -11,8 +11,8 @@
     - name: Add cluster server address to /etc/hosts
       ansible.builtin.lineinfile:
         path: /etc/hosts
-        regexp: '^{{ hostvars[item].internal_ipv4 }}'
-        line: '{{ hostvars[item].internal_ipv4 }} {{ item }}'
+        regexp: '^{{ hostvars[item].internal_ipv4 | default(hostvars[item].ansible_host) }}'
+        line: '{{ hostvars[item].internal_ipv4 | default(hostvars[item].ansible_host) }} {{ item }}'
       become: true
       loop: "{{ groups.all }}"
 
@@ -22,12 +22,11 @@
   tasks:
     - name: Kubeadm init
       ansible.builtin.import_role:
-        name: cluster
-        tasks_from: kubeadm_ha_init
+        name: kubeadm
+        tasks_from: init
       vars:
-        load_balancer_dns: "{{ groups.load_balancer[0] }}"
+        load_balancer_dns: "{{ hostvars[groups.load_balancer[0]].dns_name | default(hostvars[groups.load_balancer[0]].ansible_host) }}"
         ipv4_address: "{{ ansible_facts.default_ipv4.address }}"
-        pod_network_cidr: "{{ network_cidr }}"
 
     - name: Install CNI
       ansible.builtin.include_role:

@@ -121,9 +121,9 @@ The setup playbook installs the necessary CLI, creates the cluster, and deploys 
 
 # HA cluster
 
-The project can create HA (High Availability) cluster consisting of stacked control plane nodes with kubeadm. The machines that meet the following requirements are required to create the HA cluster.
+The project can create HA (High Availability) cluster consisting of stacked control plane nodes with kubeadm. The nodes that meet the following requirements are required to create the HA cluster.
 
-- Two or more machine that meet requirements (see [Creating Highly Available Clusters with kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/#before-you-begin) ) are required as control plane nodes.
+- Two or more node that meet requirements (see [Creating Highly Available Clusters with kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/#before-you-begin) ) are required as control plane nodes.
 - One or more load balancer that routing to nodes on control plane.
 
 
@@ -139,8 +139,8 @@ all:
 
 Set host definitions used as nodes on control plane, worker nodes and load balancer.
 
-- Set name of hosts (e.g. kube-master1 below) to match the hostname on the machine.
-- When the ip address used for communication between nodes is different from the one used by the machine running the playbook for ssh (such as public ip or floating ip), set the former value `internal_ipv4`. Otherwise, set the same value for `ansible_host` and `internal_ipv4`.
+- Set name of hosts (e.g. kube-master1 below) to match the hostname on the node.
+- When the ip address used for communication between nodes is different from the one used by the node running the playbook for ssh (such as public ip or floating ip), set the former value `internal_ipv4`. Otherwise, set the same value for `ansible_host` and `internal_ipv4` or not set internal_ipv4.
 
 
 ```yml
@@ -160,16 +160,18 @@ all:
           ansible_user: ubuntu
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
           internal_ipv4: 192.168.3.11
+        # If a node do not have external ip address such as floating IP,
+        # set the same ip address both ansible_host and internal_ipv4.
         kube-master2:
           ansible_host: 10.10.10.12
           ansible_user: ubuntu
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
           internal_ipv4: 192.168.3.12
+        # Or just not define internal_ipv4.
         kube-master3:
           ansible_host: 10.10.10.13
           ansible_user: ubuntu
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
-          internal_ipv4: 192.168.3.13
     worker:
       # Define zero or more hosts to be used as worker node.
       hosts:
@@ -181,11 +183,13 @@ all:
     load_balancer:
       # Define One or more hosts to be used as load balancer.
       hosts:
+        # If set DNS name as control plane endpoint, add dns_name field.
         load-balancer1:
           ansible_host: 10.10.10.20
           ansible_user: ubuntu
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
           internal_ipv4: 192.168.3.20
+          dns_name: my-load-balancer.domain.com
 ```
 
 Then run `setup.yml`.
@@ -211,9 +215,8 @@ See [setup_cluster.md](docs/setup_cluster.md)
 
 
 # Support distributions
-The following distribution (platform) instances are supported.
 
-- RHEL-based distribution (such as rocky linux)
-- Ubuntu 22.04
-- Amazon linux
-  - Supported only to install CLI commands such as kubectl
+The following distributions are tested.
+
+- Rockylinux 9.2
+- Ubuntu 23.04
