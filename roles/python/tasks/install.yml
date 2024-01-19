@@ -16,6 +16,25 @@
   become: true
   when: package_manager == "apt"
 
+- name: Get pip version
+  ansible.builtin.command: "pip --version"
+  register: result
+  changed_when: false
+
+- name: Get pip semantic version
+  ansible.builtin.set_fact:
+    pip_semantic_version: "{{ pip_version_split[1] }}"
+  vars:
+    pip_version_split: "{{ result.stdout.split() }}"
+
+- name: Get pip major and minor version
+  ansible.builtin.set_fact:
+    pip_major_version: "{{ _tmp[0] }}"
+    pip_minor_version: "{{ _tmp[1] }}"
+    pip_version: "{{ _tmp[0] }}.{{ _tmp[1] }}"
+  vars:
+    _tmp: "{{ pip_semantic_version.split('.') }}"
+
 - name: Install dependencies for ansible kubernetes module
   ansible.builtin.pip:
     name:
@@ -25,3 +44,17 @@
     state: present
     extra_args: --user
     executable: pip3
+  when: (not break_system_packages | bool) or pip_version | float < 23.0
+
+- name: Install dependencies for ansible kubernetes module with `--break-system-packages` option
+  ansible.builtin.pip:
+    name:
+      - kubernetes >= 12.0.0
+      - pyyaml >= 3.11
+      - jsonpatch
+    state: present
+    extra_args: "--user --break-system-packages"
+    executable: pip3
+  when:
+    - break_system_packages | bool
+    - pip_version | float >= 23.0

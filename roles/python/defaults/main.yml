@@ -1,2 +1,4 @@
 ---
 package_manager: apt
+
+break_system_packages: true
