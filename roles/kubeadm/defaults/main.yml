@@ -5,3 +5,6 @@ load_balancer_port: 6443
 cluster_name: kubernetes
 
 kubeadm_config_path: /tmp/kubeadm_config.yml
+
+# control-plane or worker
+kubeadm_node_type: worker

@@ -1,0 +1,23 @@
+---
+- name: Create ~/.kube
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    mode: "0755"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Delete previous config
+  ansible.builtin.file:
+    state: absent
+    path: "/home/{{ ansible_user }}/.kube/config"
+
+- name: Copy admin.conf to ~/.kube/config
+  ansible.builtin.copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    mode: "0600"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    remote_src: true
+  become: true

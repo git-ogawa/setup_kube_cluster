@@ -1,0 +1,18 @@
+---
+- name: Put kubeadm join config file
+  ansible.builtin.template:
+    src: kubeadm_join_config_v1beta3.yml.j2
+    dest: "{{ kubeadm_config_path }}"
+    mode: "0755"
+    lstrip_blocks: true
+
+- name: Run kubeadm join
+  ansible.builtin.command: >
+    kubeadm join --config {{ kubeadm_config_path }}
+  changed_when: true
+  become: true
+
+- name: Cleanup kubeadm join config file
+  ansible.builtin.file:
+    path: "{{ kubeadm_config_path }}"
+    state: absent

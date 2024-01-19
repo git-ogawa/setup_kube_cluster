@@ -1,0 +1,17 @@
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: JoinConfiguration
+discovery:
+  bootstrapToken:
+    apiServerEndpoint: {{ load_balancer_dns }}:{{ load_balancer_port }}
+    token: {{ kubeadm_token }}
+    caCertHashes:
+      - {{ kubeadm_discovery_token_ca_cert_hash }}
+{% if kubeadm_node_type == "control-plane" %}
+controlPlane:
+  certificateKey: {{ kubeadm_control_plane_cert_key }}
+{% endif %}
+{% if run_systemd_resolv_exist is false %}
+nodeRegistration:
+  kubeletExtraArgs:
+    resolv-conf: /etc/resolv.conf
+{% endif %}
