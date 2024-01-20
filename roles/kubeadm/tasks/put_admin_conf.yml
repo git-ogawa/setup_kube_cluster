@@ -1,25 +1,4 @@
 ---
-- name: Disable swap
-  ansible.builtin.command: swapoff -a
-  changed_when: true
-  become: true
-
-- name: Kubeadm init
-  ansible.builtin.command: >
-    kubeadm init
-      --pod-network-cidr={{ pod_network_cidr }}
-      --apiserver-advertise-address={{ ipv4_address }}
-  changed_when: true
-  become: true
-  when: ec2_cluster | bool
-
-- name: Kubeadm init
-  ansible.builtin.command: |
-    kubeadm init --pod-network-cidr={{ pod_network_cidr }}
-  changed_when: true
-  become: true
-  when: not ec2_cluster | bool
-
 - name: Create ~/.kube
   ansible.builtin.file:
     path: "/home/{{ ansible_user }}/.kube"

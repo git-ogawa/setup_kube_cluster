@@ -1,0 +1,23 @@
+---
+- name: Disable swap
+  ansible.builtin.command: swapoff -a
+  changed_when: true
+  become: true
+
+- name: Put kubeadm config file
+  ansible.builtin.template:
+    src: kubeadm_config_v1beta3.yml.j2
+    dest: "{{ kubeadm_config_path }}"
+    mode: "0755"
+    lstrip_blocks: true
+
+- name: Kubeadm init
+  ansible.builtin.command: >
+    kubeadm init --config {{ kubeadm_config_path }}
+  changed_when: true
+  become: true
+
+- name: Cleanup kubeadm config file
+  ansible.builtin.file:
+    path: "{{ kubeadm_config_path }}"
+    state: absent

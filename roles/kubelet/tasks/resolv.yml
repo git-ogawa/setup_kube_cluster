@@ -1,0 +1,34 @@
+---
+- name: "Get {{ kubelet_config_path }}"
+  ansible.builtin.stat:
+    path: "{{ kubelet_config_path }}"
+  register: result
+
+# Skip tasks if kubelet config.yaml is not found such as if not run kubeadm init yet.
+- name: "Read {{ kubelet_config_path }}"
+  when: result.stat.exists | bool
+  block:
+    - name: "Read {{ kubelet_config_path }}"
+      ansible.builtin.slurp:
+        src: "{{ kubelet_config_path }}"
+      register: kubelet_config
+
+    - name: "Get resolvConf path in {{ kubelet_config_path }}"
+      ansible.builtin.set_fact:
+        resolvconf_path: "{{ content.resolvConf }}"
+      vars:
+        content: "{{ kubelet_config.content | b64decode | from_yaml }}"
+
+    - name: Check whether resolvConf exists
+      ansible.builtin.stat:
+        path: "{{ resolvconf_path }}"
+      register: resolvconf
+
+    - name: "Update resolvConf path in {{ kubelet_config_path }}"
+      ansible.builtin.lineinfile:
+        path: "{{ kubelet_config_path }}"
+        regexp: '^resolvConf: /run/systemd/resolve/resolv.conf'
+        line: 'resolvConf: {{ kubelet_resolvconf_replace_path }}'
+      become: true
+      when: not resolvconf.stat.exists | bool
+      notify: Restart kubelet

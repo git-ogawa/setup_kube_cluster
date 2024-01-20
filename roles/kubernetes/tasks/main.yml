@@ -4,3 +4,5 @@
     os_family: "{{ ansible_facts.distribution_file_variety | lower }}"
 
 - ansible.builtin.import_tasks: install.yml
+  vars:
+    node_shell: "{{ ansible_facts.user_shell }}"

@@ -103,3 +103,17 @@
         state: present
       become: true
       when: kubernetes_version != "latest"
+
+- name: Add completion
+  when:
+    - kubectl_add_completion | bool
+    - '"bash" in node_shell or "zsh" in node_shell'
+  block:
+    - name: Get shell
+      ansible.builtin.set_fact:
+        node_shell: "{{ 'zsh' if 'zsh' in node_shell else 'bash' }}"
+
+    - name: "Add kubectl completion in {{ node_shell }}rc"
+      ansible.builtin.lineinfile:
+        path: "/home/{{ node_user }}/.{{ node_shell }}rc"
+        line: 'source <(kubectl completion {{ node_shell }})'

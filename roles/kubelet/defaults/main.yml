@@ -1,0 +1,4 @@
+---
+kubelet_config_path: /var/lib/kubelet/config.yaml
+kubelet_resolvconf_default_path: /run/systemd/resolve/resolv.conf
+kubelet_resolvconf_replace_path: /etc/resolv.conf

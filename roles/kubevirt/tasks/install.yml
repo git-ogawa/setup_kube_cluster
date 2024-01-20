@@ -1,0 +1,46 @@
+---
+- name: Make temporary directory
+  ansible.builtin.file:
+    path: /tmp/kubevirt
+    state: directory
+    mode: "0755"
+
+- name: Get the latest version
+  when: kubevirt_version == "latest"
+  block:
+    - name: Get the latest version
+      ansible.builtin.import_role:
+        name: github
+      vars:
+        organization: kubevirt
+        repository: kubevirt
+        query_string: "kubevirt"
+
+    - name: "Download kubevirt v{{ release_latest_version }}"
+      ansible.builtin.get_url:
+        url: "{{ kubevirt_release_url }}/v{{ release_latest_version }}/{{ item }}"
+        dest: "/tmp/kubevirt/{{ item }}"
+        mode: "0644"
+      become: true
+      loop:
+        - kubevirt-operator.yaml
+        - kubevirt-cr.yaml
+
+- name: "Download kubevirt v{{ kubevirt_version }}"
+  ansible.builtin.get_url:
+    url: "{{ kubevirt_release_url }}/v{{ kubevirt_version }}/{{ item }}"
+    dest: "/tmp/kubevirt/{{ item }}"
+    mode: "0644"
+  become: true
+  when: kubevirt_version != "latest"
+  loop:
+    - kubevirt-operator.yaml
+    - kubevirt-cr.yaml
+
+- name: Deploy kubevirt
+  kubernetes.core.k8s:
+    src: "/tmp/kubevirt/{{ item }}"
+    state: present
+  loop:
+    - kubevirt-operator.yaml
+    - kubevirt-cr.yaml

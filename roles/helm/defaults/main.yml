@@ -1,5 +1,8 @@
 ---
+node_shell: bash
+node_user: "{{ ansible_user }}"
 
 helm_key_path: /usr/share/keyrings/helm.gpg
 helm_path: /usr/local/bin/helm
 helm_version: latest
+helm_add_completion: true

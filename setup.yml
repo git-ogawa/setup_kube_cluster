@@ -125,3 +125,8 @@
   ansible.builtin.import_playbook: playbooks/setup_st2.yml
   tags: st2
   when: st2_install | bool
+
+- name: Setup kubevirt
+  ansible.builtin.import_playbook: playbooks/setup_kubevirt.yml
+  tags: kubevirt
+  when: kubevirt_install | bool

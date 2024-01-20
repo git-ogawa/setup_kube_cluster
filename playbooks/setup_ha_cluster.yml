@@ -11,8 +11,8 @@
     - name: Add cluster server address to /etc/hosts
       ansible.builtin.lineinfile:
         path: /etc/hosts
-        regexp: '^{{ hostvars[item].internal_ipv4 }}'
-        line: '{{ hostvars[item].internal_ipv4 }} {{ item }}'
+        regexp: '^{{ hostvars[item].internal_ipv4 | default(hostvars[item].ansible_host) }}'
+        line: '{{ hostvars[item].internal_ipv4 | default(hostvars[item].ansible_host) }} {{ item }}'
       become: true
       loop: "{{ groups.all }}"
 
@@ -22,12 +22,16 @@
   tasks:
     - name: Kubeadm init
       ansible.builtin.import_role:
-        name: cluster
-        tasks_from: kubeadm_ha_init
+        name: kubeadm
+        tasks_from: init
       vars:
-        load_balancer_dns: "{{ groups.load_balancer[0] }}"
+        load_balancer_dns: "{{ hostvars[groups.load_balancer[0]].dns_name | default(hostvars[groups.load_balancer[0]].ansible_host) }}"
         ipv4_address: "{{ ansible_facts.default_ipv4.address }}"
-        pod_network_cidr: "{{ network_cidr }}"
+
+    - name: Set kubeconfig
+      ansible.builtin.import_role:
+        name: kubeadm
+        tasks_from: put_admin_conf
 
     - name: Install CNI
       ansible.builtin.include_role:
@@ -80,39 +84,28 @@
         enabled: true
       become: true
 
+    - name: Check if /run/systemd/resolve/resolv.conf exists
+      ansible.builtin.stat:
+        path: /run/systemd/resolve/resolv.conf
+      register: result
+
     - name: Add nodes to control plane
-      ansible.builtin.command: >
-        kubeadm join {{ groups.load_balancer[0] }}:6443
-        --discovery-token {{ hostvars[primary_node].token.stdout }}
-        --discovery-token-ca-cert-hash sha256:{{ hostvars[primary_node].hash.stdout }}
-        --control-plane --certificate-key {{ hostvars[primary_node].certificate_key }}
-      become: true
+      ansible.builtin.import_role:
+        name: kubeadm
+        tasks_from: join
       vars:
-        primary_node: "{{ groups.control_plane[0] }}"
-      changed_when: true
+        load_balancer_dns: "{{ hostvars[groups.load_balancer[0]].dns_name | default(hostvars[groups.load_balancer[0]].ansible_host) }}"
+        ipv4_address: "{{ ansible_facts.default_ipv4.address }}"
+        kubeadm_token: "{{ hostvars[groups.control_plane[0]].token.stdout }}"
+        kubeadm_discovery_token_ca_cert_hash: "sha256:{{ hostvars[groups.control_plane[0]].hash.stdout }}"
+        kubeadm_control_plane_cert_key: "{{ hostvars[groups.control_plane[0]].certificate_key }}"
+        kubeadm_node_type: control-plane
+        run_systemd_resolv_exist: "{{ result.stat.exists | bool }}"
 
-    - name: Create ~/.kube
-      ansible.builtin.file:
-        path: "/home/{{ hostvars[inventory_hostname].ansible_user }}/.kube"
-        state: directory
-        mode: "0755"
-        owner: "{{ hostvars[inventory_hostname].ansible_user }}"
-        group: "{{ hostvars[inventory_hostname].ansible_user }}"
-
-    - name: Delete previous config
-      ansible.builtin.file:
-        state: absent
-        path: "/home/{{ hostvars[inventory_hostname] }}/.kube/config"
-
-    - name: Copy admin.conf to ~/.kube/config
-      ansible.builtin.copy:
-        src: /etc/kubernetes/admin.conf
-        dest: "/home/{{ hostvars[inventory_hostname].ansible_user }}/.kube/config"
-        mode: "0600"
-        owner: "{{ hostvars[inventory_hostname].ansible_user }}"
-        group: "{{ hostvars[inventory_hostname].ansible_user }}"
-        remote_src: true
-      become: true
+    - name: Set kubeconfig
+      ansible.builtin.import_role:
+        name: kubeadm
+        tasks_from: put_admin_conf
 
 - name: Add worker nodes to cluster
   hosts: worker
@@ -125,15 +118,22 @@
         enabled: true
       become: true
 
-    - name: Add worker node
-      ansible.builtin.command: >
-        kubeadm join {{ groups.load_balancer[0] }}:6443
-        --discovery-token {{ hostvars[primary_node].token.stdout }}
-        --discovery-token-ca-cert-hash sha256:{{ hostvars[primary_node].hash.stdout }}
-      become: true
+    - name: Check if /run/systemd/resolve/resolv.conf exists
+      ansible.builtin.stat:
+        path: /run/systemd/resolve/resolv.conf
+      register: result
+
+    - name: Add a worker node to the cluster
+      ansible.builtin.import_role:
+        name: kubeadm
+        tasks_from: join
       vars:
-        primary_node: "{{ groups.control_plane[0] }}"
-      changed_when: true
+        load_balancer_dns: "{{ hostvars[groups.load_balancer[0]].dns_name | default(hostvars[groups.load_balancer[0]].ansible_host) }}"
+        ipv4_address: "{{ ansible_facts.default_ipv4.address }}"
+        kubeadm_token: "{{ hostvars[groups.control_plane[0]].token.stdout }}"
+        kubeadm_discovery_token_ca_cert_hash: "sha256:{{ hostvars[groups.control_plane[0]].hash.stdout }}"
+        kubeadm_node_type: worker
+        run_systemd_resolv_exist: "{{ result.stat.exists | bool }}"
 
 - name: Post process
   hosts: control_plane[0]

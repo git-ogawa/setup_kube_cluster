@@ -1,0 +1,51 @@
+---
+all:
+  vars:
+    ec2_cluster: false
+    kubernetes_version: latest
+    cni_type: flannel
+    pod_network_cidr: "10.244.0.0/16"
+    taint_control_plane_node: false
+    openebs_install: false
+    longhorn_install: false
+    kubevious_install: false
+    argocd_install: false
+    tekton_install: false
+    gitea_install: false
+    harbor_install: false
+    kube_prometheus_install: false
+    octant_install: false
+    openfaas_install: false
+    linkerd_install: false
+    cert_manager_install: false
+    jaeger_install: false
+    velero_install: false
+    awx_install: false
+    st2_install: false
+    kubevirt_install: false
+    ha_cluster:
+      enabled: false
+    github_api_token_enabled: false
+    github_api_token: ""
+  children:
+    cluster:
+      vars:
+        # Variables common to all nodes.
+        ansible_ssh_port: 22
+        ansible_ssh_private_key_file: ~/.ssh/id_rsa
+        ansible_user: ubuntu
+      children:
+        control_plane:
+        worker:
+    control_plane:
+      # Set a node for control plane.
+      hosts:
+        control-node:
+          ansible_host: 10.0.0.10
+    worker:
+      # Set nodes  for worker.
+      hosts:
+        worker-1:
+          ansible_host: 10.0.0.13
+        worker-2:
+          ansible_host: 10.0.0.14

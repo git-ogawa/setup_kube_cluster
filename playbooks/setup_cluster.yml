@@ -14,11 +14,15 @@
   tasks:
     - name: Kubeadm init
       ansible.builtin.import_role:
-        name: cluster
-        tasks_from: kubeadm_init
+        name: kubeadm
+        tasks_from: init
       vars:
         ipv4_address: "{{ ansible_facts.default_ipv4.address }}"
-        pod_network_cidr: "{{ network_cidr }}"
+
+    - name: Set kubeconfig
+      ansible.builtin.import_role:
+        name: kubeadm
+        tasks_from: put_admin_conf
 
     - name: Install CNI
       ansible.builtin.include_role:

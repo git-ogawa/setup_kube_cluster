@@ -25,11 +25,17 @@
     dest: /tmp
     remote_src: true
 
-- name: "Add krew path to {{ node_shell }}rc"
-  ansible.builtin.lineinfile:
-    path: "/home/{{ node_user }}/.{{ node_shell }}rc"
-    line: 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"'
-  when: node_shell == "bash" or node_shell == "zsh"
+- name: Add krew path
+  when: '"bash" in node_shell or "zsh" in node_shell'
+  block:
+    - name: Get shell
+      ansible.builtin.set_fact:
+        node_shell: "{{ 'zsh' if 'zsh' in node_shell else 'bash' }}"
+
+    - name: "Add krew path in {{ node_shell }}rc"
+      ansible.builtin.lineinfile:
+        path: "/home/{{ node_user }}/.{{ node_shell }}rc"
+        line: 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"'
 
 - name: Install krew
   ansible.builtin.command:
