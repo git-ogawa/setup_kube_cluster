@@ -1,4 +1,40 @@
 ---
+- name: Get the latest k8s version
+  when: kubernetes_version == "latest"
+  block:
+    - name: Get the latest release from github
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/kubernetes/kubernetes/releases/latest"
+        return_content: true
+      register: query_result
+
+    - name: Fix format to json
+      ansible.builtin.set_fact:
+        query_result: "{{ query_result.content | from_json }}"
+
+    - name: Extract version from tag name
+      ansible.builtin.set_fact:
+        k8s_semantic_version: "{{ query_result.tag_name | regex_search(version_regex) }}"
+      vars:
+        version_regex: '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
+
+    - name: Set major and minor version
+      ansible.builtin.set_fact:
+        k8s_major_version: "{{ _tmp[0] }}"
+        k8s_minor_version: "{{ _tmp[1] }}"
+        k8s_repo_version: "{{ _tmp[0] }}.{{ _tmp[1] }}"
+      vars:
+        _tmp: "{{ k8s_semantic_version.split('.') }}"
+
+- name: Set major and minor version
+  ansible.builtin.set_fact:
+    k8s_major_version: "{{ _tmp[0] }}"
+    k8s_minor_version: "{{ _tmp[1] }}"
+    k8s_repo_version: "{{ _tmp[0] }}.{{ _tmp[1] }}"
+  vars:
+    _tmp: "{{ kubernetes_version.split('.') }}"
+  when: kubernetes_version != "latest"
+
 - name: Install kubeadm, kubectl, kubelet (ubuntu)
   when: os_family != "redhat"
   block:
@@ -18,16 +54,16 @@
 
     - name: Download the Google Cloud public signing key
       ansible.builtin.get_url:
-        url: https://dl.k8s.io/apt/doc/apt-key.gpg
-        dest: /usr/share/keyrings/kubernetes-archive-keyring.gpg
+        url: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_major_version }}.{{ k8s_minor_version }}/deb/Release.key"
+        dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
         mode: "0644"
       become: true
 
     - name: Add kubernetes repository
       ansible.builtin.apt_repository:
         repo: >
-          deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg]
-          https://apt.kubernetes.io/ kubernetes-xenial main
+          deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc]
+          https://pkgs.k8s.io/core:/stable:/v{{ k8s_major_version }}.{{ k8s_minor_version }}/deb /
         state: present
         filename: kubernetes
       become: true
@@ -50,9 +86,9 @@
     - name: "Install kubernetes commands version {{ kubernetes_version }}"
       ansible.builtin.apt:
         name:
-          - "kubectl={{ kubernetes_version }}-00"
-          - "kubelet={{ kubernetes_version }}-00"
-          - "kubeadm={{ kubernetes_version }}-00"
+          - "kubectl={{ kubernetes_version }}-1.1"
+          - "kubelet={{ kubernetes_version }}-1.1"
+          - "kubeadm={{ kubernetes_version }}-1.1"
         state: present
         allow_downgrade: true
         allow_change_held_packages: true
@@ -76,12 +112,16 @@
       ansible.builtin.yum_repository:
         name: kubernetes
         description: kubernetes
-        baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
+        baseurl: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_major_version }}.{{ k8s_minor_version }}/rpm/"
         enabled: true
         gpgcheck: true
-        gpgkey: >
-          https://packages.cloud.google.com/yum/doc/yum-key.gpg
-          https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+        gpgkey: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_major_version }}.{{ k8s_minor_version }}/rpm/repodata/repomd.xml.key"
+        exclude:
+          - kubelet
+          - kubeadm
+          - kubectl
+          - cri-tools
+          - kubernetes-cni
       become: true
 
     - name: Install the latest kubernetes commands
@@ -91,16 +131,18 @@
           - kubelet
           - kubeadm
         state: present
+        disable_excludes: kubernetes
       become: true
       when: kubernetes_version == "latest"
 
     - name: "Install kubernetes commands version {{ kubernetes_version }}"
       ansible.builtin.dnf:
         name:
-          - "kubectl-{{ kubernetes_version }}-0"
-          - "kubelet-{{ kubernetes_version }}-0"
-          - "kubeadm-{{ kubernetes_version }}-0"
+          - "kubectl-{{ kubernetes_version }}"
+          - "kubelet-{{ kubernetes_version }}"
+          - "kubeadm-{{ kubernetes_version }}"
         state: present
+        disable_excludes: kubernetes
       become: true
       when: kubernetes_version != "latest"
 
