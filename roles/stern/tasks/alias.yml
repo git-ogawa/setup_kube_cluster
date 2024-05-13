@@ -1,0 +1,5 @@
+---
+- name: "Add alias in {{ k8s_alias_path }}"
+  ansible.builtin.lineinfile:
+    path: "{{ k8s_alias_path }}"
+    line: 'alias stern="kubectl-stern"'
