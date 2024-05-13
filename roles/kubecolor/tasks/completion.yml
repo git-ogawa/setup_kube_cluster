@@ -1,0 +1,19 @@
+---
+- name: Zsh completion
+  when: shell == "zsh"
+  block:
+    - name: Check ~/.zshrc exist
+      ansible.builtin.stat:
+        path: ~/.zshrc
+      register: result
+
+    - name: "Add completion in {{ k8s_plugin_setting_path }}"
+      ansible.builtin.blockinfile:
+        dest: "{{ k8s_plugin_setting_path }}"
+        block: |
+          source <(kubectl completion zsh)
+          compdef kubecolor=kubectl
+        state: present
+        marker: "# -- {mark} inserted by kubecolor ansible task --"
+        insertafter: '# -- BEGIN inserted by kubecolor ansible task --'
+      when: result.stat.exists
