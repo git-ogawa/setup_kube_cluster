@@ -1,0 +1,6 @@
+---
+arch: amd64
+shell: zsh
+
+k8s_alias_path: ~/.k8s_alias
+k8s_plugin_setting_path: ~/.k8s_plugin_setting
