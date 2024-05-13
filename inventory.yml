@@ -25,6 +25,8 @@ all:
     kubevirt_install: false
     ha_cluster:
       enabled: false
+    k8s_plugins:
+      enabled: false
     github_api_token_enabled: false
     github_api_token: ""
   children:

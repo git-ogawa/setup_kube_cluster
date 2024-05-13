@@ -7,6 +7,11 @@
   ansible.builtin.import_playbook: playbooks/setup_components.yml
   tags: components
 
+- name: Install plugins for k8s
+  ansible.builtin.import_playbook: playbooks/setup_k8s_plugins.yml
+  tags: k8s_plugins
+  when: k8s_plugins.enabled | bool
+
 - name: Create cluster
   ansible.builtin.import_playbook: playbooks/setup_cluster.yml
   tags: cluster
