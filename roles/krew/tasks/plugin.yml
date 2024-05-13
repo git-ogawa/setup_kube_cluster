@@ -5,6 +5,7 @@
       - "/home/{{ ansible_user }}/.krew/bin/kubectl-krew"
       - install
       - "{{ item }}"
+  become: true
   become_user: "{{ ansible_user }}"
   loop: "{{ krew_plugins }}"
   register: result
@@ -14,6 +15,7 @@
 - name: Check plugins are installed
   ansible.builtin.shell:
     cmd: "/home/{{ ansible_user }}/.krew/bin/kubectl-krew list | grep {{ item }}"
+  become: true
   become_user: "{{ ansible_user }}"
   loop: "{{ krew_plugins }}"
   register: result

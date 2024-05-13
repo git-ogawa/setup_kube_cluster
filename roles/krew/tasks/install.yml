@@ -19,10 +19,16 @@
     dest: "/tmp/krew.tar.gz"
     mode: "0755"
 
+- name: Make tmpdir
+  ansible.builtin.file:
+    path: /tmp/krew
+    state: directory
+    mode: "0755"
+
 - name: Extract krew binary
   ansible.builtin.unarchive:
     src: "/tmp/krew.tar.gz"
-    dest: /tmp
+    dest: /tmp/krew
     remote_src: true
 
 - name: Add krew path
@@ -39,7 +45,7 @@
 
 - name: Install krew
   ansible.builtin.command:
-    cmd: "/tmp/{{ krew_binary }} install krew"
+    cmd: "/tmp/krew/{{ krew_binary }} install krew"
   register: result
   changed_when: result.rc == 0
   failed_when: result.rc != 0
