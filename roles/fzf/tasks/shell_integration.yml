@@ -1,0 +1,14 @@
+---
+- name: Zsh integration
+  when: shell == "zsh"
+  block:
+    - name: Check ~/.zshrc exists
+      ansible.builtin.stat:
+        path: ~/.zshrc
+      register: result
+
+    - name: "Add completion in ~/.zshrc"
+      ansible.builtin.blockinfile:
+        dest: ~/.zshrc
+        content: 'eval "$(fzf --zsh)"'
+      when: result.stat.exists | bool
