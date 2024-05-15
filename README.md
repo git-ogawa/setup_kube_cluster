@@ -211,6 +211,72 @@ kube-master3   Ready    control-plane   81m   v1.26.0
 kube-worker1   Ready    <none>          41m   v1.26.0
 ```
 
+# Tools
+
+Useful CLI tools and plugins to make it more comfortable to debug and develop for k8s can be installed during the setup. To enable this, set `k8s_plugins.enabled: true` in inventory.yml.
+```yml
+all:
+  vars:
+    k8s_plugins:
+      enabled: true
+```
+
+Running the playbook will run sub-play to install the tools during k8s setup.
+```
+ansible-playbook setup.yml -t k8s_plugins
+```
+
+Or run with `-t k8s_plugins` only to install the tools.
+```
+ansible-playbook setup.yml -t k8s_plugins
+```
+
+
+The following tools will be installed.
+
+- [popeye](https://github.com/derailed/popeye)
+- [kubectx](https://github.com/ahmetb/kubectx)
+- [fzf](https://github.com/junegunn/fzf)
+- [kubecolor](https://github.com/kubecolor/kubecolor)
+- [stern](https://github.com/stern/stern)
+
+Note: Only zsh is supported.
+
+## Alias
+
+Aliases will be set to some commands to make input commands easier. The settings are stored in `~/.k8s_alias`.
+
+```sh
+alias k="kubecolor"
+alias stern="kubectl-stern"
+# -- BEGIN inserted by kubectx ansible task --
+alias ns="kubens"
+alias ctx="kubectx"
+# -- END inserted by kubectx ansible task --
+```
+
+## Completion
+
+Completion will be set to some commands to make input commands easier. The settings are stored in `~/.k8s_plugin_setting`.
+
+```sh
+# -- BEGIN inserted by kubecolor ansible task --
+source <(kubectl completion zsh)
+compdef kubecolor=kubectl
+# -- END inserted by kubecolor ansible task --
+# -- BEGIN inserted by popeye ansible task --
+source <(popeye completion zsh)
+# -- END inserted by popeye ansible task --
+# -- BEGIN inserted by stern ansible task --
+source <(stern --completion=zsh)
+# -- END inserted by stern ansible task --
+# -- BEGIN inserted by kubectx ansible task --
+fpath=($ZSH/custom/completions $fpath)
+autoload -U compinit && compinit
+# -- END inserted by kubectx ansible task --
+```
+
+
 # Details
 See [setup_cluster.md](docs/setup_cluster.md)
 
