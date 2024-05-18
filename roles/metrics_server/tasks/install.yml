@@ -1,0 +1,23 @@
+---
+- name: Add helm repository
+  kubernetes.core.helm_repository:
+    name: metrics-server
+    repo_url: https://kubernetes-sigs.github.io/metrics-server/
+
+- name: Separately update the repository cache
+  kubernetes.core.helm:
+    name: dummy
+    namespace: kube-system
+    state: absent
+    update_repo_cache: true
+
+- name: Install metrics-server
+  kubernetes.core.helm:
+    release_name: "{{ metrics_server_release_name }}"
+    # release_name: metrics-server
+    chart_ref: metrics-server/metrics-server
+    release_namespace: "{{ metrics_server_namespace }}"
+    # release_namespace: metrics-server2
+    create_namespace: true
+    set_values:
+      - value: 'args={"--kubelet-insecure-tls"}'

@@ -135,3 +135,9 @@
   ansible.builtin.import_playbook: playbooks/setup_kubevirt.yml
   tags: kubevirt
   when: kubevirt_install | bool
+
+- name: Setup metrics-server
+  ansible.builtin.import_playbook: playbooks/setup_metrics_server.yml
+  tags: metrics_server
+  when: metrics_server_install | bool
+
