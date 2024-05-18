@@ -24,6 +24,7 @@ all:
     st2_install: false
     kubevirt_install: false
     metrics_server_install: false
+    reloader_install: false
     ha_cluster:
       enabled: false
     k8s_plugins:

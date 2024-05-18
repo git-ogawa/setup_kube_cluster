@@ -1,0 +1,19 @@
+---
+- name: Add helm repository
+  kubernetes.core.helm_repository:
+    name: stakater
+    repo_url: https://stakater.github.io/stakater-charts
+
+- name: Separately update the repository cache
+  kubernetes.core.helm:
+    name: dummy
+    namespace: kube-system
+    state: absent
+    update_repo_cache: true
+
+- name: Install reloader
+  kubernetes.core.helm:
+    release_name: "{{ reloader_release_name }}"
+    chart_ref: stakater/reloader
+    release_namespace: "{{ reloader_namespace }}"
+    create_namespace: true
