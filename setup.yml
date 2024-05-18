@@ -145,3 +145,8 @@
   ansible.builtin.import_playbook: playbooks/setup_reloader.yml
   tags: reloader
   when: reloader_install | bool
+
+- name: Setup kube-ps1
+  ansible.builtin.import_playbook: playbooks/setup_kube_ps1.yml
+  tags: kube_ps1
+  when: kube_ps1_install | bool
