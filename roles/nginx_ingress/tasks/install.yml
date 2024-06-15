@@ -1,23 +1,47 @@
 ---
-- name: Download nginx ingress controller manifest
-  ansible.builtin.get_url:
-    url: |
-      {{ nginx_ingress_repository }}/controller-v{{ nginx_ingress_version }}/deploy/static/provider/cloud/deploy.yaml
-    dest: /tmp/nginx_ingress_controller.yml
-    mode: "0644"
+- name: Install nginx ingress controller with manifest
+  when: nginx_ingress_install_mode == "manifest"
+  block:
+    - name: Download nginx ingress controller manifest
+      ansible.builtin.get_url:
+        url: |
+          {{ nginx_ingress_repository }}/controller-v{{ nginx_ingress_version }}/deploy/static/provider/cloud/deploy.yaml
+        dest: /tmp/nginx_ingress_controller.yml
+        mode: "0644"
 
-- name: Deploy nginx ingress controller
-  kubernetes.core.k8s:
-    state: present
-    src: /tmp/nginx_ingress_controller.yml
+    - name: Deploy nginx ingress controller
+      kubernetes.core.k8s:
+        state: present
+        src: /tmp/nginx_ingress_controller.yml
 
-- name: Put service manifest
-  ansible.builtin.template:
-    src: service.yml.j2
-    dest: /tmp/service.yml
-    mode: "0644"
+    - name: Put service manifest
+      ansible.builtin.template:
+        src: service.yml.j2
+        dest: /tmp/service.yml
+        mode: "0644"
 
-- name: Override nginx ingress controller service manifest
-  kubernetes.core.k8s:
-    state: present
-    src: /tmp/service.yml
+    - name: Override nginx ingress controller service manifest
+      kubernetes.core.k8s:
+        state: present
+        src: /tmp/service.yml
+
+- name: Install nginx ingress controller with helm
+  when: nginx_ingress_install_mode == "helm"
+  block:
+    - name: Add nginx ingress helm repository
+      kubernetes.core.helm_repository:
+        name: ingress-nginx
+        repo_url: https://kubernetes.github.io/ingress-nginx
+
+    - name: Deploy nginx ingress controller with helm
+      kubernetes.core.helm:
+        name: "{{ nginx_ingress_helm_release_name }}"
+        chart_ref: ingress-nginx/ingress-nginx
+        namespace: "{{ nginx_ingress_helm_namespace }}"
+        create_namespace: true
+        values:
+          controller:
+            service:
+              nodePorts:
+                http: "{{ nginx_ingress_http_node_port }}"
+                https: "{{ nginx_ingress_https_node_port }}"
