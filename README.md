@@ -1,3 +1,27 @@
+
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [setup kube-cluster](#setup-kube-cluster)
+- [Requirements](#requirements)
+- [Quickstart](#quickstart)
+- [Configuration](#configuration)
+  - [Ingress controller](#ingress-controller)
+  - [HA cluster](#ha-cluster)
+  - [Tools](#tools)
+    - [Alias](#alias)
+    - [Completion](#completion)
+- [Details](#details)
+- [Troubleshooting](#troubleshooting)
+  - [Setup fails due to rate limit for github REST API](#setup-fails-due-to-rate-limit-for-github-rest-api)
+- [Support distributions](#support-distributions)
+
+<!-- /code_chunk_output -->
+
+
+
 # setup kube-cluster
 
 This repository is for setting up a kubernetes cluster for development on cloud instances (AWS EC2) by `Ansible`. It is useful to build a cluster in the following environments.
@@ -107,7 +131,8 @@ The setup playbook installs the necessary CLI, creates the cluster, and deploys 
 
 | Component | Category | Installed by default |
 | - | - | - |
-| Nginx controller | Ingress controller | yes |
+| Nginx ingress controller | Ingress controller | yes |
+| Traefik | Ingress controller and proxy | no |
 | OpenEBS | Storage | no |
 | Longhorn | Storage | no |
 | Kubevious | Dashboard | no |
@@ -125,8 +150,25 @@ The setup playbook installs the necessary CLI, creates the cluster, and deploys 
 | Awx | Web-based platform for Ansible | no |
 | Stackstorm | Platform for integration and automation | no |
 
+# Configuration
 
-# HA cluster
+## Ingress controller
+
+You can deploy nginx or traefik as ingress controller. Set `ingress_controller.type` which to use in `inventory.yml`.
+
+```yml
+all:
+  vars:
+    # nginx or traefik
+    ingress_controller:
+      type: nginx
+```
+
+- [nginx ingress controller](https://github.com/kubernetes/ingress-nginx)
+- [traefik](https://github.com/traefik/traefik-helm-chart)
+
+
+## HA cluster
 
 The project can create HA (High Availability) cluster consisting of stacked control plane nodes with kubeadm. The nodes that meet the following requirements are required to create the HA cluster.
 
@@ -211,7 +253,8 @@ kube-master3   Ready    control-plane   81m   v1.26.0
 kube-worker1   Ready    <none>          41m   v1.26.0
 ```
 
-# Tools
+
+## Tools
 
 Useful CLI tools and plugins to make it more comfortable to debug and develop for k8s can be installed during the setup. To enable this, set `k8s_plugins.enabled: true` in inventory.yml.
 ```yml
@@ -242,7 +285,7 @@ The following tools will be installed.
 
 Note: Only zsh is supported.
 
-## Alias
+### Alias
 
 Aliases will be set to some commands to make input commands easier. The settings are stored in `~/.k8s_alias`.
 
@@ -255,7 +298,7 @@ alias ctx="kubectx"
 # -- END inserted by kubectx ansible task --
 ```
 
-## Completion
+### Completion
 
 Completion will be set to some commands to make input commands easier. The settings are stored in `~/.k8s_plugin_setting`.
 
