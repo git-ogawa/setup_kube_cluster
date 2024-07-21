@@ -1,0 +1,19 @@
+---
+- name: Fetch current properties
+  openstack.cloud.image_info:
+    cloud: "{{ openstack_cloud }}"
+    name: "{{ image_name }}"
+  register: image_info
+
+- name: Merge properties
+  ansible.builtin.set_fact:
+    _properties: "{{ image_info.images[0].properties | combine(properties) }}"
+
+- name: "Update {{ image_name }} properties"
+  openstack.cloud.image:
+    cloud: "{{ openstack_cloud }}"
+    name: "{{ image_name }}"
+    container_format: bare
+    disk_format: qcow2
+    state: present
+    properties: "{{ _properties }}"

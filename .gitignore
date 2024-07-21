@@ -2,3 +2,7 @@ tmp*
 test_*
 .vscode
 ec2_*
+
+
+# Files related to tools directory
+clouds.yaml

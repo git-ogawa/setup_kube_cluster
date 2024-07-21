@@ -1,0 +1,21 @@
+---
+- name: Stop VM
+  ansible.builtin.import_role:
+    name: openstack
+    tasks_from: stop_vm.yml
+  vars:
+    openstack: "{{ openstack_cloud }}"
+    server_name: "{{ item.server_name }}"
+    image_name: "{{ item.image_name }}"
+  environment: "{{ openstack_env }}"
+
+- name: Create snapshot from VM
+  ansible.builtin.import_role:
+    name: openstack
+    tasks_from: create_image.yml
+  vars:
+    openstack: "{{ openstack_cloud }}"
+    server_name: "{{ item.server_name }}"
+    image_name: "{{ item.image_name }}"
+    properties: "{{ item.properties }}"
+  environment: "{{ openstack_env }}"
