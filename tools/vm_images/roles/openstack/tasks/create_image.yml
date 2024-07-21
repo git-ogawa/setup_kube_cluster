@@ -1,0 +1,24 @@
+---
+- name: Check if the image exists
+  openstack.cloud.image_info:
+    cloud: "{{ openstack_cloud }}"
+    name: "{{ image_name }}"
+  register: image_info
+
+- name: "Create image '{{ image_name }}' from {{ server_name }}"
+  ansible.builtin.command: >
+      openstack server image create
+      --name {{ image_name }}
+      --wait
+      --os-cloud {{ openstack_cloud }}
+      {{ server_name }}
+  register: result
+  changed_when: result.rc == 0
+  failed_when: result.rc != 0
+  when: image_info.images | length == 0
+
+- name: Update image properties
+  ansible.builtin.import_tasks: update_image.yml
+  when:
+    - properties is defined and properties | length > 0
+    - result.rc is defined and result.rc == 0

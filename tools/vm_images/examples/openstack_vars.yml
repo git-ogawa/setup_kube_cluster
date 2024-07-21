@@ -1,0 +1,13 @@
+---
+provider: openstack
+openstack_cloud: kolla-admin
+servers:
+  - server_name: k8s-m1
+    image_name: k8s-master_ubuntu-23.03_20240721
+  - server_name: k8s-w1
+    image_name: k8s-worker_ubuntu-23.03_20240721
+    properties:
+      os_type: linux
+      os_distro: ubuntu
+      os_version: "23.03"
+      os_admin_user: ubuntu

@@ -1,0 +1,9 @@
+clouds:
+  kolla-admin:
+    auth:
+      auth_url: http://192.168.3.2:5000
+      project_domain_name: Default
+      user_domain_name: Default
+      project_name: admin
+      username: admin
+      password: xxxyyyzz

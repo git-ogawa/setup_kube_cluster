@@ -1,0 +1,3 @@
+---
+openstack_cloud: "kolla-admin"
+openstack_timeout: 600

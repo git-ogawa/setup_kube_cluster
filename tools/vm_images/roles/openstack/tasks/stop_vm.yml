@@ -1,0 +1,7 @@
+---
+- name: "Stop server: {{ server_name }}"
+  openstack.cloud.server_action:
+    cloud: "{{ openstack_cloud }}"
+    action: stop
+    server: "{{ server_name }}"
+    timeout: "{{ openstack_timeout }}"
