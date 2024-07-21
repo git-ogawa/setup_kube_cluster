@@ -1,0 +1,31 @@
+---
+- name: Get the latest version
+  ansible.builtin.import_role:
+    name: github
+    tasks_from: latest
+  vars:
+    organization: derailed
+    repository: popeye
+    query_string: "linux_{{ arch }}"
+
+- name: Download popeye
+  ansible.builtin.get_url:
+    url: "{{ browser_download_url }}"
+    dest: "/tmp/popeye_{{ arch }}.tar.gz"
+    mode: "0644"
+  become: true
+
+- name: Extract
+  ansible.builtin.unarchive:
+    src: "/tmp/popeye_{{ arch }}.tar.gz"
+    dest: "/tmp"
+    remote_src: true
+  become: true
+
+- name: Put binary in /usr/local/bin
+  ansible.builtin.copy:
+    src: "/tmp/popeye"
+    dest: "/usr/local/bin"
+    remote_src: true
+    mode: "0755"
+  become: true

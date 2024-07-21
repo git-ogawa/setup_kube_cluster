@@ -1,0 +1,8 @@
+---
+- name: Install metrics-server
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Install metrics_server
+      ansible.builtin.import_role:
+        name: metrics_server

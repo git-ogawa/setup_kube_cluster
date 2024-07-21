@@ -1,0 +1,8 @@
+---
+- name: Install reloader
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Install reloader
+      ansible.builtin.import_role:
+        name: reloader

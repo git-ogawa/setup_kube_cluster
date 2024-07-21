@@ -1,0 +1,7 @@
+---
+- name: Install kube-ps1
+  hosts: control_plane
+  gather_facts: false
+  roles:
+    - role: kube_ps1
+      tags: kube_ps1

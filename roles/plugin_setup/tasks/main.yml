@@ -1,0 +1,34 @@
+---
+- name: "Make {{ k8s_alias_path }}"
+  ansible.builtin.file:
+    path: "{{ k8s_alias_path }}"
+    state: touch
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0664"
+
+- name: "Make {{ k8s_plugin_setting_path }}"
+  ansible.builtin.file:
+    path: "{{ k8s_plugin_setting_path }}"
+    state: touch
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0664"
+
+- name: Add source in ~/.zshrc
+  when: shell == "zsh"
+  block:
+    - name: Check ~/.zshrc exists
+      ansible.builtin.stat:
+        path: ~/.zshrc
+      register: result
+
+    - name: "Add source in ~/.zshrc"
+      ansible.builtin.blockinfile:
+        dest: ~/.zshrc
+        block: |
+          source {{ k8s_alias_path }}
+          source {{ k8s_plugin_setting_path }}
+        state: present
+        marker: "# -- {mark} inserted by k8s plugin ansible task --"
+        insertafter: '# -- BEGIN inserted by k8s plugin ansible task --'

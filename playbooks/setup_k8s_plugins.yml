@@ -1,0 +1,22 @@
+---
+- name: Install plugins and utilities for kubernetes
+  hosts: cluster
+  gather_facts: true
+  roles:
+    - role: plugin_setup
+      tags: plugin_setup
+
+    - role: fzf
+      tags: fzf
+
+    - role: kubecolor
+      tags: kubecolor
+
+    - role: popeye
+      tags: popeye
+
+    - role: stern
+      tags: stern
+
+    - role: kubectx
+      tags: kubectx

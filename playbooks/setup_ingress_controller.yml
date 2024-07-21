@@ -1,5 +1,9 @@
 ---
-- name: Deploy nginx ingress controller
+- name: Deploy ingress controller
   hosts: control_plane[0]
   roles:
     - role: nginx_ingress
+      when: ingress_controller.type == "nginx"
+
+    - role: traefik
+      when: ingress_controller.type == "traefik"

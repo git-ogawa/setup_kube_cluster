@@ -7,6 +7,11 @@
   ansible.builtin.import_playbook: playbooks/setup_components.yml
   tags: components
 
+- name: Install plugins for k8s
+  ansible.builtin.import_playbook: playbooks/setup_k8s_plugins.yml
+  tags: k8s_plugins
+  when: k8s_plugins.enabled | bool
+
 - name: Create cluster
   ansible.builtin.import_playbook: playbooks/setup_cluster.yml
   tags: cluster
@@ -130,3 +135,18 @@
   ansible.builtin.import_playbook: playbooks/setup_kubevirt.yml
   tags: kubevirt
   when: kubevirt_install | bool
+
+- name: Setup metrics-server
+  ansible.builtin.import_playbook: playbooks/setup_metrics_server.yml
+  tags: metrics_server
+  when: metrics_server_install | bool
+
+- name: Setup reloader
+  ansible.builtin.import_playbook: playbooks/setup_reloader.yml
+  tags: reloader
+  when: reloader_install | bool
+
+- name: Setup kube-ps1
+  ansible.builtin.import_playbook: playbooks/setup_kube_ps1.yml
+  tags: kube_ps1
+  when: kube_ps1_install | bool

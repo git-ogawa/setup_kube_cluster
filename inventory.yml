@@ -5,6 +5,10 @@ all:
     kubernetes_version: latest
     cni_type: flannel
     pod_network_cidr: "10.244.0.0/16"
+    cluster_name: kubernetes
+    ingress_controller:
+      # nginx or traefik
+      type: nginx
     taint_control_plane_node: false
     openebs_install: false
     longhorn_install: false
@@ -23,7 +27,12 @@ all:
     awx_install: false
     st2_install: false
     kubevirt_install: false
+    metrics_server_install: false
+    reloader_install: false
+    kube_ps1_install: false
     ha_cluster:
+      enabled: false
+    k8s_plugins:
       enabled: false
     github_api_token_enabled: false
     github_api_token: ""

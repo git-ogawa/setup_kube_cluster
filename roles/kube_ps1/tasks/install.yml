@@ -1,0 +1,54 @@
+---
+- name: Check ~/.oh-my-zsh
+  ansible.builtin.stat:
+    path: ~/.oh-my-zsh/plugins/kube-ps1
+  register: result
+
+- name: Enable kube-ps1 (oh-my-zsh)
+  when: result.stat.exists | bool
+  block:
+    - name: Add kube-ps1 to plugin
+      ansible.builtin.blockinfile:
+        dest: "~/.zshrc"
+        block: |
+          plugins+=(
+            kube-ps1
+          )
+        insertbefore: '^source \$ZSH/oh-my-zsh.sh'
+        state: present
+        marker: "# -- {mark} inserted by kube-ps1 ansible task (before) --"
+
+    - name: Update prompt
+      ansible.builtin.blockinfile:
+        dest: "~/.zshrc"
+        block: |
+          PROMPT='$(kube_ps1)'$PROMPT
+        insertafter: '^source \$ZSH/oh-my-zsh.sh'
+        state: present
+        marker: "# -- {mark} inserted by kube-ps1 ansible task (after) --"
+
+- name: Check ~/.kube/config backup already exists
+  ansible.builtin.stat:
+    path: ~/.kube/config.bak
+  register: result
+
+- name: Make ~/.kube/config backup
+  ansible.builtin.copy:
+    src: ~/.kube/config
+    dest: ~/.kube/config.bak
+    mode: "0600"
+    remote_src: true
+  when: not result.stat.exists | bool
+
+- name: Rename user and context in ~/.kube/config
+  ansible.builtin.replace:
+    path: ~/.kube/config
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+  loop:
+    - regexp: "kubernetes-admin@kubernetes"
+      replace: 'admin@k8s'
+    - regexp: "kubernetes-admin"
+      replace: 'admin'
+    - regexp: "kubernetes"
+      replace: 'k8s'

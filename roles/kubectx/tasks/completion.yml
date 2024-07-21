@@ -1,0 +1,33 @@
+---
+- name: Check .oh-my-zsh exists
+  ansible.builtin.stat:
+    path: ~/.oh-my-zsh
+  register: result
+
+- name: Zsh completion
+  when: result.stat.exists
+  block:
+    - name: Make ~/.oh-my-zsh/custom/completions
+      ansible.builtin.file:
+        path: ~/.oh-my-zsh/custom/completions
+        state: directory
+        mode: "0755"
+
+    - name: "Make symlink {{ item }}"
+      ansible.builtin.file:
+        src: "/opt/kubectx/completion/{{ item }}"
+        dest: "~/.oh-my-zsh/custom/completions/{{ item }}"
+        state: link
+      loop:
+        - _kubectx.zsh
+        - _kubens.zsh
+
+    - name: "Add completion in {{ k8s_plugin_setting_path }}"
+      ansible.builtin.blockinfile:
+        dest: "{{ k8s_plugin_setting_path }}"
+        block: |
+          fpath=($ZSH/custom/completions $fpath)
+          autoload -U compinit && compinit
+        state: present
+        marker: "# -- {mark} inserted by kubectx ansible task --"
+        insertafter: '# -- BEGIN inserted by kubectx ansible task --'

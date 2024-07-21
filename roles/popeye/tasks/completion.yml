@@ -1,0 +1,17 @@
+---
+- name: Zsh completion
+  when: shell == "zsh"
+  block:
+    - name: Check ~/.zshrc exist
+      ansible.builtin.stat:
+        path: ~/.zshrc
+      register: result
+
+    - name: "Add completion in {{ k8s_plugin_setting_path }}"
+      ansible.builtin.blockinfile:
+        dest: "{{ k8s_plugin_setting_path }}"
+        block: source <(popeye completion zsh)
+        state: present
+        marker: "# -- {mark} inserted by popeye ansible task --"
+        insertafter: '# -- BEGIN inserted by popeye ansible task --'
+      when: result.stat.exists

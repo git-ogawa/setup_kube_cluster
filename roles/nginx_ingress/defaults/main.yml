@@ -1,5 +1,11 @@
 ---
 nginx_ingress_repository: https://raw.githubusercontent.com/kubernetes/ingress-nginx/
-nginx_ingress_version: "1.7.0"
+nginx_ingress_version: "1.10.0"
 nginx_ingress_http_node_port: 32323
 nginx_ingress_https_node_port: 32324
+
+# manifest or helm
+nginx_ingress_install_mode: helm
+
+nginx_ingress_helm_release_name: ingress-nginx
+nginx_ingress_helm_namespace: ingress-nginx

@@ -1,0 +1,28 @@
+---
+traefik_namespace: traefik
+traefik_release_name: traefik
+
+# Parameters in helm charts.
+traefik_log_level: INFO
+traefik_provider_kubernetescrd_enabled: true
+traefik_provider_kubernetescrd_allowCrossNamespace: true
+traefik_provider_kubernetescrd_allowExternalNameServices: true
+traefik_provider_kubernetescrd_allowEmptyServices: true
+traefik_provider_kubernetes_gateway_enabled: true
+traefik_experimental_kubernetes_gateway_enabled: true
+
+traefik_values:
+  logs:
+    general:
+      level: "{{ traefik_log_level }}"
+  providers:
+    kubernetesCRD:
+      enabled: "{{ traefik_provider_kubernetescrd_enabled }}"
+      allowCrossNamespace: "{{ traefik_provider_kubernetescrd_allowCrossNamespace }}"
+      allowExternalNameServices: "{{ traefik_provider_kubernetescrd_allowExternalNameServices }}"
+      allowEmptyServices: "{{ traefik_provider_kubernetescrd_allowEmptyServices }}"
+    kubernetesGateway:
+      enabled: "{{ traefik_provider_kubernetes_gateway_enabled }}"
+  experimental:
+    kubernetesGateway:
+      enabled: "{{ traefik_experimental_kubernetes_gateway_enabled }}"

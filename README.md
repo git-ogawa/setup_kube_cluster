@@ -1,3 +1,27 @@
+
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [setup kube-cluster](#setup-kube-cluster)
+- [Requirements](#requirements)
+- [Quickstart](#quickstart)
+- [Configuration](#configuration)
+  - [Ingress controller](#ingress-controller)
+  - [HA cluster](#ha-cluster)
+  - [Tools](#tools)
+    - [Alias](#alias)
+    - [Completion](#completion)
+- [Details](#details)
+- [Troubleshooting](#troubleshooting)
+  - [Setup fails due to rate limit for github REST API](#setup-fails-due-to-rate-limit-for-github-rest-api)
+- [Support distributions](#support-distributions)
+
+<!-- /code_chunk_output -->
+
+
+
 # setup kube-cluster
 
 This repository is for setting up a kubernetes cluster for development on cloud instances (AWS EC2) by `Ansible`. It is useful to build a cluster in the following environments.
@@ -107,7 +131,8 @@ The setup playbook installs the necessary CLI, creates the cluster, and deploys 
 
 | Component | Category | Installed by default |
 | - | - | - |
-| Nginx controller | Ingress controller | yes |
+| Nginx ingress controller | Ingress controller | yes |
+| Traefik | Ingress controller and proxy | no |
 | OpenEBS | Storage | no |
 | Longhorn | Storage | no |
 | Kubevious | Dashboard | no |
@@ -125,8 +150,25 @@ The setup playbook installs the necessary CLI, creates the cluster, and deploys 
 | Awx | Web-based platform for Ansible | no |
 | Stackstorm | Platform for integration and automation | no |
 
+# Configuration
 
-# HA cluster
+## Ingress controller
+
+You can deploy nginx or traefik as ingress controller. Set `ingress_controller.type` which to use in `inventory.yml`.
+
+```yml
+all:
+  vars:
+    # nginx or traefik
+    ingress_controller:
+      type: nginx
+```
+
+- [nginx ingress controller](https://github.com/kubernetes/ingress-nginx)
+- [traefik](https://github.com/traefik/traefik-helm-chart)
+
+
+## HA cluster
 
 The project can create HA (High Availability) cluster consisting of stacked control plane nodes with kubeadm. The nodes that meet the following requirements are required to create the HA cluster.
 
@@ -210,6 +252,73 @@ kube-master2   Ready    control-plane   83m   v1.26.0
 kube-master3   Ready    control-plane   81m   v1.26.0
 kube-worker1   Ready    <none>          41m   v1.26.0
 ```
+
+
+## Tools
+
+Useful CLI tools and plugins to make it more comfortable to debug and develop for k8s can be installed during the setup. To enable this, set `k8s_plugins.enabled: true` in inventory.yml.
+```yml
+all:
+  vars:
+    k8s_plugins:
+      enabled: true
+```
+
+Running the playbook will run sub-play to install the tools during k8s setup.
+```
+ansible-playbook setup.yml -t k8s_plugins
+```
+
+Or run with `-t k8s_plugins` only to install the tools.
+```
+ansible-playbook setup.yml -t k8s_plugins
+```
+
+
+The following tools will be installed.
+
+- [popeye](https://github.com/derailed/popeye)
+- [kubectx](https://github.com/ahmetb/kubectx)
+- [fzf](https://github.com/junegunn/fzf)
+- [kubecolor](https://github.com/kubecolor/kubecolor)
+- [stern](https://github.com/stern/stern)
+
+Note: Only zsh is supported.
+
+### Alias
+
+Aliases will be set to some commands to make input commands easier. The settings are stored in `~/.k8s_alias`.
+
+```sh
+alias k="kubecolor"
+alias stern="kubectl-stern"
+# -- BEGIN inserted by kubectx ansible task --
+alias ns="kubens"
+alias ctx="kubectx"
+# -- END inserted by kubectx ansible task --
+```
+
+### Completion
+
+Completion will be set to some commands to make input commands easier. The settings are stored in `~/.k8s_plugin_setting`.
+
+```sh
+# -- BEGIN inserted by kubecolor ansible task --
+source <(kubectl completion zsh)
+compdef kubecolor=kubectl
+# -- END inserted by kubecolor ansible task --
+# -- BEGIN inserted by popeye ansible task --
+source <(popeye completion zsh)
+# -- END inserted by popeye ansible task --
+# -- BEGIN inserted by stern ansible task --
+source <(stern --completion=zsh)
+# -- END inserted by stern ansible task --
+# -- BEGIN inserted by kubectx ansible task --
+fpath=($ZSH/custom/completions $fpath)
+autoload -U compinit && compinit
+# -- END inserted by kubectx ansible task --
+```
+
 
 # Details
 See [setup_cluster.md](docs/setup_cluster.md)
