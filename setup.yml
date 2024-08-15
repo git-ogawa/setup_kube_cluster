@@ -22,6 +22,13 @@
   tags: cluster
   when: ha_cluster.enabled | bool
 
+- name: Update CoreDNS configuration
+  ansible.builtin.import_playbook: playbooks/setup_coredns.yml
+  tags: coredns
+  when:
+    - coredns_updated is defined
+    - coredns_updated | bool
+
 - name: Add worker nodes
   ansible.builtin.import_playbook: playbooks/add_worker.yml
   tags: add_worker
