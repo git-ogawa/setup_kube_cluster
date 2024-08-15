@@ -1,0 +1,19 @@
+---
+- name: Put configmap manifest
+  ansible.builtin.template:
+    src: configmap.yml.j2
+    dest: /tmp/coredns_configmap.yml
+
+- name: Apply configmap manifest
+  kubernetes.core.k8s:
+    state: patched
+    src: /tmp/coredns_configmap.yml
+
+- name: Rollout coredns pods
+  ansible.builtin.command: kubectl rollout restart deployment -n kube-system coredns
+  register: result
+  until: result.rc == 0
+  retries: 5
+  delay: 10
+  failed_when: result.rc != 0
+  changed_when: result.rc == 0
