@@ -6,7 +6,7 @@
   vars:
     organization: derailed
     repository: popeye
-    query_string: "linux_{{ arch }}"
+    query_string: "linux_{{ arch }}.tar.gz"
 
 - name: Download popeye
   ansible.builtin.get_url:
@@ -15,17 +15,32 @@
     mode: "0644"
   become: true
 
+- name: mkdir popeye
+  ansible.builtin.file:
+    path: "/tmp/popeye"
+    state: directory
+  become: true
+
 - name: Extract
   ansible.builtin.unarchive:
     src: "/tmp/popeye_{{ arch }}.tar.gz"
-    dest: "/tmp"
+    dest: "/tmp/popeye"
     remote_src: true
   become: true
 
 - name: Put binary in /usr/local/bin
   ansible.builtin.copy:
-    src: "/tmp/popeye"
+    src: "/tmp/popeye/popeye"
     dest: "/usr/local/bin"
     remote_src: true
     mode: "0755"
   become: true
+
+- name: Cleanup
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  become: true
+  loop:
+    - /tmp/popeye
+    - "/tmp/popeye_{{ arch }}.tar.gz"
