@@ -7,6 +7,16 @@
         url: "https://api.github.com/repos/kubernetes/kubernetes/releases/latest"
         return_content: true
       register: query_result
+      when: not github_api_token_enabled | bool
+
+    - name: Get the latest release from github with PAT
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/kubernetes/kubernetes/releases/latest"
+        return_content: true
+        headers:
+          Authorization: "Bearer {{ github_api_token }}"
+      register: query_result
+      when: github_api_token_enabled | bool
 
     - name: Fix format to json
       ansible.builtin.set_fact:
@@ -158,4 +168,4 @@
     - name: "Add kubectl completion in {{ node_shell }}rc"
       ansible.builtin.lineinfile:
         path: "/home/{{ node_user }}/.{{ node_shell }}rc"
-        line: 'source <(kubectl completion {{ node_shell }})'
+        line: "source <(kubectl completion {{ node_shell }})"
