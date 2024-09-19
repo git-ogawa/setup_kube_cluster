@@ -1,0 +1,22 @@
+version: "3"
+
+env:
+  inventory: inventory.yml
+
+tasks:
+  default:
+    cmds:
+      - ansible-playbook -i ${inventory} setup.yml
+  tags:
+    cmds:
+      - ansible-playbook -i ${inventory} setup.yml -t {{ .CLI_ARGS }}
+  cluster:
+    cmds:
+      - ansible-playbook -i ${inventory} setup.yml -t cluster,coredns,add_worker,ingress,kube_ps1
+  clean:
+    cmds:
+      - ansible-playbook -i ${inventory} playbooks/cleanup_cluster.yml
+  recreate:
+    cmds:
+      - task: clean
+      - task: cluster
