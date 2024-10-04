@@ -1,0 +1,55 @@
+---
+- name: Install flannel with manifest
+  when: flannel_install_mode == "manifest"
+  block:
+    - name: Download flannel manifest
+      ansible.builtin.get_url:
+        url: "{{ flannel_manifest_url }}"
+        dest: /tmp/kube-flannel.yml
+        mode: "0644"
+
+    - name: Deploy flannel
+      kubernetes.core.k8s:
+        state: present
+        src: /tmp/kube-flannel.yml
+
+- name: Install flannel with helm
+  when: flannel_install_mode == "helm"
+  block:
+    - name: "Create {{ flannel_namespace }} namespace"
+      kubernetes.core.k8s:
+        name: "{{ flannel_namespace }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+
+    - name: add label to existing namespace
+      kubernetes.core.k8s:
+        state: patched
+        kind: Namespace
+        name: "{{ flannel_namespace }}"
+        definition:
+          metadata:
+            labels:
+              pod-security.kubernetes.io/enforce: privileged
+
+    - name: Add flannel repository
+      kubernetes.core.helm_repository:
+        name: flannel
+        repo_url: https://flannel-io.github.io/flannel/
+
+    - name: Separately update the repository cache
+      kubernetes.core.helm:
+        name: dummy
+        namespace: kube-system
+        state: absent
+        update_repo_cache: true
+
+    - name: Helm install flannel
+      kubernetes.core.helm:
+        name: "{{ flannel_release_name }}"
+        chart_ref: flannel/flannel
+        release_namespace: "{{ flannel_namespace }}"
+        set_values:
+          - value: "podCidr={{ pod_network_cidr }}"
+            value_type: string

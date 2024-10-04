@@ -29,6 +29,10 @@
     - coredns_updated is defined
     - coredns_updated | bool
 
+- name: Setup CNI
+  ansible.builtin.import_playbook: playbooks/setup_cni.yml
+  tags: cni
+
 - name: Add worker nodes
   ansible.builtin.import_playbook: playbooks/add_worker.yml
   tags: add_worker

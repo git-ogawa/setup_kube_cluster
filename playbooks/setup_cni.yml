@@ -1,0 +1,8 @@
+---
+- name: Install CNI
+  hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Install CNI
+      ansible.builtin.include_role:
+        name: "{{ cni_type }}"
