@@ -1,2 +1,10 @@
 ---
+# manifest or helm
+flannel_install_mode: helm
+
 flannel_manifest_url: https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+
+# Helm
+flannel_namespace: kube-flannel
+flannel_release_name: flannel
+pod_network_cidr: "10.244.0.0/16"
