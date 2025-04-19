@@ -6,7 +6,7 @@
   vars:
     organization: kubecolor
     repository: kubecolor
-    query_string: "linux_{{ arch }}"
+    query_string: "linux_{{ arch }}.tar.gz"
 
 - name: Download kubecolor
   ansible.builtin.get_url:
