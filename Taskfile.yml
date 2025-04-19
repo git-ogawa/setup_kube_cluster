@@ -1,8 +1,7 @@
 version: "3"
 
 env:
-  # inventory: inventory.yml
-  inventory: tmp_inventory_ha.yml
+  inventory: inventory.yml
   logfile: '{{ .logfile | default "" }}'
   ANSIBLE_LOG_PATH: ${logfile}
 
