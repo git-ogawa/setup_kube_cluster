@@ -389,5 +389,12 @@ To avoid this issue, set `github_api_token_enabled: true` and value of the githu
 
 The playbooks are tested against on the following distributions.
 
-- Rockylinux 9.2
-- Ubuntu 23.04
+- Ubuntu
+    - 23.04
+    - 24.04
+    - 24.10
+    - 25.04
+- Rockylinux
+    - 9.2
+    - 9.4
+    - 9.5
