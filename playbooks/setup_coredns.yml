@@ -1,0 +1,8 @@
+---
+- hosts: control_plane[0]
+  gather_facts: false
+  tasks:
+    - name: Update CoreDNS configuration
+      ansible.builtin.import_role:
+        name: coredns
+        tasks_from: update_configmap.yml

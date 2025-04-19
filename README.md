@@ -13,6 +13,9 @@
   - [Tools](#tools)
     - [Alias](#alias)
     - [Completion](#completion)
+- [Task runner](#task-runner)
+  - [command list](#command-list)
+  - [Logging](#logging)
 - [Details](#details)
 - [Troubleshooting](#troubleshooting)
   - [Setup fails due to rate limit for github REST API](#setup-fails-due-to-rate-limit-for-github-rest-api)
@@ -129,26 +132,26 @@ $ ansible-playbook setup.yml
 The setup playbook installs the necessary CLI, creates the cluster, and deploys the following components. You can manage whether each component is installed during the installation process by editing the inventory file. See [setup_cluster.md](docs/setup_cluster.md) for details.
 
 
-| Component | Category | Installed by default |
-| - | - | - |
-| Nginx ingress controller | Ingress controller | yes |
-| Traefik | Ingress controller and proxy | no |
-| OpenEBS | Storage | no |
-| Longhorn | Storage | no |
-| Kubevious | Dashboard | no |
-| Octant | Dashboard | no |
-| Tekton | CI/CD platform | no |
-| Argocd | CD tool | no |
-| Harbor | Image registry | no |
-| Gitea | Git server | no |
-| Kube-prometheus-stack | Monitoring | no |
-| Openfaas | Serverless framework | no |
-| Cert manager | Certificates management | no |
-| Jaeger | Distributed tracing system | no |
-| Linkerd | Service mesh | no |
-| Velero | Backup and restore management | no |
-| Awx | Web-based platform for Ansible | no |
-| Stackstorm | Platform for integration and automation | no |
+| Component                | Category                                | Installed by default |
+| ------------------------ | --------------------------------------- | -------------------- |
+| Nginx ingress controller | Ingress controller                      | yes                  |
+| Traefik                  | Ingress controller and proxy            | no                   |
+| OpenEBS                  | Storage                                 | no                   |
+| Longhorn                 | Storage                                 | no                   |
+| Kubevious                | Dashboard                               | no                   |
+| Octant                   | Dashboard                               | no                   |
+| Tekton                   | CI/CD platform                          | no                   |
+| Argocd                   | CD tool                                 | no                   |
+| Harbor                   | Image registry                          | no                   |
+| Gitea                    | Git server                              | no                   |
+| Kube-prometheus-stack    | Monitoring                              | no                   |
+| Openfaas                 | Serverless framework                    | no                   |
+| Cert manager             | Certificates management                 | no                   |
+| Jaeger                   | Distributed tracing system              | no                   |
+| Linkerd                  | Service mesh                            | no                   |
+| Velero                   | Backup and restore management           | no                   |
+| Awx                      | Web-based platform for Ansible          | no                   |
+| Stackstorm               | Platform for integration and automation | no                   |
 
 # Configuration
 
@@ -320,6 +323,60 @@ autoload -U compinit && compinit
 ```
 
 
+# Task runner
+
+[Task runner](https://github.com/go-task/task) is supported for running commands more easier. Make sure that [task install](https://taskfile.dev/installation/) to use the feature.
+
+
+## command list
+
+Run setup (equivalent to  `ansible-playbook setup.yml`)
+
+```
+task
+```
+
+Run the specific role or task with tags (equivalent to  `ansible-playbook setup.yml -t [tags]`)
+
+```
+task tags -- [tags]
+```
+
+When specifying more than one tag, separate them with comma.
+
+```
+task tags -- tag1,tag2,tag3
+```
+
+
+Cleanup the current cluster (equivalent to  `ansible-playbook playbook/cleanup_cluster.yml`)
+
+```
+task cleanup
+```
+
+Create cluster (just create cluster by kubeadm and install ingress controller, not install additional component.)
+```
+task cluster
+```
+
+Recreate cluster (run `task cleanup` and `task cluster`)
+
+```
+task recreate
+```
+
+## Logging
+
+By default, the output from the playbook is displayed in stdout and stderr.
+You can use the command "set logfile=[filename]" on running tasks to log the outputs.
+For example, the command below will run setup.yml and record the playbooks result in the `ansible.log`.
+
+```
+task logfile=ansible.log
+```
+
+
 # Details
 See [setup_cluster.md](docs/setup_cluster.md)
 
@@ -342,5 +399,12 @@ To avoid this issue, set `github_api_token_enabled: true` and value of the githu
 
 The playbooks are tested against on the following distributions.
 
-- Rockylinux 9.2
-- Ubuntu 23.04
+- Ubuntu
+    - 23.04
+    - 24.04
+    - 24.10
+    - 25.04
+- Rockylinux
+    - 9.2
+    - 9.4
+    - 9.5

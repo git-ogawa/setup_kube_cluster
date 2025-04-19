@@ -36,6 +36,7 @@ all:
       enabled: false
     github_api_token_enabled: false
     github_api_token: ""
+    coredns_updated: false
   children:
     cluster:
       vars:

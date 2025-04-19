@@ -1,11 +1,2 @@
 ---
-- name: Download flannel manifest
-  ansible.builtin.get_url:
-    url: "{{ flannel_manifest_url }}"
-    dest: /tmp/kube-flannel.yml
-    mode: "0644"
-
-- name: Deploy flannel
-  kubernetes.core.k8s:
-    state: present
-    src: /tmp/kube-flannel.yml
+- ansible.builtin.import_tasks: install.yml

@@ -1,0 +1,24 @@
+---
+# List of extra host added to CoreDNS configmaps.
+# Set hostname and IP address.
+coredns_extra_hosts: []
+# coredns_extra_hosts:
+#   - mytestdomain.com: 192.168.3.1
+
+# List of DNS server added to CoreDNS configmaps.
+coredns_additional_dns: []
+# coredns_additional_dns:
+#   - 192.168.3.2
+#   - 8.8.8.8
+
+# List of stub domain and upstream server.
+# See https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/#configuration-of-stub-domain-and-upstream-nameserver-using-coredns
+coredns_additional_data: []
+# coredns_additional_data:
+#   - name: consul
+#     value: |
+#       consul.local:53 {
+#         errors
+#         cache 30
+#         forward . 10.150.0.1
+#       }

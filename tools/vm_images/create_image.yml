@@ -1,0 +1,30 @@
+- name: Create VM images
+  hosts: localhost
+  connection: localhost
+  vars_files:
+    - vars.yml
+  tags: vm_image
+  tasks:
+    - name: Openstack
+      when: provider == "openstack"
+      block:
+        - name: Include clouds.yaml
+          ansible.builtin.include_vars:
+            file: clouds.yaml
+
+        - name: Set openstack environment variables
+          set_fact:
+            openstack_env:
+              OS_AUTH_URL: "{{ cloud.auth.auth_url }}"
+              OS_PROJECT_DOMAIN_NAME: "{{ cloud.auth.project_domain_name | default('Default') }}"
+              OS_USER_DOMAIN_NAME: "{{ cloud.auth.user_domain_name | default('Default') }}"
+              OS_PROJECT_NAME: "{{ cloud.auth.project_name | default('admin') }}"
+              OS_USERNAME: "{{ cloud.auth.username | default('admin') }}"
+              OS_PASSWORD: "{{ cloud.auth.password }}"
+          vars:
+            cloud: "{{ clouds[openstack_cloud] }}"
+
+        - name: Create snapshot for each server
+          ansible.builtin.include_tasks: playbooks/openstack_make_snapshot.yml
+          loop: "{{ servers }}"
+

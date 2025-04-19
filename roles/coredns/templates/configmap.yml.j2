@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns
+  namespace: kube-system
+data:
+  Corefile: |
+    .:53 {
+        errors
+        health {
+           lameduck 5s
+        }
+        {% if coredns_extra_hosts | length > 0 -%}
+        hosts {
+          {% for host in coredns_extra_hosts -%}
+          {% for hostname, ip in host.items() -%}
+          {{ hostname }} {{ ip }}
+          {% endfor -%}
+          {% endfor -%}
+          fallthrough
+        }
+        {% endif -%}
+        ready
+        kubernetes cluster.local in-addr.arpa ip6.arpa {
+           pods insecure
+           fallthrough in-addr.arpa ip6.arpa
+           ttl 30
+        }
+        prometheus :9153
+        {% if coredns_additional_dns | length > 0 -%}
+        {% for dns_server in coredns_additional_dns -%}
+        forward . {{ dns_server }} {
+           max_concurrent 1000
+        }
+        {% endfor -%}
+        {% endif -%}
+        forward . /etc/resolv.conf {
+           max_concurrent 1000
+        }
+        cache 30
+        loop
+        reload
+        loadbalance
+    }
+    {% if coredns_additional_data | length > 0 -%}
+    {% for data in coredns_additional_data -%}
+    {{ data.value | indent(4) }}
+    {% endfor %}
+    {% endif %}
