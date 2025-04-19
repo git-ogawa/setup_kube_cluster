@@ -15,6 +15,7 @@
     - [Completion](#completion)
 - [Task runner](#task-runner)
   - [command list](#command-list)
+  - [Logging](#logging)
 - [Details](#details)
 - [Troubleshooting](#troubleshooting)
   - [Setup fails due to rate limit for github REST API](#setup-fails-due-to-rate-limit-for-github-rest-api)
@@ -365,6 +366,15 @@ Recreate cluster (run `task cleanup` and `task cluster`)
 task recreate
 ```
 
+## Logging
+
+By default, the output from the playbook is displayed in stdout and stderr.
+You can use the command "set logfile=[filename]" on running tasks to log the outputs.
+For example, the command below will run setup.yml and record the playbooks result in the `ansible.log`.
+
+```
+task logfile=ansible.log
+```
 
 
 # Details
